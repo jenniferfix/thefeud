@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/supabase.types';
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/supabase.types";
 
 export type TypedSupabaseClient = SupabaseClient<Database>;
 let client: TypedSupabaseClient;
@@ -11,8 +11,8 @@ export function getSupabaseBrowserClient() {
   }
 
   client = createClient<Database>(
-    import.meta.env.VITE_SUPABASE_URL!,
-    import.meta.env.VITE_SUPABASE_ANON_KEY!,
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_KEY,
   );
 
   return client;
