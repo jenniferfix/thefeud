@@ -1,9 +1,11 @@
-'use client';
-import React from 'react';
-import { useGetGameQuestions } from '@/hooks/usegamequeries';
-import { TGameQuestions } from '@/queries/gamequeries';
-import { useInsertEvent } from '@/hooks/useeventqueries';
-import { Button } from '@/components/ui/button';
+"use client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Outlet, useNavigate } from "@tanstack/react-router";
+import { Gamepad2Icon } from "lucide-react";
+import React from "react";
+import QRCode from "@/components/gamecontrol/QRCode";
+import Strikes from "@/components/gamecontrol/Strikes";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -13,18 +15,15 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer';
-import { cn } from '@/utils/utils';
-import { GameActions } from '@/types';
-import useSupabase from '@/hooks/useSupabase';
-import useFeudEvents from '@/hooks/useFeudEvents';
-import { Outlet } from '@tanstack/react-router';
-import { useNavigate } from '@tanstack/react-router';
-import { getInstanceGameQueryOptions } from '@/hooks/useinstancequeries';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import Strikes from '@/components/gamecontrol/Strikes';
-import QRCode from '@/components/gamecontrol/QRCode';
-import { Gamepad2Icon } from 'lucide-react';
+} from "@/components/ui/drawer";
+import { useInsertEvent } from "@/hooks/useeventqueries";
+import useFeudEvents from "@/hooks/useFeudEvents";
+import { useGetGameQuestions } from "@/hooks/usegamequeries";
+import { getInstanceGameQueryOptions } from "@/hooks/useinstancequeries";
+import useSupabase from "@/hooks/useSupabase";
+import { TGameQuestions } from "@/queries/gamequeries";
+import { GameActions } from "@/types";
+import { cn } from "@/utils/utils";
 
 const GameControl = ({
   instanceId,
@@ -65,8 +64,6 @@ const GameControl = ({
   if (isError) return <div>{error.message}</div>;
   if (!data) return <div>no data yet</div>;
 
-  const typedData: TGameQuestions = data;
-
   const handleTeamToggle = (value: string) => {
     setActiveTeam(parseInt(value));
   };
@@ -83,8 +80,8 @@ const GameControl = ({
 
   const handleSendSound = (sound: string) => {
     thisGameActions.send({
-      type: 'broadcast',
-      event: 'sound',
+      type: "broadcast",
+      event: "sound",
       payload: { sound },
     });
   };
@@ -96,7 +93,7 @@ const GameControl = ({
     score: number;
     className?: string;
   }) => {
-    return <div className={cn('px-6 py-1 text-3xl', className)}>{score}</div>;
+    return <div className={cn("px-6 py-1 text-3xl", className)}>{score}</div>;
   };
 
   return (
@@ -137,18 +134,18 @@ const GameControl = ({
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex flex-col mx-4 gap-2">
-            <Button onClick={() => handleSendSound('ding')}>Ding</Button>
-            <Button onClick={() => handleSendSound('strike')}>Strike</Button>
-            <Button onClick={() => handleSendSound('faceOffMusic')}>
+            <Button onClick={() => handleSendSound("ding")}>Ding</Button>
+            <Button onClick={() => handleSendSound("strike")}>Strike</Button>
+            <Button onClick={() => handleSendSound("faceOffMusic")}>
               Face-off Music
             </Button>
-            <Button onClick={() => handleSendSound('faceOffBuzzer')}>
+            <Button onClick={() => handleSendSound("faceOffBuzzer")}>
               Face-off Buzzer
             </Button>
-            <Button onClick={() => handleSendSound('themeMusic')}>
+            <Button onClick={() => handleSendSound("themeMusic")}>
               Theme Music
             </Button>
-            <Button onClick={() => handleSendSound('clap')}>Clap</Button>
+            <Button onClick={() => handleSendSound("clap")}>Clap</Button>
           </div>
           <DrawerFooter>
             <DrawerClose asChild>

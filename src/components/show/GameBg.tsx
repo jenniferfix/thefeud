@@ -1,6 +1,14 @@
-import React from 'react';
-import TeamScore from './TeamScore';
-import QuestionPanel from './QuestionPanel';
+import React from "react";
+import QuestionPanel from "./QuestionPanel";
+import TeamScore from "./TeamScore";
+
+export type GameBgProps = {
+  board: React.ReactNode;
+  leftTeam: number;
+  rightTeam: number;
+  overheadScore: number;
+  question?: string;
+} & React.ComponentProps<"svg">;
 
 const GameBg = ({
   board,
@@ -8,19 +16,15 @@ const GameBg = ({
   rightTeam,
   overheadScore,
   question,
-}: {
-  board: React.ReactNode;
-  leftTeam: number;
-  rightTeam: number;
-  overheadScore: number;
-  question?: string;
-}) => {
+  ...props
+}: GameBgProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       version="1.1"
       viewBox="0 0 1920 1080"
+      {...props}
     >
       <defs>
         <linearGradient id="linearGradient19">
@@ -396,7 +400,7 @@ const GameBg = ({
         opacity="1"
       ></path>
       <path
-        style={{ mixBlendMode: 'normal' }}
+        style={{ mixBlendMode: "normal" }}
         fill="url(#pattern98)"
         fillOpacity="1"
         stroke="none"
@@ -561,17 +565,17 @@ const GameBg = ({
         y={769.76}
         ry={25.588}
         style={{
-          fill: '#090087',
+          fill: "#090087",
           fillOpacity: 0.866667,
-          stroke: '#8e8e8e',
+          stroke: "#8e8e8e",
           strokeWidth: 18.5194,
-          strokeLinecap: 'round',
-          strokeLinejoin: 'round',
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
           strokeMiterlimit: 4.1,
-          strokeDasharray: 'none',
-          paintOrder: 'markers stroke fill',
+          strokeDasharray: "none",
+          paintOrder: "markers stroke fill",
         }}
-        visibility={Boolean(question) ? 'visible' : 'hidden'}
+        visibility={Boolean(question) ? "visible" : "hidden"}
       />
       <foreignObject x="584" y="345" width="752" height="390">
         {board}

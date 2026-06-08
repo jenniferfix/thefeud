@@ -104,6 +104,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      immer:
+        specifier: ^11.1.8
+        version: 11.1.8
       lucide-react:
         specifier: ^0.453.0
         version: 0.453.0(react@18.3.1)
@@ -154,7 +157,7 @@ importers:
         version: 3.23.8
       zustand:
         specifier: ^5.0.2
-        version: 5.0.2(@types/react@18.3.14)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1))
+        version: 5.0.2(@types/react@18.3.14)(immer@11.1.8)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1))
     devDependencies:
       '@tanstack/router-plugin':
         specifier: ^1.86.0
@@ -1960,6 +1963,9 @@ packages:
 
   howler@2.2.4:
     resolution: {integrity: sha512-iARIBPgcQrwtEr+tALF+rapJ8qSc+Set2GJQl7xT1MQzWaVkFebdJhR3alVlSiUf5U7nAANKuj3aWpwerocD5w==}
+
+  immer@11.1.8:
+    resolution: {integrity: sha512-/tbkHMW7y10Lx6i1crLjD4/OhNkRG+Fo7byZHtah0547nIeXYcpIXaUh0IAQY6gO5459qpGGYapcEOHtFXkIuA==}
 
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
@@ -4283,6 +4289,8 @@ snapshots:
 
   howler@2.2.4: {}
 
+  immer@11.1.8: {}
+
   invariant@2.2.4:
     dependencies:
       loose-envify: 1.4.0
@@ -4862,8 +4870,9 @@ snapshots:
 
   zod@3.23.8: {}
 
-  zustand@5.0.2(@types/react@18.3.14)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1)):
+  zustand@5.0.2(@types/react@18.3.14)(immer@11.1.8)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1)):
     optionalDependencies:
       '@types/react': 18.3.14
+      immer: 11.1.8
       react: 18.3.1
       use-sync-external-store: 1.6.0(react@18.3.1)

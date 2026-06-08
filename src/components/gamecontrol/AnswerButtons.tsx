@@ -1,10 +1,10 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { useInsertEvent } from '@/hooks/useeventqueries';
-import { GameActions } from '@/types';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { answersByQuestionIdQueryOptions } from '@/hooks/useanswerqueries';
-import useFeudEvents from '@/hooks/useFeudEvents';
+import { useSuspenseQuery } from "@tanstack/react-query";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { answersByQuestionIdQueryOptions } from "@/hooks/useanswerqueries";
+import { useInsertEvent } from "@/hooks/useeventqueries";
+import useFeudEvents from "@/hooks/useFeudEvents";
+import { GameActions } from "@/types";
 
 const AnswerButtons = ({
   instanceId,
@@ -22,11 +22,14 @@ const AnswerButtons = ({
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error?.message}</div>;
 
+  if (!data?.length)
+    return <div className="h-full p-4">This question has no answers...</div>;
+
   return (
     <div className="grid grid-cols-2 grid-rows-4 grid-flow-col h-full gap-2">
       {data?.map((item) => (
         <Button
-          key={'actionbutton' + item.id}
+          key={"actionbutton" + item.id}
           disabled={answered[item.id]}
           onClick={() =>
             insertEvent.mutate({
@@ -44,7 +47,7 @@ const AnswerButtons = ({
 
       {data &&
         Array.from({ length: 8 - data?.length }, (_e, i) => (
-          <Button key={'extrabtn' + i} disabled={true}></Button>
+          <Button key={"extrabtn" + i} disabled={true}></Button>
         ))}
     </div>
   );

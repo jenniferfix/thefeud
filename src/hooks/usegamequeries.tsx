@@ -1,24 +1,24 @@
-'use client';
-import useSupabase from '@/hooks/useSupabase';
+import { PostgrestError } from "@supabase/supabase-js";
 import {
-  useQuery,
-  useMutation,
-  useQueryClient,
   queryOptions,
-} from '@tanstack/react-query';
-import { PostgrestError } from '@supabase/supabase-js';
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { produce } from "immer";
+import useSupabase from "@/hooks/useSupabase";
 import {
+  addQuestionToGame,
+  deleteGame,
   getGame,
+  getGameQuestions,
   getGames,
   getUserGames,
-  getGameQuestions,
-  addQuestionToGame,
-  removeQuestionFromGame,
   insertGame,
+  removeQuestionFromGame,
   updateGame,
-  deleteGame,
-} from '@/queries/gamequeries';
-import { getSupabaseBrowserClient } from '@/utils/supabase/client';
+} from "@/queries/gamequeries";
+import { getSupabaseBrowserClient } from "@/utils/supabase/client";
 
 type QueryError = {
   message: string;
@@ -26,7 +26,7 @@ type QueryError = {
 };
 
 const handQueryError = (error: PostgrestError): QueryError => ({
-  message: error.message || 'An error occurred while fetching data',
+  message: error.message || "An error occurred while fetching data",
   originalError: error,
 });
 
@@ -34,14 +34,14 @@ const supabase = getSupabaseBrowserClient();
 
 export const getGameQueryOptions = (gameId: string) =>
   queryOptions({
-    queryKey: ['game', gameId],
+    queryKey: ["game", gameId],
     queryFn: async () =>
       getGame(supabase, gameId).then((result) => result?.data),
   });
 
 export function useGetGames() {
   const client = useSupabase();
-  const queryKey = ['games'];
+  const queryKey = ["games"];
   const queryFn = async () => {
     return getGames(client).then((result) => result?.data);
   };
@@ -50,13 +50,13 @@ export function useGetGames() {
 // const client = useSupabase();
 //
 export const gamesQueryOptions = queryOptions({
-  queryKey: ['games'],
+  queryKey: ["games"],
   queryFn: async () => getGames(supabase).then((result) => result?.data),
 });
 
 export const useGetUserGames = (userId: string) => {
   const client = useSupabase();
-  const queryKey = ['games', userId];
+  const queryKey = ["games", userId];
   const queryFn = async () => {
     return getUserGames(client, userId).then((result) => result?.data);
   };
@@ -65,20 +65,18 @@ export const useGetUserGames = (userId: string) => {
 
 export const getUserGamesQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: ['games', userId],
+    queryKey: ["games", userId],
     queryFn: async () => {
-      getUserGames(supabase, userId).then((result) => result?.data);
+      return await getUserGames(supabase, userId);
     },
   });
 
 export function useGetGameQuestions(gameId: string) {
   const client = useSupabase();
-  const queryKey = ['gamequestions', gameId];
+  const queryKey = ["gamequestions", gameId];
   const queryFn = async () => {
     try {
-      const query = await getGameQuestions(client, gameId).then(
-        (result) => result?.data,
-      );
+      const query = await getGameQuestions(client, gameId);
       return query;
     } catch (error) {
       throw handQueryError(error as PostgrestError);
@@ -89,7 +87,7 @@ export function useGetGameQuestions(gameId: string) {
 
 export const gameQuestionsQueryOptions = (gameid: string) =>
   queryOptions({
-    queryKey: ['gamequestions', gameid],
+    queryKey: ["gamequestions", gameid],
     queryFn: async () =>
       getGameQuestions(supabase, gameid).then((result) => result.data),
   });
@@ -97,7 +95,7 @@ export const gameQuestionsQueryOptions = (gameid: string) =>
 export function useAddQuestionToGame(gameId: string) {
   const client = useSupabase();
   const queryClient = useQueryClient();
-  const queryKey = ['gamequestions', gameId];
+  const queryKey = ["gamequestions", gameId];
   const mutationFn = async ({ questionId }: { questionId: string }) => {
     return addQuestionToGame(client, questionId, gameId);
   };
@@ -110,7 +108,7 @@ export function useAddQuestionToGame(gameId: string) {
 export function useRemoveQuestionFromGame(gameId: string) {
   const client = useSupabase();
   const queryClient = useQueryClient();
-  const queryKey = ['gamequestions', gameId];
+  const queryKey = ["gamequestions", gameId];
   const mutationFn = async ({ questionId }: { questionId: string }) => {
     return removeQuestionFromGame(client, questionId, gameId);
   };
@@ -129,7 +127,7 @@ export function useInsertGame() {
   };
 
   const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['games'] });
+    queryClient.invalidateQueries({ queryKey: ["games"] });
   };
 
   return useMutation({ mutationFn, onSuccess });
@@ -138,6 +136,8 @@ export function useInsertGame() {
 export function useUpdateGame() {
   const client = useSupabase();
   const queryClient = useQueryClient();
+
+  const queryKey = ["games"] as const;
 
   const mutationFn = async ({
     gameId,
@@ -149,11 +149,21 @@ export function useUpdateGame() {
     return updateGame(client, gameId, name);
   };
 
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['games'] });
-  };
-
-  return useMutation({ mutationFn, onSuccess });
+  return useMutation({
+    mutationFn,
+    onMutate: async ({ gameId, name }) => {
+      await Promise.allSettled([
+        queryClient.cancelQueries({ queryKey: ["games"] }),
+      ]);
+      const previous = queryClient.getQueryData(queryKey);
+    },
+    onSettled: (_data, _error, _variables, _context) => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+    onError: () => {
+      //
+    },
+  });
 }
 
 export function useDeleteGame() {
@@ -165,7 +175,7 @@ export function useDeleteGame() {
   };
 
   const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['games'] });
+    queryClient.invalidateQueries({ queryKey: ["games"] });
   };
 
   return useMutation({ mutationFn, onSuccess });

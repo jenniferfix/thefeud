@@ -1,9 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router';
-import QuestionPage from '@/components/gamecontrol/QuestionPage';
-import { answersByQuestionIdQueryOptions } from '@/hooks/useanswerqueries';
-import { getQuestionQueryOptions } from '@/hooks/usequestionqueries';
+import { createFileRoute } from "@tanstack/react-router";
+import QuestionPage from "@/components/gamecontrol/QuestionPage";
+import { answersByQuestionIdQueryOptions } from "@/hooks/useanswerqueries";
+import { getQuestionQueryOptions } from "@/hooks/usequestionqueries";
 
-export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
+export const Route = createFileRoute("/_auth/c/$gameInstanceId/$questionId")({
   loader: async ({ context: { queryClient }, params }) => {
     const [questionQuery, answersQuery] = await Promise.all([
       queryClient.ensureQueryData(getQuestionQueryOptions(params.questionId)),
@@ -13,10 +13,10 @@ export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
     ]);
     return { questionQuery, answersQuery };
   },
-  component: () => <Page />,
+  component: Page,
 });
 
-const Page = () => {
+function Page() {
   const params = Route.useParams();
   return (
     <QuestionPage
@@ -24,4 +24,4 @@ const Page = () => {
       questionId={params.questionId}
     />
   );
-};
+}

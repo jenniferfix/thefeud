@@ -1,17 +1,17 @@
-'use client';
-import React from 'react';
-import { redirect, useNavigate } from '@tanstack/react-router';
+"use client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { redirect, useNavigate } from "@tanstack/react-router";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
+  getUserGamesQueryOptions,
   useGetGames,
   useGetUserGames,
-  getUserGamesQueryOptions,
-} from '@/hooks/usegamequeries';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/utils/utils';
-import { useCreateGameInstance } from '@/hooks/useinstancequeries';
-import { useSupabaseAuth } from '@/supabaseauth';
+} from "@/hooks/usegamequeries";
+import { useCreateGameInstance } from "@/hooks/useinstancequeries";
+import { useSupabaseAuth } from "@/supabaseauth";
+import { cn } from "@/utils/utils";
 
 const SelectAndStart = () => {
   const auth = useSupabaseAuth();
@@ -29,13 +29,15 @@ const SelectAndStart = () => {
     isSuccess: isInstanceSuccess,
     isError: isInstanceError,
   } = createGameInstance;
-  if (isLoading) return <div>Loading...</div>;
+  const d = instanceData?.data;
+
   if (isError) return <div>{error?.message}</div>;
+  if (isLoading || !instanceData) return <div>Loading...</div>;
 
   // if the component renders and we have the id of the new game,
   // we redirect to the game controller page
   if (!isInstanceError && isInstanceSuccess && instanceData) {
-    if (instanceData) redirect({ to: `/c/${instanceData[0].id}` });
+    if (instanceData) redirect({ to: `/c/${instanceData.data[0].id}` });
   }
 
   const handleStartGame = async (e: React.MouseEvent<HTMLElement>) => {
@@ -67,10 +69,10 @@ const SelectAndStart = () => {
                 aria-selected={selectedGame === g.id}
                 onClick={() => setSelectedGame(g.id)}
                 className={cn(
-                  'cursor-pointer px-2 py-1 rounded-sm',
+                  "cursor-pointer px-2 py-1 rounded-sm",
                   selectedGame === g.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'hover:bg-muted',
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted",
                 )}
               >
                 {g.name}

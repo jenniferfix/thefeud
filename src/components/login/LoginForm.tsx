@@ -1,18 +1,18 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Loader2 } from 'lucide-react';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -20,24 +20,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { cn } from '@/utils/utils';
-import { useSupabaseAuth } from '@/supabaseauth';
-import { useNavigate } from '@tanstack/react-router';
-import { Waiting } from '@/components/ui/waiting';
-import useSupabase from '@/hooks/useSupabase';
-import { useToast } from '@/hooks/use-toast';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Waiting } from "@/components/ui/waiting";
+import { useToast } from "@/hooks/use-toast";
+import useSupabase from "@/hooks/useSupabase";
+import { useSupabaseAuth } from "@/supabaseauth";
+import { cn } from "@/utils/utils";
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
+  email: z.string().email({ message: "Invalid email address" }),
   password: z
     .string()
-    .min(8, { message: 'Password must be at least 8 characters long' }),
+    .min(8, { message: "Password must be at least 8 characters long" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-const LoginForm = ({ redirect }: { redirect?: string }) => {
+export const LoginForm = ({ redirect }: { redirect?: string }) => {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const navigate = useNavigate();
   const auth = useSupabaseAuth();
@@ -46,27 +46,27 @@ const LoginForm = ({ redirect }: { redirect?: string }) => {
 
   React.useEffect(() => {
     if (auth.isLoginError) {
-      toast({ title: 'Login Error', description: auth.error?.message });
+      toast({ title: "Login Error", description: auth.error?.message });
     }
   }, [auth.isLoginError, auth.error]);
 
   React.useEffect(() => {
-    if (auth.isAuthenticated) navigate({ to: '/' });
+    if (auth.isAuthenticated) navigate({ to: "/" });
   }, [auth.isAuthenticated]);
 
   const loginForm = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
   const createAccountForm = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
 
@@ -90,7 +90,7 @@ const LoginForm = ({ redirect }: { redirect?: string }) => {
     });
     if (data.user?.confirmation_sent_at) {
       toast({
-        title: 'Confirmation sent',
+        title: "Confirmation sent",
         description: `Confirmation email sent to: ${data.user?.email}`,
       });
     }
@@ -131,7 +131,7 @@ const LoginForm = ({ redirect }: { redirect?: string }) => {
         />
         <div className="flex space-x-2">
           <Button type="submit" className="flex-1" disabled={auth.isLoggingIn}>
-            {auth.isLoggingIn ? <Waiting /> : 'Login'}
+            {auth.isLoggingIn ? <Waiting /> : "Login"}
           </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>

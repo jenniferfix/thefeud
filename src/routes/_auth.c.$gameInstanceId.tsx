@@ -1,25 +1,23 @@
-import React from 'react';
-import { createFileRoute, Outlet } from '@tanstack/react-router';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { getInstanceGameQueryOptions } from '@/hooks/useinstancequeries';
-import GameControl from '@/components/gamecontrol/GameControl';
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import React from "react";
+import GameControl from "@/components/gamecontrol/GameControl";
+import { getInstanceGameQueryOptions } from "@/hooks/useinstancequeries";
 
-export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
+export const Route = createFileRoute("/_auth/c/$gameInstanceId")({
   loader: async ({ context: { queryClient }, params: { gameInstanceId } }) => {
-    const [instanceGame] = await Promise.all([
+    await Promise.allSettled([
       queryClient.ensureQueryData(getInstanceGameQueryOptions(gameInstanceId)),
     ]);
-    return { instanceGame };
   },
   component: ControlComponent,
 });
 
 function ControlComponent() {
   const gameInstanceId = Route.useParams().gameInstanceId;
-  const instanceGameQuery = useSuspenseQuery(
-    getInstanceGameQueryOptions(gameInstanceId),
-  );
-  const instanceGame = instanceGameQuery.data;
+  const {
+    data: { data: instanceGame },
+  } = useSuspenseQuery(getInstanceGameQueryOptions(gameInstanceId));
 
   return (
     <GameControl

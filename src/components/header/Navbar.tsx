@@ -1,45 +1,48 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import ThemeToggle from '@/components/header/ThemeToggle';
 import {
   Link,
   type LinkProps,
-  useNavigate,
   linkOptions,
-} from '@tanstack/react-router';
+  useNavigate,
+} from "@tanstack/react-router";
+import { MenuIcon } from "lucide-react";
+import React from "react";
+import ThemeToggle from "@/components/header/ThemeToggle";
+import NavLink from "@/components/NavLink";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
-  SheetTrigger,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet';
-import { MenuIcon } from 'lucide-react';
-import { useSupabaseAuth } from '@/supabaseauth';
-import { cn } from '@/utils/utils';
-import NavLink from '@/components/NavLink';
-import { routeTree, FileRouteTypes, FileRoutesById } from '@/routeTree.gen';
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useSupabaseAuth } from "@/supabaseauth";
+import { cn } from "@/utils/utils";
 
 const links = [
   linkOptions({
-    label: 'Home',
-    to: '/',
+    label: "Home",
+    to: "/",
   }),
   linkOptions({
-    label: 'Editor',
-    to: '/e',
+    label: "Question Editor",
+    to: "/e/questions",
   }),
   linkOptions({
-    label: 'Play',
-    to: '/c',
+    label: "Game Editor",
+    to: "/e/games",
+  }),
+  linkOptions({
+    label: "Play",
+    to: "/c",
   }),
 ];
 
 const LoginButton = ({
   closeCallback,
   mobile = false,
-  className = '',
+  className = "",
 }: {
   closeCallback?: Function;
   mobile?: boolean;
@@ -59,8 +62,8 @@ const LoginButton = ({
     return (
       <div
         className={cn(
-          'flex items-center hover:bg-accent/75 px-4',
-          mobile ? 'border-b pl-2' : 'border-x',
+          "flex items-center hover:bg-accent/75 px-4",
+          mobile ? "border-b pl-2" : "border-x",
           className,
         )}
         onClick={() => {
@@ -107,10 +110,10 @@ const Navbar = () => {
               <ul className="flex flex-col justify-start">
                 {links.map((link) => (
                   <Link
-                    key={'moblink' + link.to}
+                    key={"moblink" + link.to}
                     to={link.to}
                     className="flex justify-start border-b py-2 pl-2 hover:bg-accent/75"
-                    activeProps={{ className: 'bg-active' }}
+                    activeProps={{ className: "bg-active" }}
                     onClick={closeSidebar}
                   >
                     {link.label}
@@ -124,7 +127,7 @@ const Navbar = () => {
       </Sheet>
       <div className="hidden md:flex">
         {links.map((link) => (
-          <NavLink key={'link' + link.to} {...link}>
+          <NavLink key={"link" + link.to} {...link}>
             {link.label}
           </NavLink>
         ))}

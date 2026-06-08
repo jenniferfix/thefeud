@@ -1,16 +1,17 @@
-'use client';
-import React from 'react';
-import GameBg from '@/components/show/GameBg';
-import Gameboard from './Gameboard';
-import Strike from './Strike';
-import { Tables } from '@/types/supabase.types';
-import { Button } from '@/components/ui/button';
-import { FullScreen, useFullScreenHandle } from 'react-full-screen';
-import { ExpandIcon, ShrinkIcon } from 'lucide-react';
-import { cn } from '@/utils/utils';
-type TEvents = Tables<'game_events'>;
+"use client";
+import { ExpandIcon, ShrinkIcon } from "lucide-react";
+import React from "react";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import GameBg from "@/components/show/GameBg";
+import { Button } from "@/components/ui/button";
+import { Tables } from "@/types/supabase.types";
+import { cn } from "@/utils/utils";
+import Gameboard from "./Gameboard";
+import Strike from "./Strike";
 
-import useFeudEvents from '@/hooks/useFeudEvents';
+type TEvents = Tables<"game_events">;
+
+import useFeudEvents from "@/hooks/useFeudEvents";
 
 const Game = ({ instanceId }: { instanceId: string }) => {
   const {
@@ -42,6 +43,7 @@ const Game = ({ instanceId }: { instanceId: string }) => {
     <React.Fragment>
       <FullScreen handle={fullscreen}>
         <GameBg
+          className="h-screen w-screen object-contain"
           board={<Gameboard answers={answers} answered={answered} />}
           leftTeam={leftTeamScore}
           rightTeam={rightTeamScore}
@@ -51,8 +53,8 @@ const Game = ({ instanceId }: { instanceId: string }) => {
         {showStrike && <Strike count={strikes} />}
         <div
           className={cn(
-            'absolute top-2 right-2',
-            fullscreen.active ? 'text-muted' : '',
+            "absolute top-2 right-2",
+            fullscreen.active ? "text-muted" : "",
           )}
         >
           <Button variant="ghost" size="icon" onClick={handleFullscreenClick}>

@@ -1,19 +1,5 @@
-import React from 'react';
-import { createFileRoute, Outlet, Link } from '@tanstack/react-router';
-import NavLink from '@/components/NavLink';
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_navbar-layout/_auth/e')({
-  component: () => <EditorLayout />,
+export const Route = createFileRoute("/_navbar-layout/_auth/e")({
+  component: Outlet,
 });
-
-function EditorLayout() {
-  return (
-    <React.Fragment>
-      <div className="flex border-b">
-        <NavLink to="/e/games">Game Editor</NavLink>
-        <NavLink to="/e/questions">Question Editor</NavLink>
-      </div>
-      <Outlet />
-    </React.Fragment>
-  );
-}
