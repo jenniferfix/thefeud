@@ -1,23 +1,18 @@
-import React from 'react';
-import Question from './Question';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import {
-  gameQuestionsQueryOptions,
-  getGameQueryOptions,
-} from '@/hooks/usegamequeries';
-import { useParams } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import AddQuestionToGameDialog from './AddQuestionToGameDialog';
-import { useNavigate, useRouter } from '@tanstack/react-router';
+import { useNavigate, useParams, useRouter } from '@tanstack/react-router';
+import React from 'react';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useGetGame, useGetGameQuestions } from '@/hooks/usegamequeries';
+import AddQuestionToGameDialog from './AddQuestionToGameDialog';
+import Question from './Question';
 
 const HeaderSection = ({ gameId }: { gameId: string }) => {
   const params = useParams({ from: '/_navbar-layout/_auth/e/games/$gameId' });
   const {
     history: { back },
   } = useRouter();
-  const gameQuery = useSuspenseQuery(getGameQueryOptions(params.gameId));
+  const gameQuery = useGetGame(params.gameId);
   const gameData = gameQuery.data;
   return (
     <div className="flex items-center justify-between border-b border-b-foreground/10 px-2 py-1">
@@ -31,10 +26,7 @@ const HeaderSection = ({ gameId }: { gameId: string }) => {
 
 const QuestionsPanel = () => {
   const params = useParams({ from: '/_navbar-layout/_auth/e/games/$gameId' });
-  const gameQuestionsQuery = useSuspenseQuery(
-    gameQuestionsQueryOptions(params.gameId),
-  );
-  const gameQuestions = gameQuestionsQuery.data;
+  const { data: gameQuestions } = useGetGameQuestions(params.gameId);
 
   if (!gameQuestions) return <div>nothing here</div>;
   return (

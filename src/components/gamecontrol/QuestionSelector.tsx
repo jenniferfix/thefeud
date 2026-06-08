@@ -1,17 +1,16 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { ExternalLink } from "lucide-react";
-import React from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useInsertEvent } from "@/hooks/useeventqueries";
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { ExternalLink } from 'lucide-react';
+import React from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useInsertEvent } from '@/hooks/useeventqueries';
 import {
-  gameQuestionsQueryOptions,
+  getGameQuestionsQueryOptions,
   useGetGameQuestions,
-} from "@/hooks/usegamequeries";
-import { getInstanceGameQueryOptions } from "@/hooks/useinstancequeries";
-import { GameActions } from "@/types";
-import { cn } from "@/utils/utils";
-import { Button } from "../ui/button";
+} from '@/hooks/usegamequeries';
+import { GameActions } from '@/types';
+import { cn } from '@/utils/utils';
+import { Button } from '../ui/button';
 
 const QuestionSelector = ({
   instanceId,
@@ -23,19 +22,22 @@ const QuestionSelector = ({
   const navigate = useNavigate();
   const insertEvent = useInsertEvent(instanceId);
   const { data, isLoading, isError, error } = useSuspenseQuery(
-    gameQuestionsQueryOptions(gameId),
+    getGameQuestionsQueryOptions(gameId),
   );
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error?.message}</div>;
 
-  const handleQuestionClick = (questionid: string) => {
+  const handleQuestionClick = (questionId: string) => {
     // setCurrentQuestion(value);
     insertEvent.mutate({
       eventid: GameActions.StartQuestion,
       instanceid: instanceId,
-      questionid,
+      questionid: questionId,
     });
-    navigate({ to: `/c/${instanceId}/${questionid}` });
+    navigate({
+      to: `/c/$gameInstanceId/$questionId`,
+      params: { gameInstanceId: instanceId, questionId },
+    });
   };
 
   return (
@@ -63,8 +65,8 @@ const QuestionSelector = ({
             key={question.id}
             onClick={() => handleQuestionClick(question.id)}
             className={cn(
-              "cursor-pointer px-2 py-1 rounded-sm",
-              "hover:bg-muted",
+              'cursor-pointer px-2 py-1 rounded-sm',
+              'hover:bg-muted',
             )}
           >
             {question.question}

@@ -1,12 +1,12 @@
-import type { QueryData } from "@supabase/supabase-js";
-import type { TypedSupabaseClient } from "@/utils/supabase/client";
+import type { QueryData } from '@supabase/supabase-js';
+import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
 export async function createGameInstance(
   client: TypedSupabaseClient,
   gameId: string,
 ) {
   return await client
-    .from("game_instance")
+    .from('game_instance')
     .insert({ game: gameId })
     .throwOnError()
     .select()
@@ -18,9 +18,9 @@ export async function getGameInstance(
   instanceId: string,
 ) {
   return await client
-    .from("game_instance")
-    .select("*")
-    .eq("id", instanceId)
+    .from('game_instance')
+    .select('*')
+    .eq('id', instanceId)
     .throwOnError()
     .single();
 }
@@ -30,9 +30,9 @@ export async function deleteGameInstance(
   instanceId: string,
 ) {
   return await client
-    .from("game_instance")
+    .from('game_instance')
     .delete()
-    .eq("id", instanceId)
+    .eq('id', instanceId)
     .throwOnError();
 }
 
@@ -41,10 +41,10 @@ export async function getInstanceGame(
   instanceId: string,
 ) {
   return await client
-    .from("game_instance")
+    .from('game_instance')
     // .select('*')
-    .select("id, games(id, name)")
-    .eq("id", instanceId)
+    .select('id, games(id, name, questions(id, question))')
+    .eq('id', instanceId)
     .throwOnError()
     .single();
 }
@@ -56,10 +56,10 @@ export async function getActiveInstances(client: TypedSupabaseClient) {
   const prevTime = new Date();
   prevTime.setDate(prevTime.getDate() - 2);
   return await client
-    .from("game_instance")
-    .select("id, created_at, userid, games(id,name)")
-    .gt("created_at", prevTime.toISOString())
-    .order("created_at", { ascending: false })
+    .from('game_instance')
+    .select('id, created_at, userid, games(id,name)')
+    .gt('created_at', prevTime.toISOString())
+    .order('created_at', { ascending: false })
     .throwOnError();
 }
 export async function getUserInstances(
@@ -67,10 +67,10 @@ export async function getUserInstances(
   userId: string,
 ) {
   return await client
-    .from("game_instance")
-    .select("id, created_at, userid, games(id,name)")
-    .eq("userid", userId)
-    .order("created_at", { ascending: false })
+    .from('game_instance')
+    .select('id, created_at, userid, games(id,name)')
+    .eq('userid', userId)
+    .order('created_at', { ascending: false })
     .throwOnError();
 }
 

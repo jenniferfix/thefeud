@@ -1,11 +1,11 @@
-import { animated, useSpring } from "@react-spring/web";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import React from "react";
-import ActiveGames from "@/components/ActiveGames";
-import StartGame from "@/components/gamecontrol/SelectAndStart";
-import { getUserGamesQueryOptions } from "@/hooks/usegamequeries";
-import { useSupabaseAuth } from "@/supabaseauth";
+import { animated, useSpring } from '@react-spring/web';
+import { useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import React from 'react';
+import ActiveGames from '@/components/ActiveGames';
+import StartGame from '@/components/gamecontrol/SelectAndStart';
+import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
+import { useSupabaseAuth } from '@/supabaseauth';
 
 export default function Index() {
   const auth = useSupabaseAuth();
@@ -29,7 +29,7 @@ export default function Index() {
         {auth.isAuthenticated && (
           <div>
             <div>
-              <Link href="/e">Go to your editor</Link>
+              <Link to="/e">Go to your editor</Link>
             </div>
             <div>Start a game</div>
             {auth?.user?.id && (

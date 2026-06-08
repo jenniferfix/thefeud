@@ -1,30 +1,28 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil1Icon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Waiting } from "@/components/ui/waiting";
-import { WarningDialog } from "@/components/ui/warning";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Waiting } from '@/components/ui/waiting';
+import { WarningDialog } from '@/components/ui/warning';
 import {
-  gamesQueryOptions,
-  getUserGamesQueryOptions,
   useDeleteGame,
   useGetUserGames,
   useInsertGame,
   useUpdateGame,
-} from "@/hooks/usegamequeries";
-import { useOnClickOutside } from "@/hooks/useonclickoutside";
-import { useSupabaseAuth } from "@/supabaseauth";
-import { Tables } from "@/types/supabase.types";
-import { cn } from "@/utils/utils";
+} from '@/hooks/usegamequeries';
+import { useOnClickOutside } from '@/hooks/useonclickoutside';
+import { useSupabaseAuth } from '@/supabaseauth';
+import { Tables } from '@/types/supabase.types';
+import { cn } from '@/utils/utils';
 
-type TGameRow = Tables<"games">;
+type TGameRow = Tables<'games'>;
 
 const gameSchema = z.object({
   name: z.string(),
@@ -38,7 +36,7 @@ const Game = ({ game, add }: { game?: TGameRow; add?: boolean }) => {
   const form = useForm<z.infer<typeof gameSchema>>({
     resolver: zodResolver(gameSchema),
     values: {
-      name: game?.name ?? "",
+      name: game?.name ?? '',
     },
   });
   const inputRef = React.useRef(null);
@@ -76,14 +74,14 @@ const Game = ({ game, add }: { game?: TGameRow; add?: boolean }) => {
       <form
         onSubmit={form.handleSubmit(handleSubmit)}
         onBlur={form.handleSubmit(handleBlur)}
-        className={cn("w-full flex items-center gap-1", add ? "pb-3" : "")}
+        className={cn('w-full flex items-center gap-1', add ? 'pb-3' : '')}
       >
         {editing || add ? (
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem className={cn("grow", add ? "" : "")}>
+              <FormItem className={cn('grow', add ? '' : '')}>
                 <FormControl>
                   <Input
                     {...field}
@@ -99,7 +97,7 @@ const Game = ({ game, add }: { game?: TGameRow; add?: boolean }) => {
           <Link
             to={`/e/games/${game?.id}`}
             className="w-full flex items-center pl-2"
-            activeProps={{ className: "font-bold" }}
+            activeProps={{ className: 'font-bold' }}
           >
             {game?.name}
           </Link>

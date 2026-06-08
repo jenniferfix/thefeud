@@ -3,12 +3,12 @@ import {
   type LinkProps,
   linkOptions,
   useNavigate,
-} from "@tanstack/react-router";
-import { MenuIcon } from "lucide-react";
-import React from "react";
-import ThemeToggle from "@/components/header/ThemeToggle";
-import NavLink from "@/components/NavLink";
-import { Button } from "@/components/ui/button";
+} from '@tanstack/react-router';
+import { MenuIcon } from 'lucide-react';
+import React from 'react';
+import ThemeToggle from '@/components/header/ThemeToggle';
+import NavLink from '@/components/NavLink';
+import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -16,33 +16,33 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { useSupabaseAuth } from "@/supabaseauth";
-import { cn } from "@/utils/utils";
+} from '@/components/ui/sheet';
+import { useSupabaseAuth } from '@/supabaseauth';
+import { cn } from '@/utils/utils';
 
 const links = [
   linkOptions({
-    label: "Home",
-    to: "/",
+    label: 'Home',
+    to: '/',
   }),
   linkOptions({
-    label: "Question Editor",
-    to: "/e/questions",
+    label: 'Question Editor',
+    to: '/e/questions',
   }),
   linkOptions({
-    label: "Game Editor",
-    to: "/e/games",
+    label: 'Game Editor',
+    to: '/e/games',
   }),
   linkOptions({
-    label: "Play",
-    to: "/c",
+    label: 'Play',
+    to: '/c',
   }),
 ];
 
 const LoginButton = ({
   closeCallback,
   mobile = false,
-  className = "",
+  className = '',
 }: {
   closeCallback?: Function;
   mobile?: boolean;
@@ -62,8 +62,8 @@ const LoginButton = ({
     return (
       <div
         className={cn(
-          "flex items-center hover:bg-accent/75 px-4",
-          mobile ? "border-b pl-2" : "border-x",
+          'flex items-center hover:bg-accent/75 px-4',
+          mobile ? 'border-b pl-2' : 'border-x',
           className,
         )}
         onClick={() => {
@@ -77,7 +77,7 @@ const LoginButton = ({
   } else {
     return (
       <Link
-        href="/login"
+        to="/login"
         className="flex items-center hover:underline hover:bg-accent/50 border-x px-4"
         onClick={() => closeCallback && closeCallback()}
       >
@@ -110,10 +110,10 @@ const Navbar = () => {
               <ul className="flex flex-col justify-start">
                 {links.map((link) => (
                   <Link
-                    key={"moblink" + link.to}
+                    key={'moblink' + link.to}
                     to={link.to}
                     className="flex justify-start border-b py-2 pl-2 hover:bg-accent/75"
-                    activeProps={{ className: "bg-active" }}
+                    activeProps={{ className: 'bg-active' }}
                     onClick={closeSidebar}
                   >
                     {link.label}
@@ -127,7 +127,7 @@ const Navbar = () => {
       </Sheet>
       <div className="hidden md:flex">
         {links.map((link) => (
-          <NavLink key={"link" + link.to} {...link}>
+          <NavLink key={'link' + link.to} {...link}>
             {link.label}
           </NavLink>
         ))}

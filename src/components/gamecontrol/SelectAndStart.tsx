@@ -23,15 +23,15 @@ const SelectAndStart = () => {
   //   getUserGamesQueryOptions(auth?.user?.id!),
   // );
   const [selectedGame, setSelectedGame] = React.useState<string | null>(null);
-  const createGameInstance = useCreateGameInstance();
   const {
     data: instanceData,
     isSuccess: isInstanceSuccess,
     isError: isInstanceError,
-  } = createGameInstance;
+    mutateAsync: createGameAsync,
+  } = useCreateGameInstance();
 
   if (isError) return <div>{error?.message}</div>;
-  if (isLoading || !instanceData) return <div>Loading...</div>;
+  if (isLoading || !data) return <div>Loading...</div>;
 
   // if the component renders and we have the id of the new game,
   // we redirect to the game controller page
@@ -46,12 +46,13 @@ const SelectAndStart = () => {
   const handleStartGame = async (e: React.MouseEvent<HTMLElement>) => {
     if (!selectedGame) return;
     e.preventDefault();
-    const newGame = await createGameInstance.mutateAsync({
+    const newGame = await createGameAsync({
       gameId: selectedGame,
     });
     if (newGame) {
       navigate({
-        to: `/c/${newGame[0].id}`,
+        to: `/c/$gameInstanceId`,
+        params: { gameInstanceId: newGame[0].id },
       });
     }
   };

@@ -1,19 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { gameQuestionsQueryOptions } from '@/hooks/usegamequeries';
-import { getInstanceGameQueryOptions } from '@/hooks/useinstancequeries';
+import { createFileRoute } from '@tanstack/react-router';
 import QuestionSelector from '@/components/gamecontrol/QuestionSelector';
-
-import { useGetInstanceGame } from '@/hooks/useinstancequeries';
+import { getGameQuestionsQueryOptions } from '@/hooks/usegamequeries';
+import {
+  getInstanceGameQueryOptions,
+  useGetInstanceGame,
+} from '@/hooks/useinstancequeries';
 export const Route = createFileRoute('/_auth/c/$gameInstanceId/')({
-  loader: async ({ context, context: { queryClient }, params }) => {
-    const instanceGameQuery = await queryClient.fetchQuery(
+  loader: async ({ context: { queryClient }, params }) => {
+    await queryClient.ensureQueryData(
       getInstanceGameQueryOptions(params.gameInstanceId),
     );
-    const gameQuestionsQuery = await queryClient.ensureQueryData(
-      gameQuestionsQueryOptions(instanceGameQuery?.games?.id || ''),
-    );
-    return gameQuestionsQuery;
   },
   component: () => <Page />,
 });

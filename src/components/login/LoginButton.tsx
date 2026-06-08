@@ -1,16 +1,16 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { useSupabaseAuth } from "@/supabaseauth";
-import { SignedIn } from "../auth/signed-in";
-import { SignedOut } from "../auth/signed-out";
+import { Link, useNavigate } from '@tanstack/react-router';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { useSupabaseAuth } from '@/supabaseauth';
+import { SignedIn } from '../auth/signed-in';
+import { SignedOut } from '../auth/signed-out';
 
 const Login = ({ onClick }: { onClick: Function }) => {
   const auth = useSupabaseAuth();
   const navigate = useNavigate();
 
   const handleLogoutClick = () => {
-    auth.logout().then(() => navigate({ to: "/" }));
+    auth.logout().then(() => navigate({ to: '/' }));
   };
 
   return (
@@ -34,7 +34,7 @@ const Login = ({ onClick }: { onClick: Function }) => {
           onClick={() => onClick(false)}
           asChild
         >
-          <Link href="/login" className="text-lg pl-0">
+          <Link to="/login" search={{ redirect: '/' }} className="text-lg pl-0">
             Login
           </Link>
         </Button>

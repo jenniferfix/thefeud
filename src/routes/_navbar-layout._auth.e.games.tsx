@@ -1,17 +1,17 @@
-import * as React from 'react';
-import { createFileRoute, Outlet } from '@tanstack/react-router';
 import {
-  gamesQueryOptions,
-  getUserGamesQueryOptions,
-} from '@/hooks/usegamequeries';
+  createFileRoute,
+  Outlet,
+  useRouterState,
+} from '@tanstack/react-router';
+import React from 'react';
 import Games from '@/components/editor/Games';
 import {
-  ResizablePanel,
   ResizableHandle,
+  ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
+import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useRouterState } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/e/games')({
   loader: ({ context }) => {

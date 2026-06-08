@@ -19,7 +19,10 @@ import {
 import { useInsertEvent } from '@/hooks/useeventqueries';
 import useFeudEvents from '@/hooks/useFeudEvents';
 import { useGetGameQuestions } from '@/hooks/usegamequeries';
-import { getInstanceGameQueryOptions } from '@/hooks/useinstancequeries';
+import {
+  getInstanceGameQueryOptions,
+  useGetInstanceGame,
+} from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
 import { GameActions } from '@/types';
 import { cn } from '@/utils/utils';
@@ -108,7 +111,7 @@ const GameControl = ({
         <QRCode instanceId={instanceId} />
       </div>
       <h2 className="flex justify-center text-2xl py-2 border-b">
-        {instanceQueryData?.data?.games?.name}
+        {instanceQueryData?.games?.name}
       </h2>
       <aside className="flex flex-col gap-2 border-b py-2">
         <Score className="flex justify-center" score={roundScore} />

@@ -1,11 +1,12 @@
-"use client";
+'use client';
 import {
   queryOptions,
   useMutation,
   useQuery,
   useQueryClient,
-} from "@tanstack/react-query";
-import useSupabase from "@/hooks/useSupabase";
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import useSupabase from '@/hooks/useSupabase';
 import {
   createGameInstance,
   deleteGameInstance,
@@ -13,8 +14,8 @@ import {
   getGameInstance,
   getInstanceGame,
   getUserInstances,
-} from "@/queries/instancequeries";
-import { getSupabaseBrowserClient } from "@/utils/supabase/client";
+} from '@/queries/instancequeries';
+import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
 const supabase = getSupabaseBrowserClient();
 
@@ -25,14 +26,14 @@ export function useCreateGameInstance() {
     return (await createGameInstance(client, gameId)).data ?? undefined;
   };
   const onSuccess = async () => {
-    queryClient.invalidateQueries({ queryKey: ["gameInstances"] }); //
+    queryClient.invalidateQueries({ queryKey: ['gameInstances'] }); //
   };
   return useMutation({ mutationFn, onSuccess });
 }
 
 export function useGetGameInstance(instanceId: string) {
   const client = useSupabase();
-  const queryKey = ["gameInstance", instanceId];
+  const queryKey = ['gameInstance', instanceId];
   const queryFn = async () => {
     return await getGameInstance(client, instanceId);
   };
@@ -46,29 +47,29 @@ export function useDeleteGameInstance() {
     return await deleteGameInstance(client, instanceId);
   };
   const onSuccess = async () => {
-    queryClient.invalidateQueries({ queryKey: ["gameInstances"] });
+    queryClient.invalidateQueries({ queryKey: ['gameInstances'] });
   };
   return useMutation({ mutationFn, onSuccess });
 }
 
-export function useGetInstanceGame(instanceId: string) {
-  const client = useSupabase();
-  const queryKey = ["gameinstancegame", instanceId];
-  const queryFn = async () => {
-    return (await getInstanceGame(client, instanceId)) ?? null;
-  };
-  return useQuery({ queryKey, queryFn });
-}
+export const getInstanceGameQueryKey = (instanceId: string) =>
+  ['gameinstancegame', instanceId] as const;
 
-export const getInstanceGameQueryOptions = (instanceId: string) =>
-  queryOptions({
-    queryKey: ["gameinstancegame", instanceId],
-    queryFn: async () => (await getInstanceGame(supabase, instanceId)) ?? null,
+export const getInstanceGameQueryOptions = (instanceId: string) => {
+  return queryOptions({
+    queryKey: getInstanceGameQueryKey(instanceId),
+    queryFn: async () =>
+      (await getInstanceGame(supabase, instanceId)).data ?? null,
   });
+};
+
+export function useGetInstanceGame(instanceId: string) {
+  return useSuspenseQuery(getInstanceGameQueryOptions(instanceId));
+}
 
 export function useGetActiveInstances() {
   const client = useSupabase();
-  const queryKey = ["activeinstances"];
+  const queryKey = ['activeinstances'];
   const queryFn = async () => {
     return getActiveInstances(client).then((result) => result?.data);
   };
@@ -76,13 +77,13 @@ export function useGetActiveInstances() {
 }
 
 export const getActiveInstancesQueryOptions = queryOptions({
-  queryKey: ["activeinstances"],
+  queryKey: ['activeinstances'],
   queryFn: async () => (await getActiveInstances(supabase)) ?? null,
 });
 
 export function useGetUserInstances(userId: string) {
   const client = useSupabase();
-  const queryKey = ["activeinstances"];
+  const queryKey = ['activeinstances'];
   const queryFn = async () => {
     return getUserInstances(client, userId).then((result) => result?.data);
   };
@@ -91,7 +92,7 @@ export function useGetUserInstances(userId: string) {
 
 export const getUserInstancesQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: ["activeinstances"],
+    queryKey: ['activeinstances'],
     queryFn: async () =>
       getUserInstances(supabase, userId).then((result) => result?.data),
   });
