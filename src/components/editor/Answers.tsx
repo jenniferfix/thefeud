@@ -1,11 +1,9 @@
-'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import React from 'react';
-import {
-  useDeleteAnswer,
-  useGetAnswersByQuestionId,
-  useInsertAnswer,
-  useUpdateAnswerMutation,
-} from '@/hooks/useanswerqueries';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -15,16 +13,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Tables } from '@/types/supabase.types';
-import { TrashIcon, PlusIcon } from '@radix-ui/react-icons';
-import { WarningDialog } from '@/components/ui/warning';
 import { Waiting } from '@/components/ui/waiting';
+import { WarningDialog } from '@/components/ui/warning';
+import {
+  useDeleteAnswer,
+  useGetAnswersByQuestionId,
+  useInsertAnswer,
+  useUpdateAnswerMutation,
+} from '@/hooks/useanswerqueries';
 import { deleteQuestion } from '@/queries/questionqueries';
+import type { Tables } from '@/types/supabase.types';
 
 type AnswerRow = Tables<'answers'>;
 

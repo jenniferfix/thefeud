@@ -1,12 +1,12 @@
 'use client';
-import React from 'react';
-import { Tables } from '@/types/supabase.types';
-import { IAnswered } from '@/types';
+import { animated, config, useSpring } from '@react-spring/three';
+import type { Vector3 } from '@react-three/fiber';
 import { Canvas } from '@react-three/fiber';
-import { animated, useSpring, config } from '@react-spring/three';
-import { Vector3 } from '@react-three/fiber';
-import { TextureLoader } from 'three/src/loaders/TextureLoader.js';
+import React from 'react';
 import * as THREE from 'three';
+import { TextureLoader } from 'three/src/loaders/TextureLoader.js';
+import type { IAnswered } from '@/types';
+import type { Tables } from '@/types/supabase.types';
 
 const AnswerPanel = ({
   size,

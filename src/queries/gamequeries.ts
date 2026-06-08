@@ -1,5 +1,5 @@
-import { QueryData } from "@supabase/supabase-js";
-import { TypedSupabaseClient } from "@/utils/supabase/client";
+import type { QueryData } from "@supabase/supabase-js";
+import type { TypedSupabaseClient } from "@/utils/supabase/client";
 
 export function getGames(client: TypedSupabaseClient) {
   return client.from("games").select("*").throwOnError();

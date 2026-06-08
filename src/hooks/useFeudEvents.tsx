@@ -1,14 +1,14 @@
 import React from 'react';
-import useSupabase from '@/hooks/useSupabase';
-import { useGetInstanceGame } from '@/hooks/useinstancequeries';
+import { useTimer } from 'react-timer-hook';
+import useSound from 'use-sound';
 import { useGetEventsForGameInstance } from '@/hooks/useeventqueries';
+import { useGetInstanceGame } from '@/hooks/useinstancequeries';
+import useSupabase from '@/hooks/useSupabase';
 import { getAnswersByQuestionId } from '@/queries/answerqueries';
 import { getQuestionFromId } from '@/queries/questionqueries';
-import { Tables } from '@/types/supabase.types';
 // import { type TGameQuestions } from '@/queries/gamequeries';
-import { GameActions, IAnswered } from '@/types';
-import useSound from 'use-sound';
-import { useTimer } from 'react-timer-hook';
+import { GameActions, type IAnswered } from '@/types';
+import type { Tables } from '@/types/supabase.types';
 
 type TEvents = Tables<'game_events'>;
 

@@ -1,11 +1,11 @@
-'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowLeftIcon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useParams, useRouter } from '@tanstack/react-router';
 import React from 'react';
-import {
-  useDeleteAnswer,
-  useGetAnswersByQuestionId,
-  useInsertAnswer,
-  useUpdateAnswerMutation,
-} from '@/hooks/useanswerqueries';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -15,21 +15,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Tables } from '@/types/supabase.types';
-import { TrashIcon, PlusIcon, ArrowLeftIcon } from '@radix-ui/react-icons';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { useParams, useRouter } from '@tanstack/react-router';
-import { answersByQuestionIdQueryOptions } from '@/hooks/useanswerqueries';
-import { cn } from '@/utils/utils';
-import { WarningDialog } from '@/components/ui/warning';
 import { Waiting } from '@/components/ui/waiting';
+import { WarningDialog } from '@/components/ui/warning';
+import {
+  answersByQuestionIdQueryOptions,
+  useDeleteAnswer,
+  useGetAnswersByQuestionId,
+  useInsertAnswer,
+  useUpdateAnswerMutation,
+} from '@/hooks/useanswerqueries';
 import { getQuestionQueryOptions } from '@/hooks/usequestionqueries';
+import type { Tables } from '@/types/supabase.types';
+import { cn } from '@/utils/utils';
 
 type AnswerRow = Tables<'answers'>;
 

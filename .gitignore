@@ -1,18 +1,13 @@
-# Local
-.DS_Store
-*.local
-*.log*
-
-# Dist
 node_modules
-dist/
-.vinxi
-.output
-.vercel
-.netlify
+.DS_Store
+dist
+dist-ssr
+*.local
+.env
+.nitro
+.tanstack
 .wrangler
-
-# IDE
-.vscode/*
-!.vscode/extensions.json
-.idea
+.output
+.vinxi
+__unconfig*
+todos.json

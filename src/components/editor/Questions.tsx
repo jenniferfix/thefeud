@@ -1,27 +1,26 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormField, FormItem, FormControl } from '@/components/ui/form';
-import { TrashIcon, PlusIcon, Pencil1Icon } from '@radix-ui/react-icons';
-// import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
-import { useSupabaseAuth } from '@/supabaseauth';
-import { Link } from '@tanstack/react-router';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { questionsQueryOptions } from '@/hooks/usequestionqueries';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Link, useNavigate } from '@tanstack/react-router';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Waiting } from '@/components/ui/waiting';
+import { WarningDialog } from '@/components/ui/warning';
 import {
+  questionsQueryOptions,
+  useDeleteQuestion,
   useInsertQuestion,
   useUpdateQuestion,
-  useDeleteQuestion,
 } from '@/hooks/usequestionqueries';
-import { Tables } from '@/types/supabase.types';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
+import { useSupabaseAuth } from '@/supabaseauth';
+import type { Tables } from '@/types/supabase.types';
 import { cn } from '@/utils/utils';
-import { useNavigate } from '@tanstack/react-router';
-import { WarningDialog } from '@/components/ui/warning';
-import { Waiting } from '@/components/ui/waiting';
 
 type TQuestionRow = Tables<'questions'>;
 
@@ -103,7 +102,8 @@ const Question = ({
           />
         ) : (
           <Link
-            to={`/e/questions/${question?.id}`}
+            to={`/e/questions/$questionId`}
+            params={{ questionId: question?.id }}
             className="w-full flex items-center pl-2"
             activeProps={{ className: 'font-bold' }}
           >
@@ -140,7 +140,9 @@ const Questions = () => {
   return (
     <section className="flex flex-col justify-between h-full w-full pt-3 px-2">
       <ScrollArea className="flex flex-col justify-start h-full">
-        {questions?.map((q) => <Question key={q.id} question={q} />)}
+        {questions?.map((q) => (
+          <Question key={q.id} question={q} />
+        ))}
       </ScrollArea>
       <Question add />
     </section>

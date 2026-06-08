@@ -1,6 +1,6 @@
-import { TypedSupabaseClient } from '@/utils/supabase/client';
 // import { QueryData } from '@supabase/supabase-js';
-import { Database } from '@/types/supabase.types';
+import type { Database } from '@/types/supabase.types';
+import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
 export const insertEvent = (
   client: TypedSupabaseClient,

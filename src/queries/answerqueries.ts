@@ -1,5 +1,5 @@
-import { TypedSupabaseClient } from '@/utils/supabase/client';
-import type { Database, Tables } from '@/types/supabase.types';
+import type { Database } from '@/types/supabase.types';
+import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
 export function getAnswersByQuestionId(
   client: TypedSupabaseClient,

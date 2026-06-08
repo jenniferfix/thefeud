@@ -1,5 +1,5 @@
+import { Link, type LinkProps } from '@tanstack/react-router';
 import React from 'react';
-import { Link, LinkProps } from '@tanstack/react-router';
 
 const NavLink = (props: LinkProps) => {
   return (
