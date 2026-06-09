@@ -122,30 +122,30 @@ export function useInsertGame() {
   return useMutation({ mutationFn, onSuccess });
 }
 
-export function useUpdateGame() {
-  const client = useSupabase();
+export function useDeleteGame() {
   const queryClient = useQueryClient();
-
-  const queryKey = ['games'] as const;
-
-  const mutationFn = async ({
-    gameId,
-    name,
-  }: {
-    gameId: string;
-    name: string;
-  }) => {
-    return updateGame(client, gameId, name);
-  };
-
   return useMutation({
-    mutationFn,
+    mutationFn: async ({ gameId }: { gameId: string }) => {
+      return (await deleteGame(supabase, gameId)).data ?? null;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['games'] });
+    },
+  });
+}
+
+export function useUpdateGame() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ gameId, name }: { gameId: string; name: string }) => {
+      return updateGame(supabase, gameId, name);
+    },
     onMutate: async ({ gameId, name }) => {
       await Promise.allSettled([
         queryClient.cancelQueries({ queryKey: getGamesQueryKey() }),
         queryClient.cancelQueries({ queryKey: getGameQueryKey(gameId) }),
       ]);
-      const previous = queryClient.getQueryData(queryKey);
+      const previous = queryClient.getQueryData(getGameQueryKey(gameId));
       // TODO: Finish
     },
     onSettled: async (_data, _error, { gameId }, _context) => {
@@ -158,20 +158,4 @@ export function useUpdateGame() {
       //
     },
   });
-}
-
-export const deleteGameMutationOptions = () => {
-  const queryClient = useQueryClient();
-  return mutationOptions({
-    mutationFn: async ({ gameId }: { gameId: string }) => {
-      return deleteGame(supabase, gameId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['games'] });
-    },
-  });
-};
-
-export function useDeleteGame() {
-  return useMutation(deleteGameMutationOptions());
 }

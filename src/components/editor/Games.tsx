@@ -1,14 +1,30 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { getRouteApi, Link } from '@tanstack/react-router';
+import { useSelector } from '@tanstack/react-store';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import type { GetUserGamesType } from '#/queries/gamequeries';
+import { gameNameField } from '#/types/auth';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemFooter,
+  ItemGroup,
+  ItemHeader,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from '@/components/ui/item';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAppForm } from '@/components/ui/tanstack-form';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Waiting } from '@/components/ui/waiting';
 import { WarningDialog } from '@/components/ui/warning';
 import {
@@ -17,94 +33,163 @@ import {
   useInsertGame,
   useUpdateGame,
 } from '@/hooks/usegamequeries';
-import { useOnClickOutside } from '@/hooks/useonclickoutside';
-import { useSupabaseAuth } from '@/supabaseauth';
-import { Tables } from '@/types/supabase.types';
 import { cn } from '@/utils/utils';
 
-type TGameRow = Tables<'games'>;
-
-const gameSchema = z.object({
-  name: z.string(),
-});
-
-const Game = ({ game, add }: { game?: TGameRow; add?: boolean }) => {
-  const [editing, setEditing] = React.useState(false);
+const InsertGameForm = () => {
   const insertGame = useInsertGame();
-  const updateGame = useUpdateGame();
-  const deleteGame = useDeleteGame();
-  const form = useForm<z.infer<typeof gameSchema>>({
-    resolver: zodResolver(gameSchema),
-    values: {
-      name: game?.name ?? '',
+
+  const form = useAppForm({
+    defaultValues: {
+      name: '',
+    },
+    validators: { onSubmit: z.object({ name: gameNameField }) },
+    onSubmit: async ({ formApi, value: { name } }) => {
+      name = name.trim();
+      if (name.length) return;
+      insertGame.mutate({ name });
+      formApi.reset();
     },
   });
-  const inputRef = React.useRef(null);
 
-  const handleDelete = () => {
-    deleteGame.mutate({ gameId: game?.id! });
-  };
-
-  const handleEditing = () => {
-    setEditing(!editing);
-  };
-
-  const handleSubmit = (values: z.infer<typeof gameSchema>) => {
-    if (!add) return;
-    insertGame.mutate({ name: values.name });
-    form.reset();
-  };
-
-  const handleBlur = React.useCallback(
-    (values: z.infer<typeof gameSchema>) => {
-      if (add) return;
-      if (!form.formState.isDirty) return;
-      updateGame.mutate({ gameId: game?.id!, name: values.name });
+  const handleSubmit = React.useCallback(
+    (e: React.SubmitEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      form.handleSubmit();
     },
-    [add, form],
+    [form],
   );
 
-  useOnClickOutside(inputRef, () => {
-    if (!editing) return;
-    setEditing(false);
+  return (
+    <form.AppForm>
+      <form onSubmit={handleSubmit} className="flex">
+        <form.AppField
+          name="name"
+          children={(field) => (
+            <field.Field>
+              <field.Input variant="list" placeholder="Game Name" />
+            </field.Field>
+          )}
+        />
+        <Button type="submit" variant="ghost" size="icon">
+          <PlusIcon />
+        </Button>
+      </form>
+    </form.AppForm>
+  );
+};
+
+const GameEditField = ({
+  editing = false,
+  setEditing,
+  gameId,
+  name,
+  onFinished,
+}: {
+  editing?: boolean;
+  setEditing?: (editing: boolean) => void;
+  gameId: string;
+  name: string;
+  onFinished?: () => void;
+}) => {
+  const updateGame = useUpdateGame();
+  const form = useAppForm({
+    defaultValues: {
+      name,
+    },
+    validators: {},
+    onSubmit: async ({ value: { name } }) => {
+      console.log('submit');
+      onFinished?.();
+      await updateGame.mutateAsync({ gameId: gameId, name });
+    },
   });
 
+  const isDirty = useSelector(
+    form.store,
+    (state) => state.fieldMeta.name?.isDirty,
+  );
+
+  const handleBlur = React.useCallback(() => {
+    if (!isDirty) onFinished?.();
+    form.handleSubmit();
+  }, [form]);
+
   return (
-    <Form {...form}>
+    <form.AppForm>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        onBlur={form.handleSubmit(handleBlur)}
-        className={cn('w-full flex items-center gap-1', add ? 'pb-3' : '')}
+        className="w-full"
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        onBlur={handleBlur}
       >
-        {editing || add ? (
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className={cn('grow', add ? '' : '')}>
-                <FormControl>
-                  <Input
-                    {...field}
-                    variant="list"
-                    placeholder="Game Name"
-                    ref={inputRef}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        ) : (
-          <Link
-            to={`/e/games/${game?.id}`}
-            className="w-full flex items-center pl-2"
-            activeProps={{ className: 'font-bold' }}
-          >
-            {game?.name}
-          </Link>
-        )}
-        {!add ? (
+        <form.AppField
+          name="name"
+          children={(field) => (
+            <field.Field className="w-full p-0">
+              <Tooltip>
+                <TooltipTrigger>
+                  <field.InputGroup
+                    className={cn(
+                      'bg-accent text-accent-foreground border-0 p-0 w-full',
+                      isDirty ? 'ring-amber-500' : '',
+                    )}
+                  >
+                    <field.InputGroupInput
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                    />
+                  </field.InputGroup>
+                </TooltipTrigger>
+                <TooltipContent>Click to edit name</TooltipContent>
+              </Tooltip>
+            </field.Field>
+          )}
+        />
+      </form>
+    </form.AppForm>
+  );
+};
+
+const Game = ({ game }: { game: GetUserGamesType }) => {
+  const [editing, setEditing] = React.useState(false);
+  const deleteGame = useDeleteGame();
+
+  const handleDelete = React.useCallback(() => {
+    deleteGame.mutate({ gameId: game?.id! });
+  }, [deleteGame.mutate]);
+
+  const toggleEditing = React.useCallback(() => {
+    setEditing((prev) => !prev);
+  }, []);
+
+  return (
+    <Link to="/e/games/$gameId" params={{ gameId: game.id }}>
+      <Item className="hover:bg-accent/50">
+        <ItemContent>
+          <ItemTitle className="w-full p-0">
+            <GameEditField
+              editing={editing}
+              setEditing={setEditing}
+              gameId={game.id}
+              name={game.name ?? ''}
+              onFinished={() => setEditing(false)}
+            />
+          </ItemTitle>
+          <ItemDescription>
+            {!game.questions.length && 'Click to edit and add questions'}
+            {game.questions.map((q) => (
+              <span>{q.question}</span>
+            ))}
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions>
           <div className="flex items-center">
-            <Button size="icon" variant="ghost" onClick={handleEditing}>
+            <Button size="icon" variant="ghost" onClick={toggleEditing}>
               <Pencil1Icon />
             </Button>
             <WarningDialog onClick={handleDelete}>
@@ -117,19 +202,17 @@ const Game = ({ game, add }: { game?: TGameRow; add?: boolean }) => {
               </Button>
             </WarningDialog>
           </div>
-        ) : (
-          <Button type="submit" variant="ghost" size="icon">
-            <PlusIcon />
-          </Button>
-        )}
-      </form>
-    </Form>
+        </ItemActions>
+      </Item>
+    </Link>
   );
 };
 
 const Games = () => {
-  const auth = useSupabaseAuth();
-  const gameQuery = useGetUserGames(auth?.user?.id!);
+  const { session } = getRouteApi(
+    '/_navbar-layout/_auth/e/games',
+  ).useRouteContext();
+  const gameQuery = useGetUserGames(session.user.id);
   // const gamesQuery = useSuspenseQuery(
   //   getUserGamesQueryOptions(auth?.user?.id!),
   // );
@@ -137,12 +220,12 @@ const Games = () => {
 
   return (
     <div className="flex flex-col justify-between h-full w-full gap-2 pt-3 px-2">
-      <ScrollArea className="flex flex-col justify-start h-full">
+      <ScrollArea className="h-1 grow">
         {games?.map((g) => (
           <Game key={g.id} game={g} />
         ))}
       </ScrollArea>
-      <Game add />
+      <InsertGameForm />
     </div>
   );
 };

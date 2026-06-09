@@ -1,6 +1,6 @@
-import React from "react";
-import { toast } from "sonner";
-import { ErrorDialog } from "@/components/auth/ErrorDialog";
+import React from 'react';
+import { toast } from 'sonner';
+import { ErrorDialog } from '@/components/auth/ErrorDialog';
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/tanstack-form";
-import useSupabase from "@/hooks/useSupabase";
+} from '@/components/ui/dialog';
+import { useAppForm } from '@/components/ui/tanstack-form';
+import useSupabase from '@/hooks/useSupabase';
 //import { authClient } from "@/lib/auth/client";
-import { signUpFormSchema } from "@/types/auth";
+import { signUpFormSchema } from '@/types/auth';
 
 export const SignUpDialog = ({
   open = false,
@@ -33,13 +33,13 @@ export const SignUpDialog = ({
 
   const form = useAppForm({
     defaultValues: {
-      email: "",
-      password: "",
-      verifyPassword: "",
-      name: "",
+      email: '',
+      password: '',
+      passwordVerify: '',
+      name: '',
     },
     validators: {
-      onSubmit: signUpFormSchema.parse,
+      onSubmit: signUpFormSchema,
     },
     onSubmit: async ({ value: { email, password, name } }) => {
       const res = supabase.auth.signUp({ email, password });
@@ -73,7 +73,7 @@ export const SignUpDialog = ({
     },
   });
   const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SubmitEvent) => {
       e.preventDefault();
       e.stopPropagation();
       form.handleSubmit();

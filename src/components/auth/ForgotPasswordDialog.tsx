@@ -1,24 +1,24 @@
-import React from "react";
-import { toast } from "sonner";
-import { ErrorDialog } from "@/components/auth/ErrorDialog";
+import React from 'react';
+import { toast } from 'sonner';
+import { ErrorDialog } from '@/components/auth/ErrorDialog';
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/tanstack-form";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useAppForm } from '@/components/ui/tanstack-form';
 //import { authClient } from "@/lib/auth/client";
-import { forgotPasswordFormSchema } from "@/types/auth";
+import { forgotPasswordFormSchema } from '@/types/auth';
 
 export const ForgotPasswordDialog = ({
-	show = false,
-	onShowChange,
+  show = false,
+  onShowChange,
 }: {
-	show?: boolean;
-	onShowChange?: (show: boolean) => void;
+  show?: boolean;
+  onShowChange?: (show: boolean) => void;
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -28,10 +28,10 @@ export const ForgotPasswordDialog = ({
   const [showErrorDialog, setShowErrorDialog] = React.useState(false);
   const form = useAppForm({
     defaultValues: {
-      email: "",
+      email: '',
     },
     validators: {
-      onSubmit: forgotPasswordFormSchema.parse,
+      onSubmit: forgotPasswordFormSchema,
     },
     onSubmit: async ({ value }) => {
       // authClient.requestPasswordReset(
@@ -63,7 +63,7 @@ export const ForgotPasswordDialog = ({
   });
 
   const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SubmitEvent) => {
       e.preventDefault();
       e.stopPropagation();
       form.handleSubmit();

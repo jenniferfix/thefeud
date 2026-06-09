@@ -1,8 +1,8 @@
-import { useStore } from "@tanstack/react-form";
-import { useNavigate, useRouter } from "@tanstack/react-router";
-import React from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { useStore } from '@tanstack/react-form';
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import React from 'react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -11,10 +11,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useAppForm } from "@/components/ui/tanstack-form";
-import useSupabase from "@/hooks/useSupabase";
-import { passwordField } from "@/types/auth";
+} from '@/components/ui/dialog';
+import { useAppForm } from '@/components/ui/tanstack-form';
+import useSupabase from '@/hooks/useSupabase';
+import { passwordField } from '@/types/auth';
 
 export const ChangePasswordDialog = ({
   open,
@@ -30,9 +30,9 @@ export const ChangePasswordDialog = ({
   const [inProgress, setInProgress] = React.useState(false);
   const form = useAppForm({
     defaultValues: {
-      password: "",
-      newPassword: "",
-      currentPassword: "",
+      password: '',
+      newPassword: '',
+      currentPassword: '',
       revokeOtherSessions: false,
     },
     validators: {
@@ -49,7 +49,7 @@ export const ChangePasswordDialog = ({
         if (passwordVerifyError) return passwordVerifyError?.message;
         if (currentPasswordError) return currentPasswordError?.message;
 
-        if (password !== newPassword) return "Passwords must match";
+        if (password !== newPassword) return 'Passwords must match';
         return undefined;
       },
     },
@@ -57,7 +57,7 @@ export const ChangePasswordDialog = ({
       value: { currentPassword, newPassword, revokeOtherSessions },
       value,
     }) => {
-      console.log("change password", value);
+      console.log('change password', value);
       setInProgress(true);
       // void authClient.changePassword(
       //   {
@@ -109,7 +109,7 @@ export const ChangePasswordDialog = ({
   const passFieldTouched = passField?.isTouched;
 
   const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SubmitEvent) => {
       e.preventDefault();
       e.stopPropagation();
       form.handleSubmit();
@@ -131,7 +131,7 @@ export const ChangePasswordDialog = ({
 
             <form.AppField
               name="currentPassword"
-              validators={{ onBlur: passwordField.parse }}
+              validators={{ onBlur: passwordField }}
               children={(field) => (
                 <field.Field>
                   <field.FieldLabel>Current Password</field.FieldLabel>
@@ -147,7 +147,7 @@ export const ChangePasswordDialog = ({
 
             <form.AppField
               name="password"
-              validators={{ onChange: passwordField.parse }}
+              validators={{ onChange: passwordField }}
               children={(field) => (
                 <field.Field>
                   <field.FieldLabel>New Password</field.FieldLabel>
@@ -165,8 +165,8 @@ export const ChangePasswordDialog = ({
               name="newPassword"
               validators={{
                 onChange: ({ value }) =>
-                  value !== form.getFieldValue("password")
-                    ? "Passwords must match"
+                  value !== form.getFieldValue('password')
+                    ? 'Passwords must match'
                     : undefined,
               }}
               children={(field) => {

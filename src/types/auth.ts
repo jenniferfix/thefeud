@@ -1,14 +1,16 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const MIN_PASSWORD_LENGTH = 8;
 export const MAX_PASSWORD_LENGTH = 128;
 
-export const emailField = z.string().email();
+export const emailField = z.email();
 
 export const passwordField = z
   .string()
   .min(MIN_PASSWORD_LENGTH)
   .max(MAX_PASSWORD_LENGTH);
+
+export const gameNameField = z.string().min(3).max(100);
 
 const verifyPasswordSchema = z.object({
   password: passwordField,
@@ -20,8 +22,8 @@ export const newPasswordSchema = z
     ...verifyPasswordSchema.shape,
   })
   .refine((data) => data.password === data.passwordVerify, {
-    message: "Passwords do not match",
-    path: ["passwordVerify"],
+    message: 'Passwords do not match',
+    path: ['passwordVerify'],
   });
 
 export const baseSchema = z.object({
@@ -45,8 +47,8 @@ export const signUpFormSchema = z
     ...verifyPasswordSchema.shape,
   })
   .refine((data) => data.password === data.passwordVerify, {
-    message: "Passwords do not match",
-    path: ["passwordVerify"],
+    message: 'Passwords do not match',
+    path: ['passwordVerify'],
   });
 
 export const forgotPasswordFormSchema = z.object({

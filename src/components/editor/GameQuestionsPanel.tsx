@@ -12,8 +12,7 @@ const HeaderSection = ({ gameId }: { gameId: string }) => {
   const {
     history: { back },
   } = useRouter();
-  const gameQuery = useGetGame(params.gameId);
-  const gameData = gameQuery.data;
+  const { data: gameData } = useGetGame(params.gameId);
   return (
     <div className="flex items-center justify-between border-b border-b-foreground/10 px-2 py-1">
       <div>{gameData?.name}</div>

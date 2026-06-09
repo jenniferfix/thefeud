@@ -1,27 +1,22 @@
 'use client';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { redirect, useNavigate } from '@tanstack/react-router';
+import { getRouteApi, redirect, useNavigate } from '@tanstack/react-router';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   getUserGamesQueryOptions,
-  useGetGames,
   useGetUserGames,
 } from '@/hooks/usegamequeries';
 import { useCreateGameInstance } from '@/hooks/useinstancequeries';
 import { useSupabaseAuth } from '@/supabaseauth';
 import { cn } from '@/utils/utils';
 
-const SelectAndStart = () => {
+const SelectAndStartInner = ({ userId }: { userId: string }) => {
   const auth = useSupabaseAuth();
   // console.log(auth.user?.id);
   const navigate = useNavigate();
-  // const { data, isError, isLoading, error } = useGetGames();
-  const { data, isError, isLoading, error } = useGetUserGames(auth?.user?.id!);
-  // const { data, isError, isLoading, error } = useSuspenseQuery(
-  //   getUserGamesQueryOptions(auth?.user?.id!),
-  // );
+  const { data, isError, isLoading, error } = useGetUserGames(userId);
   const [selectedGame, setSelectedGame] = React.useState<string | null>(null);
   const {
     data: instanceData,
@@ -90,6 +85,12 @@ const SelectAndStart = () => {
       </Button>
     </React.Fragment>
   );
+};
+
+const SelectAndStart = () => {
+  const auth = useSupabaseAuth();
+  if (!auth.session) return null;
+  return <SelectAndStartInner userId={auth.session.user.id} />;
 };
 
 export default SelectAndStart;

@@ -3,11 +3,10 @@ import {
   createFormHook,
   createFormHookContexts,
   useStore,
-} from "@tanstack/react-form";
-import * as React from "react";
-import { ZodError } from "zod";
-import { Button } from "@/components/ui/button";
-import { Checkbox as CheckboxComponent } from "@/components/ui/checkbox";
+} from '@tanstack/react-form';
+import * as React from 'react';
+import { Button } from '@/components/ui/button';
+import { Checkbox as CheckboxComponent } from '@/components/ui/checkbox';
 import {
   Field as FieldComponent,
   FieldContent,
@@ -19,8 +18,8 @@ import {
   FieldSeparator,
   FieldSet,
   FieldTitle,
-} from "@/components/ui/field";
-import { Input as InputComponent } from "@/components/ui/input";
+} from '@/components/ui/field';
+import { Input as InputComponent } from '@/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
@@ -28,12 +27,12 @@ import {
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
-} from "@/components/ui/input-group";
-import { PasswordInput } from "@/components/ui/password-input";
-import { Switch as SwitchComponent } from "@/components/ui/switch";
-import { Toggle as ToggleControl } from "@/components/ui/toggle";
-import { WaitButton } from "@/components/ui/wait-button";
-import { cn, getErrorMessage } from "@/utils/utils";
+} from '@/components/ui/input-group';
+import { PasswordInput } from '@/components/ui/password-input';
+import { Switch as SwitchComponent } from '@/components/ui/switch';
+import { Toggle as ToggleControl } from '@/components/ui/toggle';
+import { WaitButton } from '@/components/ui/wait-button';
+import { cn, getErrorMessage } from '@/utils/utils';
 
 const {
   fieldContext,
@@ -93,7 +92,7 @@ const useFieldContext = () => {
   const errors = useStore(store, (state) => state.meta.errors);
 
   if (!fieldContext) {
-    throw new Error("useFieldContext should be used within <FormItem>");
+    throw new Error('useFieldContext should be used within <FormItem>');
   }
 
   return {
@@ -133,7 +132,7 @@ function FormLabel({
   return (
     <FieldLabelComponent
       data-slot="form-label"
-      className={cn("text-lg font-semibold", className)}
+      className={cn('text-lg font-semibold', className)}
       {...props}
     />
   );
@@ -267,16 +266,16 @@ function FormDescription({
   return (
     <FieldDescriptionComponent
       data-slot="form-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
   );
 }
 
-function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
+function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { errors, formMessageId } = useFieldContext();
   const body = errors.length
-    ? String(errors.at(0)?.message ?? "")
+    ? String(errors.at(0)?.message ?? '')
     : props.children;
 
   if (!body) return null;
@@ -285,7 +284,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
     <p
       data-slot="form-message"
       id={formMessageId}
-      className={cn("text-destructive text-sm", className)}
+      className={cn('text-destructive text-sm', className)}
       {...props}
     >
       {body}
@@ -307,7 +306,7 @@ function FieldInfo({ field }: { field: AnyFieldApi }) {
             ))}
         </ul>
       ) : null}
-      {field.state.meta.isValidating ? "Validating..." : null}
+      {field.state.meta.isValidating ? 'Validating...' : null}
     </>
   );
 }

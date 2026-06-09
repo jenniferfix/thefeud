@@ -1,10 +1,10 @@
-import { useNavigate } from "@tanstack/react-router";
-import React from "react";
-import { ErrorDialog } from "@/components/auth/ErrorDialog";
-import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog";
-import { SignInWithGoogle } from "@/components/auth/SignInWithGoogle";
-import { SignUpDialog } from "@/components/auth/SignUpDialog";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from '@tanstack/react-router';
+import React from 'react';
+import { ErrorDialog } from '@/components/auth/ErrorDialog';
+import { ForgotPasswordDialog } from '@/components/auth/ForgotPasswordDialog';
+import { SignInWithGoogle } from '@/components/auth/SignInWithGoogle';
+import { SignUpDialog } from '@/components/auth/SignUpDialog';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -12,11 +12,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/tanstack-form";
-import useSupabase from "@/hooks/useSupabase";
-import { useSupabaseAuth } from "@/supabaseauth";
-import { signInFormSchema } from "@/types/auth";
+} from '@/components/ui/card';
+import { useAppForm } from '@/components/ui/tanstack-form';
+import useSupabase from '@/hooks/useSupabase';
+import { useSupabaseAuth } from '@/supabaseauth';
+import { signInFormSchema } from '@/types/auth';
 
 export const SignIn = React.memo(({ redirect }: { redirect?: string }) => {
   const navigate = useNavigate();
@@ -33,12 +33,12 @@ export const SignIn = React.memo(({ redirect }: { redirect?: string }) => {
 
   const form = useAppForm({
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
       staySignedIn: false,
     },
     validators: {
-      onSubmit: signInFormSchema.parse,
+      onSubmit: signInFormSchema,
     },
     onSubmit: async ({ value: { email, password } }) => {
       // const res=await supabase.auth.signInWithEmail({ email, password })
@@ -71,7 +71,7 @@ export const SignIn = React.memo(({ redirect }: { redirect?: string }) => {
   });
 
   const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SubmitEvent) => {
       e.preventDefault();
       e.stopPropagation();
       form.handleSubmit();

@@ -16,6 +16,10 @@ export async function getUserGames(
     .throwOnError();
 }
 
+export type GetUserGamesType = Awaited<
+  ReturnType<typeof getUserGames>
+>['data'][number];
+
 export async function getGameQuestions(
   client: TypedSupabaseClient,
   gameId: string,
@@ -77,6 +81,6 @@ export function updateGame(
     .throwOnError();
 }
 
-export function deleteGame(client: TypedSupabaseClient, gameId: string) {
-  return client.from('games').delete().eq('id', gameId).throwOnError();
+export async function deleteGame(client: TypedSupabaseClient, gameId: string) {
+  return await client.from('games').delete().eq('id', gameId).throwOnError();
 }

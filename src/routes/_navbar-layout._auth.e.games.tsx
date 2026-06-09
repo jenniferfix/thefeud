@@ -14,10 +14,10 @@ import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/e/games')({
-  loader: ({ context }) => {
-    // return context.queryClient.ensureQueryData(
-    //   getUserGamesQueryOptions(context.auth?.user?.id!),
-    // );
+  loader: async ({ context: { queryClient, session } }) => {
+    await Promise.allSettled([
+      queryClient.ensureQueryData(getUserGamesQueryOptions(session.user.id)),
+    ]);
   },
   component: () => <EditorLayout />,
 });

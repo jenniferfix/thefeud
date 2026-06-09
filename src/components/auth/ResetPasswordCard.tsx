@@ -1,29 +1,25 @@
-import { useNavigate } from "@tanstack/react-router";
-import React from "react";
+import { useNavigate } from '@tanstack/react-router';
+import React from 'react';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { useAppForm } from "@/components/ui/tanstack-form";
-import useSupabase from "@/hooks/useSupabase";
+} from '@/components/ui/card';
+import { useAppForm } from '@/components/ui/tanstack-form';
+import useSupabase from '@/hooks/useSupabase';
 //import { authClient } from "@/lib/auth/client";
-import { passwordField } from "@/types/auth";
+import { passwordField } from '@/types/auth';
 
 export const ResetPasswordCard = React.memo(({ token }: { token?: string }) => {
   const navigate = useNavigate();
   const form = useAppForm({
     defaultValues: {
-      password: "",
-      passwordVerify: "",
+      password: '',
+      passwordVerify: '',
     },
-    validators: {
-      onSubmit: ({ value }) => {
-        //
-      },
-    },
+    validators: {},
     onSubmit: async ({ value }) => {
       // void authClient.resetPassword(
       //   {
@@ -40,7 +36,7 @@ export const ResetPasswordCard = React.memo(({ token }: { token?: string }) => {
   });
 
   const handleSubmit = React.useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SubmitEvent) => {
       e.preventDefault();
       e.stopPropagation();
       form.handleSubmit();
@@ -58,7 +54,7 @@ export const ResetPasswordCard = React.memo(({ token }: { token?: string }) => {
           <CardContent>
             <form.AppField
               name="password"
-              validators={{ onBlur: passwordField.parse }}
+              validators={{ onBlur: passwordField }}
               children={(field) => (
                 <field.Field>
                   <field.FieldLabel>New Password</field.FieldLabel>
@@ -79,15 +75,15 @@ export const ResetPasswordCard = React.memo(({ token }: { token?: string }) => {
                 },
               }}
               children={(field) => {
-                const passwordField = form.getFieldMeta("password");
+                const passwordField = form.getFieldMeta('password');
 
                 return (
                   <field.Field>
                     <field.FieldLabel>Verify Password</field.FieldLabel>
                     <field.FormPassword
                       disabled={
-                        !form.getFieldMeta("password")?.isValid ||
-                        !form.getFieldMeta("password")?.isTouched
+                        !form.getFieldMeta('password')?.isValid ||
+                        !form.getFieldMeta('password')?.isTouched
                       }
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}

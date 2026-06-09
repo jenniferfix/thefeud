@@ -1,16 +1,16 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/_navbar-layout/_auth")({
-  beforeLoad: async ({ context: { auth, queryClient }, location }) => {
-    if (!auth || !(await auth?.checkAuthenticated())) {
+export const Route = createFileRoute('/_navbar-layout/_auth')({
+  beforeLoad: async ({ context: { session, queryClient }, location }) => {
+    if (!session?.user) {
       throw redirect({
-        to: "/login",
+        to: '/login',
         search: {
           redirect: location.href,
         },
       });
     }
-    return { auth, queryClient };
+    return { session };
   },
   component: () => <Outlet />,
 });

@@ -1,17 +1,16 @@
+import { createFileRoute, Outlet, useRouterState } from '@tanstack/react-router';
 import * as React from 'react';
-import { createFileRoute, Outlet } from '@tanstack/react-router';
-import { questionsQueryOptions } from '@/hooks/usequestionqueries';
 import Questions from '@/components/editor/Questions';
 import {
-  ResizablePanel,
   ResizableHandle,
+  ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { useRouterState } from '@tanstack/react-router';
+import { questionsQueryOptions } from '@/hooks/usequestionqueries';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/e/questions')({
-  loader: async ({ context: { queryClient, auth } }) => {
+  loader: async ({ context: { queryClient, session } }) => {
     // TODO: Fix the problem with not having the user.id on the first render
     // (hence no data query possible here)
     // return await queryClient.ensureQueryData(
