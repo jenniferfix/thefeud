@@ -19,7 +19,7 @@ export async function getUsersQuestions(
 ) {
   return await client
     .from('questions')
-    .select('*')
+    .select('id, question, answers(id, answer, score)')
     .eq('user_id', userid)
     .throwOnError();
 }

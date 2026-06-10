@@ -3,9 +3,9 @@ import {
   useMutation,
   useQuery,
   useQueryClient,
+  useSuspenseQuery,
 } from '@tanstack/react-query';
 import { normalizeToArray } from '#/lib/utils';
-import useSupabase from '@/hooks/useSupabase';
 import type { AnswersInsert } from '@/queries/answerqueries';
 import {
   deleteAnswer,
@@ -15,7 +15,10 @@ import {
 } from '@/queries/answerqueries';
 import type { Database, Tables } from '@/types/supabase.types';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
-import { getQuestionQueryKey } from './usequestionqueries';
+import {
+  getQuestionQueryKey,
+  getQuestionsQueryKey,
+} from './usequestionqueries';
 
 const supabase = getSupabaseBrowserClient();
 
@@ -66,6 +69,7 @@ export function useInsertAnswer() {
     },
     onSettled: async (data, _error, _answers, _result, { client }) => {
       await Promise.allSettled([
+        client.invalidateQueries({ queryKey: getQuestionsQueryKey() }),
         client.invalidateQueries({ queryKey: ['answers'] }),
         data
           ? client.invalidateQueries({

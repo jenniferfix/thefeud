@@ -5,7 +5,6 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { NewQuestionDialog } from '@/components/editor/NewQuestionDialog';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -140,9 +139,6 @@ const Questions = () => {
   const questions = questionsQuery.data;
   return (
     <section className="flex flex-col justify-between h-full w-full pt-3 px-2">
-      <div>
-        <NewQuestionDialog />
-      </div>
       <ScrollArea className="flex flex-col justify-start h-full">
         {questions?.map((q) => (
           <Question key={q.id} question={q} />

@@ -1,6 +1,5 @@
 import React from 'react';
 import { toast } from 'sonner';
-import { z } from 'zod';
 import {
   Dialog,
   DialogClose,
@@ -13,33 +12,39 @@ import {
 } from '@/components/ui/dialog';
 import { useInsertAnswer } from '@/hooks/useanswerqueries';
 import { useGetQuestion, useInsertQuestion } from '@/hooks/usequestionqueries';
-// import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
-import { useSupabaseAuth } from '@/supabaseauth';
-import type { Tables } from '@/types/supabase.types';
+import {
+  type AnswerType,
+  answerSchema,
+  questionSchema,
+} from '@/lib/schemas/questions';
 import { cn } from '@/utils/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { useAppForm } from '../ui/tanstack-form';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
-const answerSchema = z.object({
-  answer: z.string(),
-  score: z.int(),
-});
-type AnswerType = z.infer<typeof answerSchema>;
+export interface AnswersProps extends AnswerType {
+  id: string;
+}
 
-const questionSchema = z.object({
-  question: z.string(),
-  answers: z.array(answerSchema),
-});
+export type NewQuestionDialogProps = {
+  children: React.ReactNode;
+  questionId?: string;
+  question?: string;
+  answers?: AnswersProps[];
+};
 
-export const NewQuestionDialog = () => {
+export const NewQuestionDialog = ({
+  children,
+  question,
+  questionId,
+  answers,
+}: NewQuestionDialogProps) => {
   const insertQuestion = useInsertQuestion();
   const insertAnswer = useInsertAnswer();
   const [open, setOpen] = React.useState(false);
 
   const form = useAppForm({
     defaultValues: {
-      question: '',
+      question: question ?? '',
       answers: [] as AnswerType[],
     },
     validators: {
@@ -67,7 +72,7 @@ export const NewQuestionDialog = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>Dialog</DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="top-20 translate-y-0 flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Add/Edit Question</DialogTitle>

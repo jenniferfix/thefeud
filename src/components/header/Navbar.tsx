@@ -26,6 +26,10 @@ const links = [
     to: '/',
   }),
   linkOptions({
+    label: 'Questions',
+    to: '/questions',
+  }),
+  linkOptions({
     label: 'Question Editor',
     to: '/e/questions',
   }),
