@@ -16,6 +16,7 @@ import { Route as NavbarLayoutRouteImport } from './routes/_navbar-layout'
 import { Route as NavbarLayoutIndexRouteImport } from './routes/_navbar-layout.index'
 import { Route as GGameInstanceIdRouteImport } from './routes/g.$gameInstanceId'
 import { Route as NavbarLayoutAuthRouteImport } from './routes/_navbar-layout._auth'
+import { Route as NavbarLayoutAuthQuestionsRouteImport } from './routes/_navbar-layout._auth.questions'
 import { Route as NavbarLayoutAuthERouteImport } from './routes/_navbar-layout._auth.e'
 import { Route as NavbarLayoutAuthCRouteImport } from './routes/_navbar-layout._auth.c'
 import { Route as NavbarLayoutAuthActiveRouteImport } from './routes/_navbar-layout._auth.active'
@@ -63,6 +64,12 @@ const NavbarLayoutAuthRoute = NavbarLayoutAuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => NavbarLayoutRoute,
 } as any)
+const NavbarLayoutAuthQuestionsRoute =
+  NavbarLayoutAuthQuestionsRouteImport.update({
+    id: '/questions',
+    path: '/questions',
+    getParentRoute: () => NavbarLayoutAuthRoute,
+  } as any)
 const NavbarLayoutAuthERoute = NavbarLayoutAuthERouteImport.update({
   id: '/e',
   path: '/e',
@@ -161,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/active': typeof NavbarLayoutAuthActiveRoute
   '/c': typeof NavbarLayoutAuthCRouteWithChildren
   '/e': typeof NavbarLayoutAuthERouteWithChildren
+  '/questions': typeof NavbarLayoutAuthQuestionsRoute
   '/c/$gameInstanceId/$questionId': typeof AuthCGameInstanceIdQuestionIdRoute
   '/c/continue': typeof NavbarLayoutAuthCContinueRoute
   '/c/new': typeof NavbarLayoutAuthCNewRoute
@@ -180,6 +188,7 @@ export interface FileRoutesByTo {
   '/': typeof NavbarLayoutIndexRoute
   '/g/$gameInstanceId': typeof GGameInstanceIdRoute
   '/active': typeof NavbarLayoutAuthActiveRoute
+  '/questions': typeof NavbarLayoutAuthQuestionsRoute
   '/c/$gameInstanceId/$questionId': typeof AuthCGameInstanceIdQuestionIdRoute
   '/c/continue': typeof NavbarLayoutAuthCContinueRoute
   '/c/new': typeof NavbarLayoutAuthCNewRoute
@@ -203,6 +212,7 @@ export interface FileRoutesById {
   '/_navbar-layout/_auth/active': typeof NavbarLayoutAuthActiveRoute
   '/_navbar-layout/_auth/c': typeof NavbarLayoutAuthCRouteWithChildren
   '/_navbar-layout/_auth/e': typeof NavbarLayoutAuthERouteWithChildren
+  '/_navbar-layout/_auth/questions': typeof NavbarLayoutAuthQuestionsRoute
   '/_auth/c/$gameInstanceId/$questionId': typeof AuthCGameInstanceIdQuestionIdRoute
   '/_navbar-layout/_auth/c/continue': typeof NavbarLayoutAuthCContinueRoute
   '/_navbar-layout/_auth/c/new': typeof NavbarLayoutAuthCNewRoute
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/active'
     | '/c'
     | '/e'
+    | '/questions'
     | '/c/$gameInstanceId/$questionId'
     | '/c/continue'
     | '/c/new'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/g/$gameInstanceId'
     | '/active'
+    | '/questions'
     | '/c/$gameInstanceId/$questionId'
     | '/c/continue'
     | '/c/new'
@@ -268,6 +280,7 @@ export interface FileRouteTypes {
     | '/_navbar-layout/_auth/active'
     | '/_navbar-layout/_auth/c'
     | '/_navbar-layout/_auth/e'
+    | '/_navbar-layout/_auth/questions'
     | '/_auth/c/$gameInstanceId/$questionId'
     | '/_navbar-layout/_auth/c/continue'
     | '/_navbar-layout/_auth/c/new'
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof NavbarLayoutAuthRouteImport
       parentRoute: typeof NavbarLayoutRoute
+    }
+    '/_navbar-layout/_auth/questions': {
+      id: '/_navbar-layout/_auth/questions'
+      path: '/questions'
+      fullPath: '/questions'
+      preLoaderRoute: typeof NavbarLayoutAuthQuestionsRouteImport
+      parentRoute: typeof NavbarLayoutAuthRoute
     }
     '/_navbar-layout/_auth/e': {
       id: '/_navbar-layout/_auth/e'
@@ -516,12 +536,14 @@ interface NavbarLayoutAuthRouteChildren {
   NavbarLayoutAuthActiveRoute: typeof NavbarLayoutAuthActiveRoute
   NavbarLayoutAuthCRoute: typeof NavbarLayoutAuthCRouteWithChildren
   NavbarLayoutAuthERoute: typeof NavbarLayoutAuthERouteWithChildren
+  NavbarLayoutAuthQuestionsRoute: typeof NavbarLayoutAuthQuestionsRoute
 }
 
 const NavbarLayoutAuthRouteChildren: NavbarLayoutAuthRouteChildren = {
   NavbarLayoutAuthActiveRoute: NavbarLayoutAuthActiveRoute,
   NavbarLayoutAuthCRoute: NavbarLayoutAuthCRouteWithChildren,
   NavbarLayoutAuthERoute: NavbarLayoutAuthERouteWithChildren,
+  NavbarLayoutAuthQuestionsRoute: NavbarLayoutAuthQuestionsRoute,
 }
 
 const NavbarLayoutAuthRouteWithChildren =

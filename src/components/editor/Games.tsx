@@ -183,7 +183,7 @@ const Game = ({ game }: { game: GetUserGamesType }) => {
           <ItemDescription>
             {!game.questions.length && 'Click to edit and add questions'}
             {game.questions.map((q) => (
-              <span>{q.question}</span>
+              <span key={q.id}>{q.question}</span>
             ))}
           </ItemDescription>
         </ItemContent>

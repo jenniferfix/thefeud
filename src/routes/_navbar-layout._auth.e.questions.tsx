@@ -1,4 +1,8 @@
-import { createFileRoute, Outlet, useRouterState } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  Outlet,
+  useRouterState,
+} from '@tanstack/react-router';
 import * as React from 'react';
 import Questions from '@/components/editor/Questions';
 import {
@@ -7,7 +11,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { questionsQueryOptions } from '@/hooks/usequestionqueries';
+import { getUserQuestionsQueryOptions } from '@/hooks/usequestionqueries';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/e/questions')({
   loader: async ({ context: { queryClient, session } }) => {

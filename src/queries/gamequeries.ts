@@ -42,39 +42,39 @@ export function getGame(client: TypedSupabaseClient, gameid: string) {
     .single()
     .throwOnError();
 }
-export function addQuestionToGame(
+export async function addQuestionToGame(
   client: TypedSupabaseClient,
   questionid: string,
   gameid: string,
 ) {
-  return client
+  return await client
     .from('game_questions')
     .insert({ gameid, questionid })
     .throwOnError();
 }
 
-export function removeQuestionFromGame(
+export async function removeQuestionFromGame(
   client: TypedSupabaseClient,
   questionid: string,
   gameid: string,
 ) {
-  return client
+  return await client
     .from('game_questions')
     .delete()
     .match({ gameid, questionid })
     .throwOnError();
 }
 
-export function insertGame(client: TypedSupabaseClient, name: string) {
-  return client.from('games').insert({ name }).throwOnError();
+export async function insertGame(client: TypedSupabaseClient, name: string) {
+  return await client.from('games').insert({ name }).throwOnError();
 }
 
-export function updateGame(
+export async function updateGame(
   client: TypedSupabaseClient,
   gameId: string,
   gameName: string,
 ) {
-  return client
+  return await client
     .from('games')
     .update({ name: gameName })
     .eq('id', gameId)

@@ -1,95 +1,92 @@
 'use client';
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import useSupabase from '@/hooks/useSupabase';
 import {
+  deleteQuestion,
+  getQuestion,
   getUsersQuestions,
   insertQuestion,
   updateQuestion,
-  deleteQuestion,
-  getQuestion,
 } from '@/queries/questionqueries';
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  queryOptions,
-} from '@tanstack/react-query';
 import { Tables } from '@/types/supabase.types';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
 const supabase = getSupabaseBrowserClient();
 
-export const getQuestionQueryOptions = (questionid: string) =>
+export const getQuestionQueryKey = (questionId: string) => [
+  'question',
+  questionId,
+];
+
+export const getQuestionQueryOptions = (questionId: string) =>
   queryOptions({
-    queryKey: ['question', questionid],
-    queryFn: async () =>
-      getQuestion(supabase, questionid).then((result) => result?.data),
+    queryKey: getQuestionQueryKey(questionId),
+    queryFn: async (ctx) =>
+      (await getQuestion(supabase, questionId)).data ?? null,
   });
 
-export function useGetUsersQuestions(userid: string) {
-  const client = useSupabase();
-  const queryKey = ['questions'];
+export const useGetQuestion = (questionId: string) => {
+  return useSuspenseQuery(getQuestionQueryOptions(questionId));
+};
 
-  const queryFn = async () => {
-    return getUsersQuestions(client, userid).then((result) => result?.data);
-  };
+export const getQuestionsQueryKey = () => ['questions'];
 
-  return useQuery({ queryKey, queryFn });
+export const getUserQuestionsQueryOptions = (userId: string) =>
+  queryOptions({
+    queryKey: getQuestionsQueryKey(),
+    queryFn: async () =>
+      (await getUsersQuestions(supabase, userId)).data ?? null,
+  });
+
+export function useGetUsersQuestions(userId: string) {
+  return useQuery(getUserQuestionsQueryOptions(userId));
 }
-export const questionsQueryOptions = (userid: string) =>
-  queryOptions({
-    queryKey: ['questions'],
-    queryFn: async () =>
-      getUsersQuestions(supabase, userid).then((result) => result.data),
-  });
 
 export function useInsertQuestion() {
-  const client = useSupabase();
-  const queryClient = useQueryClient();
-
-  const mutationFn = async ({ question }: { question: string }) => {
-    return insertQuestion(client, question).then((result) => result?.data);
-  };
-
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['questions'] });
-  };
-
-  return useMutation({ mutationFn, onSuccess });
+  return useMutation({
+    mutationFn: async ({ question }: { question: string }) =>
+      (await insertQuestion(supabase, question)).data ?? null,
+    onSettled: async (_data, _error, _variables, _result, { client }) => {
+      await client.invalidateQueries({ queryKey: getQuestionsQueryKey() });
+    },
+  });
 }
 
 export function useUpdateQuestion() {
-  const client = useSupabase();
-  const queryClient = useQueryClient();
-
-  const mutationFn = async ({
-    questionId,
-    question,
-  }: {
-    questionId: string;
-    question: string;
-  }) => {
-    return updateQuestion(client, { id: questionId, question }).then(
-      (result) => result?.data,
-    );
-  };
-
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['questions'] });
-  };
-  return useMutation({ mutationFn, onSuccess });
+  return useMutation({
+    mutationFn: async ({
+      questionId,
+      question,
+    }: {
+      questionId: string;
+      question: string;
+    }) => {
+      return (
+        (await updateQuestion(supabase, { id: questionId, question })).data ??
+        null
+      );
+    },
+    onSettled: async (_data, _error, { questionId }, _result, { client }) => {
+      await Promise.allSettled([
+        client.invalidateQueries({ queryKey: getQuestionQueryKey(questionId) }),
+        client.invalidateQueries({ queryKey: getQuestionsQueryKey() }),
+      ]);
+    },
+  });
 }
 
 export function useDeleteQuestion() {
-  const client = useSupabase();
-  const queryClient = useQueryClient();
-
-  const mutationFn = async ({ questionId }: { questionId: string }) => {
-    return deleteQuestion(client, questionId).then((result) => result?.data);
-  };
-
-  const onSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['questions'] });
-  };
-
-  return useMutation({ mutationFn, onSuccess });
+  return useMutation({
+    mutationFn: async ({ questionId }: { questionId: string }) =>
+      (await deleteQuestion(supabase, questionId)).data ?? null,
+    onSettled: async (_data, _error, _variables, _result, { client }) => {
+      await client.invalidateQueries({ queryKey: ['questions'] });
+    },
+  });
 }

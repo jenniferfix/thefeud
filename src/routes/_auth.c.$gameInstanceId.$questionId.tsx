@@ -1,14 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import QuestionPage from "@/components/gamecontrol/QuestionPage";
-import { answersByQuestionIdQueryOptions } from "@/hooks/useanswerqueries";
-import { getQuestionQueryOptions } from "@/hooks/usequestionqueries";
+import { createFileRoute } from '@tanstack/react-router';
+import QuestionPage from '@/components/gamecontrol/QuestionPage';
+import { getAnswersByQuestionIdQueryOptions } from '@/hooks/useanswerqueries';
+import { getQuestionQueryOptions } from '@/hooks/usequestionqueries';
 
-export const Route = createFileRoute("/_auth/c/$gameInstanceId/$questionId")({
+export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
   loader: async ({ context: { queryClient }, params }) => {
     const [questionQuery, answersQuery] = await Promise.all([
       queryClient.ensureQueryData(getQuestionQueryOptions(params.questionId)),
       queryClient.ensureQueryData(
-        answersByQuestionIdQueryOptions(params.questionId),
+        getAnswersByQuestionIdQueryOptions(params.questionId),
       ),
     ]);
     return { questionQuery, answersQuery };

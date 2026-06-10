@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { answersByQuestionIdQueryOptions } from '@/hooks/useanswerqueries';
 import EditorAnswers from '@/components/editor/EditorAnswers';
+import { getAnswersByQuestionIdQueryOptions } from '@/hooks/useanswerqueries';
 import { getQuestionQueryOptions } from '@/hooks/usequestionqueries';
 
 export const Route = createFileRoute(
@@ -9,7 +9,9 @@ export const Route = createFileRoute(
   loader: async ({ context: { queryClient }, params: { questionId } }) => {
     const [questionQuery, answersQuery] = await Promise.all([
       queryClient.ensureQueryData(getQuestionQueryOptions(questionId)),
-      queryClient.ensureQueryData(answersByQuestionIdQueryOptions(questionId)),
+      queryClient.ensureQueryData(
+        getAnswersByQuestionIdQueryOptions(questionId),
+      ),
     ]);
     return { questionQuery, answersQuery };
   },

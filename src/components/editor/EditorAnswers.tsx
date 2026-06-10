@@ -20,7 +20,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Waiting } from '@/components/ui/waiting';
 import { WarningDialog } from '@/components/ui/warning';
 import {
-  answersByQuestionIdQueryOptions,
+  getAnswersByQuestionIdQueryOptions,
   useDeleteAnswer,
   useGetAnswersByQuestionId,
   useInsertAnswer,
@@ -171,7 +171,7 @@ const Answers = () => {
   });
   const questionId = params.questionId;
   const answerQuery = useSuspenseQuery(
-    answersByQuestionIdQueryOptions(questionId),
+    getAnswersByQuestionIdQueryOptions(questionId),
   );
   const answers = answerQuery.data;
 

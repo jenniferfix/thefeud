@@ -1,11 +1,12 @@
+import { normalizeToArray } from '#/lib/utils';
 import type { Database } from '@/types/supabase.types';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
-export function getAnswersByQuestionId(
+export async function getAnswersByQuestionId(
   client: TypedSupabaseClient,
   questionid: string,
 ) {
-  return client
+  return await client
     .from('answers')
     .select('*')
     .eq('question_id', questionid)
@@ -21,24 +22,24 @@ export async function updateAnswer(
     data: Database['public']['Tables']['answers']['Update'];
   },
 ) {
-  return client
-    ?.from('answers')
+  return await client
+    .from('answers')
     .update({ ...params.data })
     .match({ id: params.id })
+    .select()
     .throwOnError();
 }
 
 export async function deleteAnswer(client: TypedSupabaseClient, id: string) {
-  return client?.from('answers').delete().eq('id', id).throwOnError();
+  return await client.from('answers').delete().eq('id', id).throwOnError();
 }
+
+export type AnswersInsert = Database['public']['Tables']['answers']['Insert'];
 
 export async function insertAnswer(
   client: TypedSupabaseClient,
   // data: Tables<'answers'> & Required<Pick<Tables<'answers'>, 'question_id'>>,
-  data: Database['public']['Tables']['answers']['Insert'],
+  data: AnswersInsert[],
 ) {
-  return client
-    ?.from('answers')
-    .insert({ ...data })
-    .throwOnError();
+  return await client.from('answers').insert(data).select().throwOnError();
 }

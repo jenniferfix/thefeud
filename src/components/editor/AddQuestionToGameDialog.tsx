@@ -1,23 +1,23 @@
+import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogTrigger,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { TrashIcon, PlusIcon, Pencil1Icon } from '@radix-ui/react-icons';
+import { Waiting } from '@/components/ui/waiting';
 import { useAddQuestionToGame } from '@/hooks/usegamequeries';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { questionsQueryOptions } from '@/hooks/usequestionqueries';
+import { getUserQuestionsQueryOptions } from '@/hooks/usequestionqueries';
 import { useSupabaseAuth } from '@/supabaseauth';
 import { cn } from '@/utils/utils';
-import { Waiting } from '@/components/ui/waiting';
 
 const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -25,7 +25,7 @@ const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
   const auth = useSupabaseAuth();
   const addToGame = useAddQuestionToGame(gameid);
   const questionsQuery = useSuspenseQuery(
-    questionsQueryOptions(auth.user?.id!),
+    getUserQuestionsQueryOptions(auth.user?.id!),
   );
   const questions = questionsQuery.data;
 

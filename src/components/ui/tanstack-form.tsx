@@ -24,15 +24,16 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupInput,
+  InputGroupInput as InputGroupInputComponent,
   InputGroupText,
-  InputGroupTextarea,
+  InputGroupTextarea as InputGroupTextareaComponent,
 } from '@/components/ui/input-group';
 import { PasswordInput } from '@/components/ui/password-input';
 import { Switch as SwitchComponent } from '@/components/ui/switch';
 import { Toggle as ToggleControl } from '@/components/ui/toggle';
 import { WaitButton } from '@/components/ui/wait-button';
 import { cn, getErrorMessage } from '@/utils/utils';
+import { Textarea as TextareaComponent } from './textarea';
 
 const {
   fieldContext,
@@ -65,6 +66,7 @@ const { useAppForm, withForm } = createFormHook({
     FormPassword,
     Toggle,
     FieldRowProvider,
+    Textarea,
   },
   formComponents: {
     Button,
@@ -228,6 +230,69 @@ function Input({ ...props }: React.ComponentProps<typeof InputComponent>) {
 
   return (
     <InputComponent
+      name={name}
+      data-slot="form-control"
+      id={formItemId}
+      aria-describedby={
+        !errors.length
+          ? `${formDescriptionId}`
+          : `${formDescriptionId} ${formMessageId}`
+      }
+      {...props}
+    />
+  );
+}
+
+function InputGroupInput({
+  ...props
+}: React.ComponentProps<typeof InputGroupInputComponent>) {
+  const { name, errors, formItemId, formDescriptionId, formMessageId } =
+    useFieldContext();
+
+  return (
+    <InputGroupInputComponent
+      name={name}
+      data-slot="form-control"
+      id={formItemId}
+      aria-describedby={
+        !errors.length
+          ? `${formDescriptionId}`
+          : `${formDescriptionId} ${formMessageId}`
+      }
+      {...props}
+    />
+  );
+}
+
+function Textarea({
+  ...props
+}: React.ComponentProps<typeof TextareaComponent>) {
+  const { name, errors, formItemId, formDescriptionId, formMessageId } =
+    useFieldContext();
+
+  return (
+    <TextareaComponent
+      name={name}
+      data-slot="form-control"
+      id={formItemId}
+      aria-describedby={
+        !errors.length
+          ? `${formDescriptionId}`
+          : `${formDescriptionId} ${formMessageId}`
+      }
+      {...props}
+    />
+  );
+}
+
+function InputGroupTextarea({
+  ...props
+}: React.ComponentProps<typeof InputGroupTextareaComponent>) {
+  const { name, errors, formItemId, formDescriptionId, formMessageId } =
+    useFieldContext();
+
+  return (
+    <InputGroupTextareaComponent
       name={name}
       data-slot="form-control"
       id={formItemId}
