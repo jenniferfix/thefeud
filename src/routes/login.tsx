@@ -17,5 +17,5 @@ export const Route = createFileRoute('/login')({
 
 const LoginPage = () => {
   const { redirect } = Route.useSearch();
-  return <LoginForm redirect={redirect} />;
+  return <SignIn redirect={redirect} />;
 };

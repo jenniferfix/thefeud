@@ -37,12 +37,13 @@ export const SignIn = React.memo(({ redirect }: { redirect?: string }) => {
       password: '',
       staySignedIn: false,
     },
-    validators: {
-      onSubmit: signInFormSchema,
-    },
+    // validators: {
+    //   onSubmit: signInFormSchema,
+    // },
     onSubmit: async ({ value: { email, password } }) => {
       // const res=await supabase.auth.signInWithEmail({ email, password })
       setIsLoading(true);
+      console.log(email, password);
       await auth.login({ email, password });
       setIsLoading(false);
       // authClient.signIn.email(
@@ -100,7 +101,7 @@ export const SignIn = React.memo(({ redirect }: { redirect?: string }) => {
         <form.AppForm>
           <form onSubmit={handleSubmit}>
             <CardHeader>
-              <CardTitle>Sign into Call Cat</CardTitle>
+              <CardTitle>Sign into The Feud</CardTitle>
               <CardDescription>Sign in to your account</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4 mb-4">
@@ -143,23 +144,24 @@ export const SignIn = React.memo(({ redirect }: { redirect?: string }) => {
               />
             </CardContent>
             <CardFooter className="flex-col gap-4">
-              <form.WaitButton
-                loading={isLoading}
-                className="w-full"
-                type="submit"
-              >
+              <form.WaitButton loading={isLoading} className="w-full">
                 Sign in
               </form.WaitButton>
               <SignInWithGoogle className="w-full" />
               <div className="flex justify-center">or</div>
               <Button
+                type="button"
                 variant="outline"
                 className="w-full"
                 onClick={() => setShowSignUpDialog(true)}
               >
                 Sign up using email
               </Button>
-              <Button variant="link" onClick={() => setShowPasswordReset(true)}>
+              <Button
+                type="button"
+                variant="link"
+                onClick={() => setShowPasswordReset(true)}
+              >
                 Forgot Password
               </Button>
             </CardFooter>

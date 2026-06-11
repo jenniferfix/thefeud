@@ -14,13 +14,13 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { getUserQuestionsQueryOptions } from '@/hooks/usequestionqueries';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/e/questions')({
-  loader: async ({ context: { queryClient, session } }) => {
-    // TODO: Fix the problem with not having the user.id on the first render
-    // (hence no data query possible here)
-    // return await queryClient.ensureQueryData(
-    //   questionsQueryOptions(auth?.user?.id!),
-    // );
-  },
+  //loader: async ({ context: { queryClient, session } }) => {
+  // TODO: Fix the problem with not having the user.id on the first render
+  // (hence no data query possible here)
+  // return await queryClient.ensureQueryData(
+  //   questionsQueryOptions(auth?.user?.id!),
+  // );
+  //},
   component: () => <QuestionsLayout />,
 });
 
@@ -37,11 +37,7 @@ function QuestionsLayout() {
     }
   } else {
     return (
-      <ResizablePanelGroup
-        direction="horizontal"
-        autoSaveId="questionspanel"
-        tagName="main"
-      >
+      <ResizablePanelGroup direction="horizontal">
         <ResizablePanel tagName="section" defaultSize={25}>
           <Questions />
         </ResizablePanel>

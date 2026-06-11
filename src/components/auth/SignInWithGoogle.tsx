@@ -1,7 +1,7 @@
-import { useNavigate, useRouter } from "@tanstack/react-router";
-import { GoogleGradiantIcon } from "@/components/icons/GoogleGradiantIcon";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/utils/utils";
+import { useNavigate, useRouter } from '@tanstack/react-router';
+import { GoogleGradiantIcon } from '@/components/icons/GoogleGradiantIcon';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/utils/utils';
 
 export const SignInWithGoogle = ({
   className,
@@ -11,11 +11,12 @@ export const SignInWithGoogle = ({
   const router = useRouter();
   return (
     <Button
-      className={cn("w-full", className)}
+      type="button"
+      className={cn('w-full', className)}
       onClick={async () => {
         //await authClient.signIn.social({ provider: "google" });
         await router.invalidate();
-        navigate({ to: "/" });
+        navigate({ to: '/' });
       }}
       {...props}
     >
