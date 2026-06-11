@@ -4,12 +4,12 @@ import {
   useRouterState,
 } from '@tanstack/react-router';
 import * as React from 'react';
-import Questions from '@/components/editor/Questions';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from '@/components/ui/resizable';
+} from '#/components/ui/resizable';
+import Questions from '@/components/editor/Questions';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { getUserQuestionsQueryOptions } from '@/hooks/usequestionqueries';
 
@@ -37,12 +37,12 @@ function QuestionsLayout() {
     }
   } else {
     return (
-      <ResizablePanelGroup direction="horizontal">
-        <ResizablePanel tagName="section" defaultSize={25}>
+      <ResizablePanelGroup>
+        <ResizablePanel defaultSize={25}>
           <Questions />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel tagName="section" defaultSize={75}>
+        <ResizablePanel defaultSize={75}>
           <Outlet />
         </ResizablePanel>
       </ResizablePanelGroup>

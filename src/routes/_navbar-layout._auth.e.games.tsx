@@ -34,16 +34,12 @@ const EditorLayout = () => {
     }
   } else {
     return (
-      <ResizablePanelGroup
-        direction="horizontal"
-        autoSaveId="gamespanels"
-        tagName="main"
-      >
-        <ResizablePanel tagName="section" defaultSize={25}>
+      <ResizablePanelGroup orientation="horizontal">
+        <ResizablePanel defaultSize={25}>
           <Games />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel tagName="section" defaultSize={75}>
+        <ResizablePanel defaultSize={75}>
           <Outlet />
         </ResizablePanel>
       </ResizablePanelGroup>
