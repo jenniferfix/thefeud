@@ -2,6 +2,7 @@ import {
   Link,
   type LinkProps,
   linkOptions,
+  useLocation,
   useNavigate,
 } from '@tanstack/react-router';
 import { MenuIcon } from 'lucide-react';
@@ -30,10 +31,6 @@ const links = [
     to: '/questions',
   }),
   linkOptions({
-    label: 'Question Editor',
-    to: '/e/questions',
-  }),
-  linkOptions({
     label: 'Game Editor',
     to: '/e/games',
   }),
@@ -53,6 +50,7 @@ const LoginButton = ({
   className?: string;
 }) => {
   const auth = useSupabaseAuth();
+  const { pathname } = useLocation();
 
   const handleLogoutClick = () => {
     auth.logout();
@@ -82,6 +80,7 @@ const LoginButton = ({
     return (
       <Link
         to="/login"
+        search={{ redirect: pathname }}
         className="flex items-center hover:underline hover:bg-accent/50 border-x px-4"
         onClick={() => closeCallback && closeCallback()}
       >

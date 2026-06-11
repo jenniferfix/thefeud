@@ -4,7 +4,7 @@ export const Route = createFileRoute('/_navbar-layout/_auth')({
   beforeLoad: async ({ context: { session, queryClient }, location }) => {
     if (!session?.user) {
       throw redirect({
-        to: '/login',
+        to: '/',
         search: {
           redirect: location.href,
         },

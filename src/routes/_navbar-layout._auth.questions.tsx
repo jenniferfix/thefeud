@@ -60,7 +60,7 @@ const QuestionListing = React.memo(
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="mr-4 self-center"
+                  className="mr-4 self-center bg-transparent"
                 >
                   {open ? <MinusIcon /> : <PlusIcon />}
                 </Button>

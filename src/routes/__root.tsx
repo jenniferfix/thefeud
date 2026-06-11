@@ -25,6 +25,9 @@ interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async (ctx) => {
     const [sessiondata] = await Promise.all([supabase.auth.getSession()]);
+    // Check for existing session using getClaims
+    const { data } = await supabase.auth.getClaims();
+    console.log('getcloaims', data);
     const session = sessiondata.data.session;
     return { session };
   },
@@ -42,6 +45,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
     links: [
+      {
+        rel: 'preload',
+        href: '/fonts/clarendonbold.woff2',
+        as: 'font',
+        type: 'font/woff2',
+        crossOrigin: 'anonymous',
+      },
       {
         rel: 'stylesheet',
         href: appCss,
