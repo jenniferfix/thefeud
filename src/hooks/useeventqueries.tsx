@@ -1,18 +1,32 @@
 'use client';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import useSupabase from '@/hooks/useSupabase';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { insertEvent, getEventsForGameInstance } from '@/queries/eventqueries';
+import { getEventsForGameInstance, insertEvent } from '@/queries/eventqueries';
 import { Database } from '@/types/supabase.types';
+import { getSupabaseBrowserClient } from '@/utils/supabase/client';
+
+const supabase = getSupabaseBrowserClient();
+
+export const getEventsForGameInstanceQueryKey = (instanceId: string) => [
+  'GameInstanceEvents',
+  instanceId,
+];
+
+export const getEventsForGameInstanceQueryOptions = (instanceId: string) =>
+  queryOptions({
+    queryKey: getEventsForGameInstanceQueryKey(instanceId),
+
+    queryFn: async (opts) =>
+      (await getEventsForGameInstance(supabase, instanceId)).data ?? null,
+  });
 
 export const useGetEventsForGameInstance = (instanceId: string) => {
-  const client = useSupabase();
-  const queryKey = ['GameInstanceEvents', instanceId];
-  const queryFn = async () => {
-    return getEventsForGameInstance(client, instanceId).then(
-      (result) => result?.data,
-    );
-  };
-  return useQuery({ queryKey, queryFn });
+  return useSuspenseQuery(getEventsForGameInstanceQueryOptions(instanceId));
 };
 
 export const useInsertEvent = (instanceId: string) => {
@@ -21,11 +35,11 @@ export const useInsertEvent = (instanceId: string) => {
   const mutationFn = async (
     event: Database['public']['Tables']['game_events']['Insert'],
   ) => {
-    return insertEvent(client, event);
+    return (await insertEvent(client, event)).data ?? null;
   };
   const onSuccess = () => {
     queryClient.invalidateQueries({
-      queryKey: ['GameInstanceEvents', instanceId],
+      queryKey: getEventsForGameInstanceQueryKey(instanceId),
     });
   };
   return useMutation({ mutationFn, onSuccess });

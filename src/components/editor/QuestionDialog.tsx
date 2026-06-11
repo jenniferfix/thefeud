@@ -1,5 +1,5 @@
+import { TrashIcon } from 'lucide-react';
 import React from 'react';
-import { toast } from 'sonner';
 import {
   Dialog,
   DialogClose,
@@ -10,54 +10,117 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useInsertAnswer } from '@/hooks/useanswerqueries';
-import { useGetQuestion, useInsertQuestion } from '@/hooks/usequestionqueries';
 import {
-  type AnswerType,
-  answerSchema,
-  questionSchema,
-} from '@/lib/schemas/questions';
-import { cn } from '@/utils/utils';
-import { ScrollArea } from '../ui/scroll-area';
+  useDeleteAnswer,
+  useInsertAnswer,
+  useUpdateAnswer,
+} from '@/hooks/useanswerqueries';
+import {
+  useInsertQuestion,
+  useUpdateQuestion,
+} from '@/hooks/usequestionqueries';
+import { type AnswerType, questionSchema } from '@/lib/schemas/questions';
 import { useAppForm } from '../ui/tanstack-form';
 
-export interface AnswersProps extends AnswerType {
-  id: string;
+export interface ExistingAnswersType extends AnswerType {
+  id?: string;
 }
 
 export type NewQuestionDialogProps = {
+  editing?: boolean;
   children: React.ReactNode;
   questionId?: string;
   question?: string;
-  answers?: AnswersProps[];
+  answers?: ExistingAnswersType[];
 };
 
 export const NewQuestionDialog = ({
+  editing = false,
   children,
   question,
   questionId,
   answers,
 }: NewQuestionDialogProps) => {
+  const deleteAnswer = useDeleteAnswer();
+  const updateAnswer = useUpdateAnswer();
   const insertQuestion = useInsertQuestion();
   const insertAnswer = useInsertAnswer();
+  const updateQuestion = useUpdateQuestion();
   const [open, setOpen] = React.useState(false);
 
   const form = useAppForm({
     defaultValues: {
       question: question ?? '',
-      answers: [] as AnswerType[],
+      answers: answers ?? ([] as ExistingAnswersType[]),
     },
     validators: {
       onSubmit: questionSchema,
     },
-    onSubmit: async ({ formApi, value: { question, answers } }) => {
-      const [newQ] = await insertQuestion.mutateAsync({ question });
-      const { id: question_id } = newQ;
-      const newAs = await insertAnswer.mutateAsync(
-        answers.map(({ answer, score }) => ({ question_id, answer, score })),
-      );
-      formApi.reset();
-      setOpen(false);
+    onSubmit: async ({ formApi, value }) => {
+      if (!editing) {
+        const [newQ] = await insertQuestion.mutateAsync({
+          question: value.question,
+        });
+        const { id: question_id } = newQ;
+        const newAs = await insertAnswer.mutateAsync(
+          value.answers.map(({ answer, score }) => ({
+            question_id,
+            answer,
+            score,
+          })),
+        );
+        formApi.reset();
+        setOpen(false);
+      } else {
+        if (!questionId) throw Error('questionId must be provided');
+        const question_id = questionId;
+        const questionDirty = question !== value.question;
+        const newAnswers = value.answers.filter((a) => !a.id);
+        const existingAnswers = value.answers?.filter((a) => a.id);
+        const toDelete = answers
+          ?.filter((orig) => !value.answers.find((a) => a.id === orig.id))
+          .map((a) => a.id!);
+        const updatedAnswers = existingAnswers?.filter((current) => {
+          const original = answers?.find((old) => old.id === current.id); // get original row from current row id
+          if (!original) return;
+          /** return true if either field has changed */
+          return (
+            original.answer !== current.answer ||
+            original.score !== current.score
+          );
+        });
+
+        await Promise.all([
+          questionDirty
+            ? updateQuestion.mutateAsync({
+                questionId,
+                question: value.question,
+              })
+            : undefined,
+          toDelete?.length
+            ? deleteAnswer.mutateAsync({ id: toDelete })
+            : undefined,
+          ...(updatedAnswers?.length
+            ? updatedAnswers.map((a) =>
+                updateAnswer.mutateAsync({
+                  id: a.id!,
+                  data: { score: a.score, answer: a.answer },
+                }),
+              )
+            : []),
+          ...(newAnswers?.length
+            ? newAnswers.map(({ answer, score }) =>
+                insertAnswer.mutateAsync({
+                  question_id,
+                  score,
+                  answer,
+                }),
+              )
+            : []),
+        ]);
+        form.reset();
+        setOpen(false);
+      }
     },
   });
 
@@ -96,16 +159,16 @@ export const NewQuestionDialog = ({
               )}
             />
             <form.AppField name="answers" mode="array">
-              {(field) => {
-                const remaining = 8 - field.state.value.length;
+              {(answersField) => {
+                const remaining = 8 - answersField.state.value.length;
                 return (
                   <form.FieldSet>
                     <div className="flex">
                       <div className="grow">
                         <form.FieldLegend>Answers</form.FieldLegend>
-                        <field.FieldDescription>
+                        <answersField.FieldDescription>
                           Keep answers to 4 words max
-                        </field.FieldDescription>
+                        </answersField.FieldDescription>
                       </div>
                       <div className="flex items-center justify-center">
                         <form.Button
@@ -113,7 +176,7 @@ export const NewQuestionDialog = ({
                           disabled={remaining <= 0}
                           variant="outline"
                           onClick={() =>
-                            field.pushValue({ answer: '', score: 0 })
+                            answersField.pushValue({ answer: '', score: 0 })
                           }
                         >
                           {remaining ? (
@@ -130,11 +193,11 @@ export const NewQuestionDialog = ({
                       </div>
                     </div>
                     <form.FieldSet className="mb-4 gap-4">
-                      {field.state.value.map((_, i) => {
+                      {answersField.state.value.map((_, idx) => {
                         return (
-                          <form.FieldGroup key={i} className="flex flex-row">
+                          <form.FieldGroup key={idx} className="flex flex-row">
                             <form.AppField
-                              name={`answers[${i}].answer`}
+                              name={`answers[${idx}].answer`}
                               children={(field) => (
                                 <field.Field className="flex-6">
                                   <field.InputGroup>
@@ -150,7 +213,7 @@ export const NewQuestionDialog = ({
                               )}
                             />
                             <form.AppField
-                              name={`answers[${i}].score`}
+                              name={`answers[${idx}].score`}
                               children={(field) => (
                                 <field.Field className="flex-1">
                                   <field.Input
@@ -171,6 +234,20 @@ export const NewQuestionDialog = ({
                                 </field.Field>
                               )}
                             />
+                            <form.Button
+                              className="self-center"
+                              variant="ghost"
+                              size="icon-sm"
+                              type="button"
+                              onClick={() => {
+                                answersField.handleChange([
+                                  ...answersField.state.value.slice(0, idx),
+                                  ...answersField.state.value.slice(idx + 1),
+                                ]);
+                              }}
+                            >
+                              <TrashIcon />
+                            </form.Button>
                           </form.FieldGroup>
                         );
                       })}
@@ -179,7 +256,7 @@ export const NewQuestionDialog = ({
                 );
               }}
             </form.AppField>
-            <DialogFooter>
+            <DialogFooter className="gap-3">
               <DialogClose asChild>
                 <form.Button
                   type="button"
@@ -201,7 +278,7 @@ export const NewQuestionDialog = ({
                     disabled={!canSubmit && !isSubmitting}
                     loading={isSubmitting}
                   >
-                    Add
+                    {editing ? 'Update' : 'Add'}
                   </form.WaitButton>
                 )}
               />

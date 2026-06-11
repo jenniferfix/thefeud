@@ -20,7 +20,7 @@ import {
   useDeleteAnswer,
   useGetAnswersByQuestionId,
   useInsertAnswer,
-  useUpdateAnswerMutation,
+  useUpdateAnswer,
 } from '@/hooks/useanswerqueries';
 import { deleteQuestion } from '@/queries/questionqueries';
 import type { Tables } from '@/types/supabase.types';
@@ -43,7 +43,7 @@ const Answer = ({
 }) => {
   const deleteAnswer = useDeleteAnswer();
   const insertAnswer = useInsertAnswer();
-  const updateAnswer = useUpdateAnswerMutation();
+  const updateAnswer = useUpdateAnswer();
 
   const form = useForm<z.infer<typeof answerSchema>>({
     resolver: zodResolver(answerSchema),

@@ -30,8 +30,13 @@ export async function updateAnswer(
     .throwOnError();
 }
 
-export async function deleteAnswer(client: TypedSupabaseClient, id: string) {
-  return await client.from('answers').delete().eq('id', id).throwOnError();
+export async function deleteAnswer(client: TypedSupabaseClient, id: string[]) {
+  return await client
+    .from('answers')
+    .delete()
+    .in('id', id)
+    .select()
+    .throwOnError();
 }
 
 export type AnswersInsert = Database['public']['Tables']['answers']['Insert'];

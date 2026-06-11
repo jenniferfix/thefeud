@@ -16,7 +16,7 @@ import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 const supabase = getSupabaseBrowserClient();
 
 import appCss from '../styles.css?url';
-import { SupabaseAuthProvider, useSupabaseAuth } from '../supabaseauth';
+import { SupabaseAuthProvider } from '../supabaseauth';
 
 interface MyRouterContext {
   queryClient: QueryClient;

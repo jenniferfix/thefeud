@@ -1,7 +1,6 @@
 import {
   queryOptions,
   useMutation,
-  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
@@ -35,10 +34,10 @@ export const getAnswersByQuestionIdQueryOptions = (questionId: string) =>
   });
 
 export function useGetAnswersByQuestionId(questionId: string) {
-  return useQuery(getAnswersByQuestionIdQueryOptions(questionId));
+  return useSuspenseQuery(getAnswersByQuestionIdQueryOptions(questionId));
 }
 
-export function useUpdateAnswerMutation() {
+export function useUpdateAnswer() {
   return useMutation({
     mutationFn: async ({
       id,
@@ -68,14 +67,19 @@ export function useInsertAnswer() {
       );
     },
     onSettled: async (data, _error, _answers, _result, { client }) => {
+      if (!data?.length) return;
+      const question_id = data[0].question_id;
       await Promise.allSettled([
         client.invalidateQueries({ queryKey: getQuestionsQueryKey() }),
-        client.invalidateQueries({ queryKey: ['answers'] }),
-        data
-          ? client.invalidateQueries({
-              queryKey: getQuestionQueryKey(data[0].question_id),
-            })
-          : undefined,
+        client.invalidateQueries({
+          queryKey: getQuestionQueryKey(question_id),
+        }),
+        client.invalidateQueries({
+          queryKey: getAnswersByQuestionIdQueryKey(question_id),
+        }),
+        client.invalidateQueries({
+          queryKey: getQuestionQueryKey(question_id),
+        }),
       ]);
     },
   });
@@ -83,12 +87,24 @@ export function useInsertAnswer() {
 
 export function useDeleteAnswer() {
   return useMutation({
-    mutationFn: async ({ id }: { id: string }) => {
-      return (await deleteAnswer(supabase, id)).data ?? null;
+    mutationFn: async ({ id }: { id: string | string[] }) => {
+      return (await deleteAnswer(supabase, normalizeToArray(id))).data ?? null;
     },
-    onSettled: async (_data, _error, _variables, _result, { client }) => {
+    onSettled: async (data, _error, _variables, _result, { client }) => {
+      if (!data?.length) return;
+      const question_id = data[0].question_id;
+
       await Promise.allSettled([
-        client.invalidateQueries({ queryKey: ['answers'] }),
+        client.invalidateQueries({ queryKey: getQuestionsQueryKey() }),
+        client.invalidateQueries({
+          queryKey: getQuestionQueryKey(question_id),
+        }),
+        client.invalidateQueries({
+          queryKey: getAnswersByQuestionIdQueryKey(question_id),
+        }),
+        client.invalidateQueries({
+          queryKey: getQuestionQueryKey(question_id),
+        }),
       ]);
     },
   });

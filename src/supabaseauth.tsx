@@ -1,10 +1,10 @@
-import React from 'react';
 import type {
-  Session,
-  User,
   AuthError,
   AuthResponse,
+  Session,
+  User,
 } from '@supabase/supabase-js';
+import React from 'react';
 import useSupabase from '@/hooks/useSupabase';
 
 export interface AuthContext {
@@ -44,30 +44,28 @@ export const SupabaseAuthProvider = ({
   const [isLogoutError, setIsLogoutError] = React.useState<boolean>(false);
   const [error, setError] = React.useState<AuthError | null>(null);
 
-  const initializeAuth = React.useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      setIsAuthenticated(Boolean(data.session));
-      setSession(data.session);
-      setUser(data.session.user);
-    }
-  }, []);
-
   React.useEffect(() => {
+    const initializeAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        setIsAuthenticated(Boolean(data.session));
+        setSession(data.session);
+        setUser(data.session.user);
+      }
+    };
     initializeAuth();
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      supabase.auth.getUser().then(({ data }) => {
-        setIsAuthenticated(Boolean(session));
-        setSession(session);
-        setUser(data.user);
-      });
-
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const { data } = await supabase.auth.getUser();
+      setIsAuthenticated(Boolean(session));
       setSession(session);
+      setUser(data.user);
     });
+
     return () => subscription.unsubscribe();
-  }, [initializeAuth]);
+  }, []);
 
   const login = React.useCallback(
     async ({ email, password }: { email: string; password: string }) => {
@@ -95,16 +93,16 @@ export const SupabaseAuthProvider = ({
     setIsLoggingOut(true);
     setIsLogoutError(false);
     setError(null);
-    supabase.auth.signOut().then(({ error }) => {
-      if (!error) {
-        setSession(null);
-        setIsLoggingOut(false);
-      } else {
-        setError(error);
-        setIsLogoutError(true);
-        setIsLoggingOut(false);
-      }
-    });
+    const { error } = await supabase.auth.signOut();
+
+    if (!error) {
+      setSession(null);
+      setIsLoggingOut(false);
+    } else {
+      setError(error);
+      setIsLogoutError(true);
+      setIsLoggingOut(false);
+    }
   }, []);
 
   const checkAuthenticated = React.useCallback(async (): Promise<boolean> => {

@@ -19,8 +19,20 @@ export async function getUsersQuestions(
 ) {
   return await client
     .from('questions')
-    .select('id, question, answers(id, answer, score)')
+    .select('id, question, answers(id, answer, score, created_at)')
     .eq('user_id', userid)
+    /** first sort answers by score */
+    .order('score', {
+      referencedTable: 'answers',
+      ascending: false,
+    })
+    /** if multiples have the same score order, use insertion order */
+    .order('created_at', {
+      referencedTable: 'answers',
+      ascending: true,
+    })
+    /** for now order by created_at */
+    .order('created_at', { ascending: false })
     .throwOnError();
 }
 

@@ -8,6 +8,7 @@ import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import React from 'react';
 import { ConfirmDialog } from '#/components/ConfirmDialog';
 import { NewQuestionDialog } from '#/components/editor/NewQuestionDialog';
+import { SortControl } from '#/components/SortControl';
 import { ButtonGroup } from '#/components/ui/button-group';
 import {
   getUserQuestionsQueryOptions,
@@ -52,7 +53,7 @@ const QuestionListing = React.memo(
 
     return (
       <Collapsible open={open} onOpenChange={setOpen}>
-        <article className="grid grid-cols-[auto_1fr] items-start my-6">
+        <article className="grid grid-cols-[auto_1fr] items-start my-6 bg-card border-card rounded-2xl p-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
@@ -69,12 +70,19 @@ const QuestionListing = React.memo(
           </Tooltip>
           <div className="flex">
             <h3 className="flex items-center grow text-2xl self-center">
-              {question}
+              <CollapsibleTrigger>{question}</CollapsibleTrigger>
             </h3>
             <ButtonGroup className="self-center">
-              <Button className="">
-                <PencilIcon />
-              </Button>
+              <NewQuestionDialog
+                editing
+                question={question}
+                questionId={questionId}
+                answers={answers}
+              >
+                <Button size="icon" variant="ghost" className="">
+                  <PencilIcon />
+                </Button>
+              </NewQuestionDialog>
               <ConfirmDialog
                 title="Confirm Delete"
                 message={
@@ -88,7 +96,7 @@ const QuestionListing = React.memo(
                   await deleteQuestion.mutateAsync({ questionId });
                 }}
               >
-                <Button className="">
+                <Button size="icon" variant="ghost" className="">
                   <TrashIcon />
                 </Button>
               </ConfirmDialog>
@@ -96,7 +104,7 @@ const QuestionListing = React.memo(
           </div>
           <div></div>
           <CollapsibleContent className="">
-            <Table className="mt-2">
+            <Table className="mt-2 max-w-sm">
               <TableBody>
                 {answers.map((a, i) => (
                   <TableRow key={i}>
@@ -116,32 +124,30 @@ const QuestionListing = React.memo(
 function RouteComponent() {
   const { session } = Route.useRouteContext();
   const { data } = useGetUsersQuestions(session.user.id);
+
   return (
     <main className="p-2">
-      <section className="w-full max-w-xl">
-        <div className="flex">
-          <h2 className="grow text-3xl font-bold my-4 self-center">
-            Questions
-          </h2>
-          <NewQuestionDialog>
-            <Button
-              variant="outline"
-              size="default"
-              className="ml-auto self-center"
-            >
-              Add <PlusIcon />
-            </Button>
-          </NewQuestionDialog>
-        </div>
+      <section className="w-full max-w-3xl">
+        <h2 className="grow text-3xl font-bold my-4 self-center">Questions</h2>
         <div className="pl-4">
-          {data?.map((q, i) => (
-            <QuestionListing
-              key={i}
-              questionId={q.id}
-              question={q.question}
-              answers={q.answers}
-            />
-          ))}
+          <div className="flex justify-between">
+            <NewQuestionDialog>
+              <Button variant="outline" size="default" className="self-center">
+                Add <PlusIcon />
+              </Button>
+            </NewQuestionDialog>
+            <SortControl />
+          </div>
+          <div>
+            {data?.map((q, i) => (
+              <QuestionListing
+                key={i}
+                questionId={q.id}
+                question={q.question}
+                answers={q.answers}
+              />
+            ))}
+          </div>
         </div>
       </section>
     </main>
