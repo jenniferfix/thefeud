@@ -7,7 +7,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import React from 'react';
 import { ConfirmDialog } from '#/components/ConfirmDialog';
-import { NewQuestionDialog } from '#/components/editor/NewQuestionDialog';
+import { NewQuestionDialog } from '#/components/editor/QuestionDialog';
 import { SortControl } from '#/components/SortControl';
 import { ButtonGroup } from '#/components/ui/button-group';
 import {
