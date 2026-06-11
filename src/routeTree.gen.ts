@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as NavbarLayoutRouteImport } from './routes/_navbar-layout'
 import { Route as NavbarLayoutIndexRouteImport } from './routes/_navbar-layout.index'
 import { Route as GGameInstanceIdRouteImport } from './routes/g.$gameInstanceId'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as NavbarLayoutAuthRouteImport } from './routes/_navbar-layout._auth'
 import { Route as NavbarLayoutAuthQuestionsRouteImport } from './routes/_navbar-layout._auth.questions'
 import { Route as NavbarLayoutAuthERouteImport } from './routes/_navbar-layout._auth.e'
@@ -55,6 +56,11 @@ const NavbarLayoutIndexRoute = NavbarLayoutIndexRouteImport.update({
 const GGameInstanceIdRoute = GGameInstanceIdRouteImport.update({
   id: '/g/$gameInstanceId',
   path: '/g/$gameInstanceId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NavbarLayoutAuthRoute = NavbarLayoutAuthRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/': typeof NavbarLayoutIndexRoute
   '/login': typeof LoginRoute
   '/about': typeof AboutLazyRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/g/$gameInstanceId': typeof GGameInstanceIdRoute
   '/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
   '/active': typeof NavbarLayoutAuthActiveRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/about': typeof AboutLazyRoute
   '/': typeof NavbarLayoutIndexRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/g/$gameInstanceId': typeof GGameInstanceIdRoute
   '/active': typeof NavbarLayoutAuthActiveRoute
   '/questions': typeof NavbarLayoutAuthQuestionsRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/about': typeof AboutLazyRoute
   '/_navbar-layout/_auth': typeof NavbarLayoutAuthRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/g/$gameInstanceId': typeof GGameInstanceIdRoute
   '/_navbar-layout/': typeof NavbarLayoutIndexRoute
   '/_auth/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/about'
+    | '/auth/callback'
     | '/g/$gameInstanceId'
     | '/c/$gameInstanceId'
     | '/active'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/about'
     | '/'
+    | '/auth/callback'
     | '/g/$gameInstanceId'
     | '/active'
     | '/questions'
@@ -240,6 +251,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/about'
     | '/_navbar-layout/_auth'
+    | '/auth/callback'
     | '/g/$gameInstanceId'
     | '/_navbar-layout/'
     | '/_auth/c/$gameInstanceId'
@@ -262,6 +274,7 @@ export interface RootRouteChildren {
   NavbarLayoutRoute: typeof NavbarLayoutRouteWithChildren
   LoginRoute: typeof LoginRoute
   AboutLazyRoute: typeof AboutLazyRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   GGameInstanceIdRoute: typeof GGameInstanceIdRoute
   AuthCGameInstanceIdRoute: typeof AuthCGameInstanceIdRouteWithChildren
 }
@@ -301,6 +314,13 @@ declare module '@tanstack/react-router' {
       path: '/g/$gameInstanceId'
       fullPath: '/g/$gameInstanceId'
       preLoaderRoute: typeof GGameInstanceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_navbar-layout/_auth': {
@@ -503,6 +523,7 @@ const rootRouteChildren: RootRouteChildren = {
   NavbarLayoutRoute: NavbarLayoutRouteWithChildren,
   LoginRoute: LoginRoute,
   AboutLazyRoute: AboutLazyRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   GGameInstanceIdRoute: GGameInstanceIdRoute,
   AuthCGameInstanceIdRoute: AuthCGameInstanceIdRouteWithChildren,
 }

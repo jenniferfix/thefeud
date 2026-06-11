@@ -14,160 +14,156 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useAppForm } from '@/components/ui/tanstack-form';
-import useSupabase from '@/hooks/useSupabase';
+import { getSafeRedirectPath } from '@/lib/auth';
 import { useSupabaseAuth } from '@/supabaseauth';
-import { signInFormSchema } from '@/types/auth';
 
-export const SignIn = React.memo(({ redirect }: { redirect?: string }) => {
-  const navigate = useNavigate();
-  const [showSignUpDialog, setShowSignUpDialog] = React.useState(false);
-  const [showPasswordReset, setShowPasswordReset] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [messageBoxTitle, setMessageBoxTitle] = React.useState<string | null>(
-    null,
-  );
-  const [showErrorDialog, setShowErrorDialog] = React.useState(false);
-  const auth = useSupabaseAuth();
-  const supabase = useSupabase();
+export const SignIn = React.memo(
+  ({ redirect, error }: { redirect?: string; error?: string }) => {
+    const navigate = useNavigate();
+    const [showSignUpDialog, setShowSignUpDialog] = React.useState(false);
+    const [showPasswordReset, setShowPasswordReset] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+    const [messageBoxTitle, setMessageBoxTitle] = React.useState<string | null>(
+      null,
+    );
+    const [showErrorDialog, setShowErrorDialog] = React.useState(false);
+    const auth = useSupabaseAuth();
 
-  const form = useAppForm({
-    defaultValues: {
-      email: '',
-      password: '',
-      staySignedIn: false,
-    },
-    // validators: {
-    //   onSubmit: signInFormSchema,
-    // },
-    onSubmit: async ({ value: { email, password } }) => {
-      // const res=await supabase.auth.signInWithEmail({ email, password })
-      setIsLoading(true);
-      console.log(email, password);
-      await auth.login({ email, password });
-      setIsLoading(false);
-      // authClient.signIn.email(
-      //   {
-      //     email: value.email,
-      //     password: value.password,
-      //   },
-      //   {
-      //     onSuccess: async () => {
-      //       setIsLoading(false);
-      //       navigate({ to: "/" });
-      //     },
-      //     onError: async (ctx) => {
-      //       setIsLoading(false);
-      //       const { message } = ctx.error;
-      //       setErrorMessage(message);
-      //       setMessageBoxTitle("Sign-up error");
-      //       setShowErrorDialog(true);
-      //     },
-      //     onRequest: async () => {
-      //       setIsLoading(true);
-      //     },
-      //   },
-      // );
-    },
-  });
+    React.useEffect(() => {
+      if (error === 'oauth_callback') {
+        setMessageBoxTitle('Sign in error');
+        setErrorMessage('Google sign in could not be completed.');
+        setShowErrorDialog(true);
+      }
+    }, [error]);
 
-  const handleSubmit = React.useCallback(
-    (e: React.SubmitEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      form.handleSubmit();
-    },
-    [form.handleSubmit],
-  );
+    const form = useAppForm({
+      defaultValues: {
+        email: '',
+        password: '',
+        staySignedIn: false,
+      },
+      onSubmit: async ({ value: { email, password } }) => {
+        setIsLoading(true);
+        try {
+          await auth.login({ email, password });
+          await navigate({ to: getSafeRedirectPath(redirect) });
+        } catch (loginError) {
+          setMessageBoxTitle('Sign in error');
+          setErrorMessage(
+            loginError instanceof Error
+              ? loginError.message
+              : 'Unable to sign in.',
+          );
+          setShowErrorDialog(true);
+        } finally {
+          setIsLoading(false);
+        }
+      },
+    });
 
-  return (
-    <>
-      <ErrorDialog
-        title={messageBoxTitle}
-        message={errorMessage}
-        show={showErrorDialog}
-        setShow={(show) => setShowErrorDialog(show)}
-      />
-      <SignUpDialog
-        callbackURL="/sign-in"
-        open={showSignUpDialog}
-        onOpenChange={setShowSignUpDialog}
-      />
-      <ForgotPasswordDialog
-        show={showPasswordReset}
-        onShowChange={setShowPasswordReset}
-      />
-      <Card className="max-w-sm">
-        <form.AppForm>
-          <form onSubmit={handleSubmit}>
-            <CardHeader>
-              <CardTitle>Sign into The Feud</CardTitle>
-              <CardDescription>Sign in to your account</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 mb-4">
-              <form.AppField
-                name="email"
-                children={(field) => (
-                  <field.Field className="">
-                    <field.FieldLabel>Email</field.FieldLabel>
-                    <field.Input
-                      placeholder="you@example.com"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  </field.Field>
-                )}
-              />
-              <form.AppField
-                name="password"
-                children={(field) => (
-                  <field.Field>
-                    <field.FieldLabel>Password</field.FieldLabel>
-                    <field.FormPassword
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  </field.Field>
-                )}
-              />
-              <form.AppField
-                name="staySignedIn"
-                children={(field) => (
-                  <field.Field orientation="horizontal">
-                    <field.Checkbox
-                      checked={field.state.value}
-                      onCheckedChange={(value) => field.handleChange(!!value)}
-                    />
-                    <field.FieldLabel>Stay signed in</field.FieldLabel>
-                  </field.Field>
-                )}
-              />
-            </CardContent>
-            <CardFooter className="flex-col gap-4">
-              <form.WaitButton loading={isLoading} className="w-full">
-                Sign in
-              </form.WaitButton>
-              <SignInWithGoogle className="w-full" />
-              <div className="flex justify-center">or</div>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowSignUpDialog(true)}
-              >
-                Sign up using email
-              </Button>
-              <Button
-                type="button"
-                variant="link"
-                onClick={() => setShowPasswordReset(true)}
-              >
-                Forgot Password
-              </Button>
-            </CardFooter>
-          </form>
-        </form.AppForm>
-      </Card>
-    </>
-  );
-});
+    const handleSubmit = React.useCallback(
+      (e: React.SubmitEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      },
+      [form.handleSubmit],
+    );
+
+    return (
+      <>
+        <ErrorDialog
+          title={messageBoxTitle}
+          message={errorMessage}
+          show={showErrorDialog}
+          setShow={(show) => setShowErrorDialog(show)}
+        />
+        <SignUpDialog
+          callbackURL={getSafeRedirectPath(redirect)}
+          open={showSignUpDialog}
+          onOpenChange={setShowSignUpDialog}
+        />
+        <ForgotPasswordDialog
+          show={showPasswordReset}
+          onShowChange={setShowPasswordReset}
+        />
+        <Card className="max-w-sm">
+          <form.AppForm>
+            <form onSubmit={handleSubmit}>
+              <CardHeader>
+                <CardTitle>Sign into The Feud</CardTitle>
+                <CardDescription>Sign in to your account</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4 mb-4">
+                <form.AppField
+                  name="email"
+                  children={(field) => (
+                    <field.Field className="">
+                      <field.FieldLabel>Email</field.FieldLabel>
+                      <field.Input
+                        placeholder="you@example.com"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </field.Field>
+                  )}
+                />
+                <form.AppField
+                  name="password"
+                  children={(field) => (
+                    <field.Field>
+                      <field.FieldLabel>Password</field.FieldLabel>
+                      <field.FormPassword
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </field.Field>
+                  )}
+                />
+                <form.AppField
+                  name="staySignedIn"
+                  children={(field) => (
+                    <field.Field orientation="horizontal">
+                      <field.Checkbox
+                        checked={field.state.value}
+                        onCheckedChange={(value) => field.handleChange(!!value)}
+                      />
+                      <field.FieldLabel>Stay signed in</field.FieldLabel>
+                    </field.Field>
+                  )}
+                />
+              </CardContent>
+              <CardFooter className="flex-col gap-4">
+                <form.WaitButton loading={isLoading} className="w-full">
+                  Sign in
+                </form.WaitButton>
+                <SignInWithGoogle
+                  className="w-full"
+                  redirect={getSafeRedirectPath(redirect)}
+                />
+                <div className="flex justify-center">or</div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowSignUpDialog(true)}
+                >
+                  Sign up using email
+                </Button>
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={() => setShowPasswordReset(true)}
+                >
+                  Forgot Password
+                </Button>
+              </CardFooter>
+            </form>
+          </form.AppForm>
+        </Card>
+      </>
+    );
+  },
+);

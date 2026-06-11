@@ -8,12 +8,10 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { Toaster } from '#/components/ui/sonner';
-import { getSupabaseBrowserClient } from '#/utils/supabase/client';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { getServerAuth, type ServerAuth } from '@/server/auth';
 import PostHogProvider from '../integrations/posthog/provider';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
-
-const supabase = getSupabaseBrowserClient();
 
 import appCss from '../styles.css?url';
 import { SupabaseAuthProvider } from '../supabaseauth';
@@ -23,13 +21,9 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  beforeLoad: async (ctx) => {
-    const [sessiondata] = await Promise.all([supabase.auth.getSession()]);
-    // Check for existing session using getClaims
-    const { data } = await supabase.auth.getClaims();
-    console.log('getcloaims', data);
-    const session = sessiondata.data.session;
-    return { session };
+  beforeLoad: async (): Promise<{ auth: ServerAuth }> => {
+    const auth = await getServerAuth();
+    return { auth };
   },
   head: () => ({
     meta: [
@@ -62,6 +56,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { auth } = Route.useRouteContext();
+
   return (
     <html lang="en">
       <head>
@@ -70,7 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <PostHogProvider>
           <ThemeProvider defaultTheme="dark" storageKey="FeudTheme">
-            <SupabaseAuthProvider>
+            <SupabaseAuthProvider initialUser={auth.user}>
               <TooltipProvider>{children}</TooltipProvider>
               <TanStackDevtools
                 config={{

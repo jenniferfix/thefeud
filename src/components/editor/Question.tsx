@@ -1,20 +1,22 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DashIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons';
+import { useParams } from '@tanstack/react-router';
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import {
-  TrashIcon,
-  PlusIcon,
-  DashIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from '@radix-ui/react-icons';
-import Answers from './Answers';
-import { Input } from '@/components/ui/input';
 import {
   Form,
   FormControl,
@@ -24,18 +26,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Tables } from '@/types/supabase.types';
+import { Input } from '@/components/ui/input';
+import { Waiting } from '@/components/ui/waiting';
+import { WarningDialog } from '@/components/ui/warning';
+import { useRemoveQuestionFromGame } from '@/hooks/usegamequeries';
 import {
   useInsertQuestion,
   useUpdateQuestion,
 } from '@/hooks/usequestionqueries';
-import { useRemoveQuestionFromGame } from '@/hooks/usegamequeries';
-import { useParams } from '@tanstack/react-router';
-import { WarningDialog } from '@/components/ui/warning';
-import { Waiting } from '@/components/ui/waiting';
+import { Tables } from '@/types/supabase.types';
+import Answers from './Answers';
 
 const questionSchema = z.object({
   question: z.string(),
@@ -135,7 +135,7 @@ const Question = ({
       </Form>
       {!addQuestion && (
         <CollapsibleContent className="pl-4 mt-1">
-          <Answers questionid={id!} />
+          {/* <Answers questionid={id!} /> */}
         </CollapsibleContent>
       )}
     </Collapsible>

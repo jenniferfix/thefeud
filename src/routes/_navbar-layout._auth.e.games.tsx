@@ -3,7 +3,6 @@ import {
   Outlet,
   useRouterState,
 } from '@tanstack/react-router';
-import React from 'react';
 import Games from '@/components/editor/Games';
 import {
   ResizableHandle,
@@ -14,9 +13,9 @@ import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/e/games')({
-  loader: async ({ context: { queryClient, session } }) => {
+  loader: async ({ context: { queryClient, user } }) => {
     await Promise.allSettled([
-      queryClient.ensureQueryData(getUserGamesQueryOptions(session.user.id)),
+      queryClient.ensureQueryData(getUserGamesQueryOptions(user.id)),
     ]);
   },
   component: () => <EditorLayout />,

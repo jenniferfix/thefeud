@@ -1,26 +1,33 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createServerClient } from '@supabase/ssr';
+import {
+  getCookies,
+  setCookie,
+  setResponseHeader,
+} from '@tanstack/react-start/server';
+import type { Database } from '@/types/supabase.types';
 
-export const createClient = () => {
-  const cookieStore = cookies();
-
-  return createServerClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_KEY,
+export const createSupabaseServerClient = () => {
+  return createServerClient<Database>(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll();
+        getAll: () => {
+          return Object.entries(getCookies()).map(([name, value]) => ({
+            name,
+            value,
+          }));
         },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
-            });
-          } catch (error) {
-            // The `set` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+        setAll: (cookiesToSet, headers) => {
+          for (const { name, value, options } of cookiesToSet) {
+            setCookie(name, value, options);
+          }
+
+          for (const [name, value] of Object.entries(headers)) {
+            setResponseHeader(
+              name as Parameters<typeof setResponseHeader>[0],
+              value,
+            );
           }
         },
       },

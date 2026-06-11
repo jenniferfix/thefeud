@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAppForm } from '@/components/ui/tanstack-form';
 import useSupabase from '@/hooks/useSupabase';
-//import { authClient } from "@/lib/auth/client";
+import { getSafeRedirectPath } from '@/lib/auth';
 import { signUpFormSchema } from '@/types/auth';
 
 export const SignUpDialog = ({
@@ -42,34 +42,35 @@ export const SignUpDialog = ({
       onSubmit: signUpFormSchema,
     },
     onSubmit: async ({ value: { email, password, name } }) => {
-      const res = supabase.auth.signUp({ email, password });
-      // authClient.signUp.email(
-      // 	{
-      // 		email: value.email,
-      // 		password: value.password,
-      // 		name: value.name,
-      // 		callbackURL,
-      // 	},
-      // 	{
-      // 		onSuccess: async () => {
-      // 			toast("Verification email sent");
-      // 			setIsLoading(false);
-      // 			onOpenChange?.(false);
-      // 			// navigate({ to: "/" });
-      // 		},
-      // 		onError: async (ctx) => {
-      // 			setIsLoading(false);
-      // 			console.error(ctx.error);
-      // 			const { message } = ctx.error;
-      // 			setErrorMessage(message);
-      // 			setMessageBoxTitle("Sign in error");
-      // 			setShowErrorDialog(true);
-      // 		},
-      // 		onRequest: async () => {
-      // 			setIsLoading(true);
-      // 		},
-      // 	},
-      // );
+      setIsLoading(true);
+      const emailRedirectUrl = new URL(
+        '/auth/callback',
+        window.location.origin,
+      );
+      emailRedirectUrl.searchParams.set(
+        'next',
+        getSafeRedirectPath(callbackURL),
+      );
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name },
+          emailRedirectTo: emailRedirectUrl.toString(),
+        },
+      });
+
+      setIsLoading(false);
+      if (error) {
+        setMessageBoxTitle('Sign up error');
+        setErrorMessage(error.message);
+        setShowErrorDialog(true);
+        return;
+      }
+
+      toast('Verification email sent');
+      onOpenChange?.(false);
     },
   });
   const handleSubmit = React.useCallback(
@@ -144,9 +145,6 @@ export const SignUpDialog = ({
                 <form.WaitButton loading={isLoading} type="submit">
                   Sign up
                 </form.WaitButton>
-                {/* <form.WaitButton type="submit" loading={isLoading}> */}
-                {/* 	Sign up */}
-                {/* </form.WaitButton> */}
               </DialogFooter>
             </form>
           </form.AppForm>

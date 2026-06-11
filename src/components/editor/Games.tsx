@@ -209,10 +209,10 @@ const Game = ({ game }: { game: GetUserGamesType }) => {
 };
 
 const Games = () => {
-  const { session } = getRouteApi(
+  const { user } = getRouteApi(
     '/_navbar-layout/_auth/e/games',
   ).useRouteContext();
-  const gameQuery = useGetUserGames(session.user.id);
+  const gameQuery = useGetUserGames(user.id);
   // const gamesQuery = useSuspenseQuery(
   //   getUserGamesQueryOptions(auth?.user?.id!),
   // );

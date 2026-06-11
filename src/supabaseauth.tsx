@@ -1,17 +1,13 @@
-import type {
-  AuthError,
-  AuthResponse,
-  Session,
-  User,
-} from '@supabase/supabase-js';
+import type { AuthError, User } from '@supabase/supabase-js';
+import { useRouter } from '@tanstack/react-router';
 import React from 'react';
 import useSupabase from '@/hooks/useSupabase';
+import type { AuthenticatedUser } from '@/server/auth';
 
 export interface AuthContext {
   isAuthenticated: boolean;
-  checkAuthenticated: () => Promise<boolean>;
-  session: Session | null;
-  user: User | null;
+  isInitialized: boolean;
+  user: User | AuthenticatedUser | null;
   login: ({
     email,
     password,
@@ -22,113 +18,92 @@ export interface AuthContext {
   logout: () => Promise<void>;
   isLoggingIn: boolean;
   isLoggingOut: boolean;
-  isLoginError: boolean;
-  isLogoutError: boolean;
-  error: Error | null;
+  error: AuthError | null;
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null);
 
 export const SupabaseAuthProvider = ({
   children,
+  initialUser,
 }: {
   children: React.ReactNode;
+  initialUser: AuthenticatedUser | null;
 }) => {
   const supabase = useSupabase();
-  const [session, setSession] = React.useState<Session | null>(null);
-  const [user, setUser] = React.useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
+  const router = useRouter();
+  const [user, setUser] = React.useState<User | AuthenticatedUser | null>(
+    initialUser,
+  );
+  const [isInitialized, setIsInitialized] = React.useState(false);
   const [isLoggingIn, setIsLoggingIn] = React.useState<boolean>(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState<boolean>(false);
-  const [isLoginError, setIsLoginError] = React.useState<boolean>(false);
-  const [isLogoutError, setIsLogoutError] = React.useState<boolean>(false);
   const [error, setError] = React.useState<AuthError | null>(null);
 
   React.useEffect(() => {
-    const initializeAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        setIsAuthenticated(Boolean(data.session));
-        setSession(data.session);
-        setUser(data.session.user);
-      }
-    };
-    initializeAuth();
+    void supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null);
+      setIsInitialized(true);
+    });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const { data } = await supabase.auth.getUser();
-      setIsAuthenticated(Boolean(session));
-      setSession(session);
-      setUser(data.user);
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsInitialized(true);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const login = React.useCallback(
     async ({ email, password }: { email: string; password: string }) => {
       setIsLoggingIn(true);
-      setIsLoginError(false);
       setError(null);
-      supabase.auth
-        .signInWithPassword({ email: email, password: password })
-        .then(({ data, error }) => {
-          if (!error) {
-            setSession(data.session);
-            setUser(data.user);
-            setIsLoggingIn(false);
-          } else {
-            setError(error);
-            setIsLoginError(true);
-            setIsLoggingIn(false);
-          }
-        });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      setIsLoggingIn(false);
+      if (error) {
+        setError(error);
+        throw error;
+      }
+
+      setUser(data.user);
+      await router.invalidate();
     },
-    [],
+    [router, supabase],
   );
 
   const logout = React.useCallback(async () => {
     setIsLoggingOut(true);
-    setIsLogoutError(false);
     setError(null);
     const { error } = await supabase.auth.signOut();
 
-    if (!error) {
-      setSession(null);
-      setIsLoggingOut(false);
-    } else {
+    setIsLoggingOut(false);
+    if (error) {
       setError(error);
-      setIsLogoutError(true);
-      setIsLoggingOut(false);
+      throw error;
     }
-  }, []);
 
-  const checkAuthenticated = React.useCallback(async (): Promise<boolean> => {
-    if (!isAuthenticated) {
-      const { data, error } = await supabase.auth.refreshSession();
-      if (!data.user) return false;
-      setSession(data.session);
-      setUser(data.user);
-      setIsAuthenticated(true);
-    }
-    return true;
-  }, []);
+    setUser(null);
+    await router.invalidate();
+  }, [router, supabase]);
+
+  const isAuthenticated = Boolean(user);
 
   return (
     <AuthContext.Provider
       value={{
-        checkAuthenticated,
         isAuthenticated,
-        session,
+        isInitialized,
         user,
         login,
         logout,
         isLoggingIn,
         isLoggingOut,
-        isLoginError,
-        isLogoutError,
         error,
       }}
     >

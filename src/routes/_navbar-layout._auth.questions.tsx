@@ -17,14 +17,7 @@ import {
 } from '#/hooks/usequestionqueries';
 import type { QuestionType } from '#/lib/schemas/questions';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import {
   Tooltip,
   TooltipContent,
@@ -32,11 +25,9 @@ import {
 } from '@/components/ui/tooltip';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/questions')({
-  loader: async ({ context: { queryClient, session } }) => {
+  loader: async ({ context: { queryClient, user } }) => {
     await Promise.allSettled([
-      queryClient.ensureQueryData(
-        getUserQuestionsQueryOptions(session.user.id),
-      ),
+      queryClient.ensureQueryData(getUserQuestionsQueryOptions(user.id)),
     ]);
   },
   component: RouteComponent,
@@ -122,8 +113,8 @@ const QuestionListing = React.memo(
 );
 
 function RouteComponent() {
-  const { session } = Route.useRouteContext();
-  const { data } = useGetUsersQuestions(session.user.id);
+  const { user } = Route.useRouteContext();
+  const { data } = useGetUsersQuestions(user.id);
 
   return (
     <main className="p-2">
