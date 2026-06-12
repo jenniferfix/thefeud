@@ -11,8 +11,9 @@ export async function getUserGames(
 ) {
   return await client
     .from('games')
-    .select(`id, name, questions(id, question)`)
+    .select(`id, name, questions(id, question, answers(id, answer, score))`)
     .eq('userid', userId)
+    .order('created_at', { ascending: false })
     .throwOnError();
 }
 

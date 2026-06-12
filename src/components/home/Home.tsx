@@ -2,14 +2,46 @@ import { animated, useSpring } from '@react-spring/web';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import React from 'react';
+import { cn } from '#/lib/utils';
 import ActiveGames from '@/components/ActiveGames';
 import StartGame from '@/components/gamecontrol/SelectAndStart';
 import { Button } from '@/components/ui/button';
 import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
 import { useSupabaseAuth } from '@/supabaseauth';
 
-const GoButton = ({ children }: { children: React.ReactNode }) => {
-  return <Button className="h-12 text-lg font-semibold">{children}</Button>;
+const GoButton = ({
+  children,
+  className,
+  ...props
+}: { children: React.ReactNode } & React.ComponentProps<typeof Button>) => {
+  return (
+    <Button
+      className={cn('h-12 text-lg font-semibold mx-4 sm:mx-0', className)}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+};
+
+const Wrap = ({
+  children,
+  className,
+  ...props
+}: { children: React.ReactNode } & React.ComponentProps<'div'>) => {
+  return (
+    <span className="whitespace-nowrap">
+      <div
+        className={cn(
+          'tracking-wide first-letter:float-left first-letter:ml-4  first-letter:-mt-2 first-letter:text-6xl font-bold',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    </span>
+  );
 };
 
 export default function Index() {
@@ -25,13 +57,24 @@ export default function Index() {
 
   return (
     <div className="px-4">
-      <div className="my-4 mx-2">
-        <animated.h1 style={springProps} className="text-4xl">
-          Welcome to The Feud
-        </animated.h1>
+      <div className="my-10 text-center relative">
+        {/* <animated.h1 style={springProps} className="text-4xl"> */}
+        <svg
+          viewBox="0 0 240 120"
+          className="inline-block w-[240px] h-[120px] absolute -z-10 fill-feudblue"
+        >
+          <ellipse cx={120} cy={60} rx={120} ry={60} />
+        </svg>
+        <h1 className="translate-y-4 translate-x-4 relative text-4xl inline-block">
+          <Wrap>
+            FAMIL<span className="float-right text-5xl -my-2.5">y</span>
+          </Wrap>
+          <Wrap className="">FEUD</Wrap>
+        </h1>
+        {/* </animated.h1> */}
       </div>
 
-      <section className="flex gap-12 my-12 justify-center">
+      <section className="flex flex-col sm:flex-row gap-12 my-12 justify-center">
         <GoButton>Go to your games!</GoButton>
         <GoButton>Go to the question builder!</GoButton>
       </section>

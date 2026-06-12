@@ -27,6 +27,10 @@ const links = [
     to: '/',
   }),
   linkOptions({
+    label: 'Games',
+    to: '/games',
+  }),
+  linkOptions({
     label: 'Questions',
     to: '/questions',
   }),

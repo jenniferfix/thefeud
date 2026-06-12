@@ -20,6 +20,7 @@ export const Route = createFileRoute('/_navbar-layout/_auth/e/games')({
   },
   component: () => <EditorLayout />,
 });
+
 const EditorLayout = () => {
   const location = useRouterState({ select: (state) => state.location });
   const isMobile = useMediaQuery({ query: '(max-width: 767px)' });

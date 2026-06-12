@@ -1,9 +1,7 @@
 import { PostgrestError } from '@supabase/supabase-js';
 import {
-  mutationOptions,
   queryOptions,
   useMutation,
-  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
@@ -55,19 +53,19 @@ export const getGamesQueryOptions = () =>
   });
 
 export function useGetGames() {
-  return useQuery(getGamesQueryOptions());
+  return useSuspenseQuery(getGamesQueryOptions());
 }
 
 export const getUserGamesQueryOptions = (userId: string) =>
   queryOptions({
     queryKey: ['games', userId],
     queryFn: async () => {
-      return (await getUserGames(supabase, userId)).data;
+      return (await getUserGames(supabase, userId)).data ?? null;
     },
   });
 
 export const useGetUserGames = (userId: string) => {
-  return useQuery(getUserGamesQueryOptions(userId));
+  return useSuspenseQuery(getUserGamesQueryOptions(userId));
 };
 
 export const getGameQuestionsQueryOptions = (gameid: string) =>
@@ -78,7 +76,7 @@ export const getGameQuestionsQueryOptions = (gameid: string) =>
   });
 
 export function useGetGameQuestions(gameId: string) {
-  return useQuery(getGameQuestionsQueryOptions(gameId));
+  return useSuspenseQuery(getGameQuestionsQueryOptions(gameId));
 }
 
 export function useAddQuestionToGame(gameId: string) {

@@ -19,12 +19,13 @@ import {
   useInsertQuestion,
   useUpdateQuestion,
 } from '@/hooks/usequestionqueries';
-import { type AnswerType, questionSchema } from '@/lib/schemas/questions';
+import {
+  type AnswerFormType,
+  questionFormSchema,
+} from '@/lib/schemas/questions';
 import { useAppForm } from '../ui/tanstack-form';
 
-export interface ExistingAnswersType extends AnswerType {
-  id?: string;
-}
+export interface ExistingAnswersType extends AnswerFormType {}
 
 export type NewQuestionDialogProps = {
   editing?: boolean;
@@ -54,7 +55,7 @@ export const NewQuestionDialog = ({
       answers: answers ?? ([] as ExistingAnswersType[]),
     },
     validators: {
-      onSubmit: questionSchema,
+      onSubmit: questionFormSchema,
     },
     onSubmit: async ({ formApi, value }) => {
       if (!editing) {
