@@ -89,80 +89,84 @@ export const SignIn = React.memo(
           show={showPasswordReset}
           onShowChange={setShowPasswordReset}
         />
-        <Card className="max-w-sm">
-          <form.AppForm>
-            <form onSubmit={handleSubmit}>
-              <CardHeader>
-                <CardTitle>Sign into The Feud</CardTitle>
-                <CardDescription>Sign in to your account</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-4 mb-4">
-                <form.AppField
-                  name="email"
-                  children={(field) => (
-                    <field.Field className="">
-                      <field.FieldLabel>Email</field.FieldLabel>
-                      <field.Input
-                        placeholder="you@example.com"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                    </field.Field>
-                  )}
-                />
-                <form.AppField
-                  name="password"
-                  children={(field) => (
-                    <field.Field>
-                      <field.FieldLabel>Password</field.FieldLabel>
-                      <field.FormPassword
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                    </field.Field>
-                  )}
-                />
-                <form.AppField
-                  name="staySignedIn"
-                  children={(field) => (
-                    <field.Field orientation="horizontal">
-                      <field.Checkbox
-                        checked={field.state.value}
-                        onCheckedChange={(value) => field.handleChange(!!value)}
-                      />
-                      <field.FieldLabel>Stay signed in</field.FieldLabel>
-                    </field.Field>
-                  )}
-                />
-              </CardContent>
-              <CardFooter className="flex-col gap-4">
-                <form.WaitButton loading={isLoading} className="w-full">
-                  Sign in
-                </form.WaitButton>
-                <SignInWithGoogle
-                  className="w-full"
-                  redirect={getSafeRedirectPath(redirect)}
-                />
-                <div className="flex justify-center">or</div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setShowSignUpDialog(true)}
-                >
-                  Sign up using email
-                </Button>
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={() => setShowPasswordReset(true)}
-                >
-                  Forgot Password
-                </Button>
-              </CardFooter>
-            </form>
-          </form.AppForm>
-        </Card>
+        <div className="h-full flex items-center justify-center">
+          <Card className="max-w-sm bg-card/50">
+            <form.AppForm>
+              <form onSubmit={handleSubmit}>
+                <CardHeader>
+                  <CardTitle>Sign into The Feud</CardTitle>
+                  <CardDescription>Sign in to your account</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4 mb-4">
+                  <form.AppField
+                    name="email"
+                    children={(field) => (
+                      <field.Field className="">
+                        <field.FieldLabel>Email</field.FieldLabel>
+                        <field.Input
+                          placeholder="you@example.com"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.Field>
+                    )}
+                  />
+                  <form.AppField
+                    name="password"
+                    children={(field) => (
+                      <field.Field>
+                        <field.FieldLabel>Password</field.FieldLabel>
+                        <field.FormPassword
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                      </field.Field>
+                    )}
+                  />
+                  <form.AppField
+                    name="staySignedIn"
+                    children={(field) => (
+                      <field.Field orientation="horizontal">
+                        <field.Checkbox
+                          checked={field.state.value}
+                          onCheckedChange={(value) =>
+                            field.handleChange(!!value)
+                          }
+                        />
+                        <field.FieldLabel>Stay signed in</field.FieldLabel>
+                      </field.Field>
+                    )}
+                  />
+                </CardContent>
+                <CardFooter className="flex-col gap-4">
+                  <form.WaitButton loading={isLoading} className="w-full">
+                    Sign in
+                  </form.WaitButton>
+                  <SignInWithGoogle
+                    className="w-full"
+                    redirect={getSafeRedirectPath(redirect)}
+                  />
+                  <div className="flex justify-center">or</div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowSignUpDialog(true)}
+                  >
+                    Sign up using email
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowPasswordReset(true)}
+                  >
+                    Forgot Password
+                  </Button>
+                </CardFooter>
+              </form>
+            </form.AppForm>
+          </Card>
+        </div>
       </>
     );
   },

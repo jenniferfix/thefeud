@@ -1,10 +1,21 @@
 'use client';
-import React from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
 import { PlayIcon } from '@radix-ui/react-icons';
+import { ClientOnly, Link } from '@tanstack/react-router';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useGetActiveInstances } from '@/hooks/useinstancequeries';
-import { Link } from '@tanstack/react-router';
+
+export const LocalDateTime = ({ value }: { value: string }) => {
+  return (
+    <time dateTime={value}>
+      {new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(new Date(value))}
+    </time>
+  );
+};
 
 const ActiveGames = ({ userid }: { userid?: string }) => {
   const { data, error, isError, isLoading } = useGetActiveInstances();
@@ -16,13 +27,16 @@ const ActiveGames = ({ userid }: { userid?: string }) => {
       {data?.map((d) => (
         <div key={d.id}>
           <Button variant="link" asChild>
-            <Link href={`/g/${d.id}`}>
-              {d.games?.name} started {new Date(d.created_at!).toLocaleString()}
+            <Link to={`/g/$gameInstanceId`} params={{ gameInstanceId: d.id }}>
+              {d.games?.name} started{' '}
+              <ClientOnly>
+                <LocalDateTime value={d.created_at} />
+              </ClientOnly>
             </Link>
           </Button>
           {userid && userid === d.userid && (
             <Button variant="ghost" size="icon" asChild>
-              <Link href={`/c/${d.id}`}>
+              <Link to={`/c/$gameInstanceId`} params={{ gameInstanceId: d.id }}>
                 <PlayIcon />
               </Link>
             </Button>

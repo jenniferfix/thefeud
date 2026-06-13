@@ -1,22 +1,13 @@
 import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import React from 'react';
 import type { GameType } from '#/lib/schemas/game';
-import { Item, ItemContent, ItemHeader, ItemTitle } from '@/components/ui/item';
 import { Button } from '../ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '../ui/card';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../ui/collapsible';
+import { QuestionDialog } from './QuestionDialog';
 import { QuestionListing } from './QuestionListing';
 
 export const GameItem = ({ id, name, questions }: GameType) => {

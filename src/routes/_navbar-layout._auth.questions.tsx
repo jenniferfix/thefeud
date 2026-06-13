@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import React from 'react';
-import { NewQuestionDialog } from '#/components/editor/QuestionDialog';
+import { QuestionDialog } from '#/components/editor/QuestionDialog';
 import { QuestionListing } from '#/components/editor/QuestionListing';
 import { SortControl } from '#/components/SortControl';
 import {
@@ -30,11 +30,11 @@ function RouteComponent() {
         <h2 className="grow text-3xl font-bold my-4 self-center">Questions</h2>
         <div className="pl-4">
           <div className="flex justify-between">
-            <NewQuestionDialog>
+            <QuestionDialog>
               <Button variant="outline" size="default" className="self-center">
                 Add <PlusIcon />
               </Button>
-            </NewQuestionDialog>
+            </QuestionDialog>
             <SortControl />
           </div>
           <div>

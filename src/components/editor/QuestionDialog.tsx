@@ -33,14 +33,16 @@ export type NewQuestionDialogProps = {
   questionId?: string;
   question?: string;
   answers?: ExistingAnswersType[];
+  gameId?: string;
 };
 
-export const NewQuestionDialog = ({
+export const QuestionDialog = ({
   editing = false,
   children,
   question,
   questionId,
   answers,
+  gameId, // if provided we can add this question to the game
 }: NewQuestionDialogProps) => {
   const deleteAnswer = useDeleteAnswer();
   const updateAnswer = useUpdateAnswer();

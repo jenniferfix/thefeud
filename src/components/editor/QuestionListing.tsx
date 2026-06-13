@@ -6,7 +6,7 @@ import {
 import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import React from 'react';
 import { ConfirmDialog } from '#/components/ConfirmDialog';
-import { NewQuestionDialog } from '#/components/editor/QuestionDialog';
+import { QuestionDialog } from '#/components/editor/QuestionDialog';
 import { ButtonGroup } from '#/components/ui/button-group';
 import { useDeleteQuestion } from '#/hooks/usequestionqueries';
 import type { QuestionType } from '#/lib/schemas/questions';
@@ -49,7 +49,7 @@ export const QuestionListing = React.memo(
               <CollapsibleTrigger>{question}</CollapsibleTrigger>
             </h3>
             <ButtonGroup className="self-center">
-              <NewQuestionDialog
+              <QuestionDialog
                 editing
                 question={question}
                 questionId={questionId}
@@ -58,7 +58,7 @@ export const QuestionListing = React.memo(
                 <Button size="icon" variant="ghost" className="">
                   <PencilIcon />
                 </Button>
-              </NewQuestionDialog>
+              </QuestionDialog>
               <ConfirmDialog
                 title="Confirm Delete"
                 message={

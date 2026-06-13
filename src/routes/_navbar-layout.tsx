@@ -8,9 +8,9 @@ export const Route = createFileRoute('/_navbar-layout')({
 
 function NavigationLayout() {
   return (
-    <div className="flex flex-col">
+    <div className="h-full flex flex-col">
       <Navbar />
-      <main className="max-w-4xl">
+      <main className="h-full max-w-4xl">
         <Outlet />
       </main>
     </div>
