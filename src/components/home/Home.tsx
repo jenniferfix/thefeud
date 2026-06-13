@@ -28,19 +28,19 @@ const Wrap = ({
   children,
   className,
   ...props
-}: { children: React.ReactNode } & React.ComponentProps<'div'>) => {
+}: { children: React.ReactNode } & React.ComponentProps<'span'>) => {
   return (
-    <span className="whitespace-nowrap">
-      <div
+    <div className="whitespace-nowrap">
+      <span
         className={cn(
-          'tracking-wide first-letter:float-left first-letter:ml-4  first-letter:-mt-2 first-letter:text-6xl font-bold',
+          'inline-block tracking-wider first-letter:float-left first-letter:ml-4  first-letter:-mt-2 first-letter:text-6xl feudtext',
           className,
         )}
         {...props}
       >
         {children}
-      </div>
-    </span>
+      </span>
+    </div>
   );
 };
 
@@ -57,20 +57,20 @@ export default function Index() {
 
   return (
     <div className="px-4">
-      <div className="my-10 text-center relative">
+      <div className="my-10 sm:my-20 text-center relative scale-125 sm:scale-200">
         {/* <animated.h1 style={springProps} className="text-4xl"> */}
         <svg
-          viewBox="0 0 240 120"
-          className="inline-block w-[240px] h-[120px] absolute -z-10 fill-feudblue"
+          viewBox="0 0 180 90"
+          className="inline-block w-[180px] h-[90px] absolute -z-10 fill-feudblue drop-shadow-[0_0_5px_var(--color-feud-lightblue)] overflow-visible"
         >
-          <ellipse cx={120} cy={60} rx={120} ry={60} />
+          <ellipse cx={90} cy={45} rx={90} ry={45} />
         </svg>
-        <h1 className="translate-y-4 translate-x-4 relative text-4xl inline-block">
-          <Wrap>
+        <div className="-translate-x-2 translate-y-2 relative text-4xl inline-block">
+          <Wrap className="-mb-3.5">
             FAMIL<span className="float-right text-5xl -my-2.5">y</span>
           </Wrap>
-          <Wrap className="">FEUD</Wrap>
-        </h1>
+          <Wrap className="ml-1 -mt-3.5">FEUD</Wrap>
+        </div>
         {/* </animated.h1> */}
       </div>
 
