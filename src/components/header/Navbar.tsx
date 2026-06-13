@@ -109,7 +109,7 @@ const Navbar = () => {
             <MenuIcon />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left">
+        <SheetContent side="left" className="bg-popover/80">
           <SheetHeader>
             <SheetTitle hidden>Menu</SheetTitle>
             <SheetDescription hidden>Application Menu</SheetDescription>

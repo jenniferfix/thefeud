@@ -5,7 +5,7 @@ import React from 'react';
 import { cn } from '#/lib/utils';
 import ActiveGames from '@/components/ActiveGames';
 import StartGame from '@/components/gamecontrol/SelectAndStart';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
 import { useSupabaseAuth } from '@/supabaseauth';
 
@@ -57,26 +57,37 @@ export default function Index() {
 
   return (
     <div className="px-4">
-      <div className="my-10 sm:my-20 text-center relative scale-125 sm:scale-200">
-        {/* <animated.h1 style={springProps} className="text-4xl"> */}
-        <svg
-          viewBox="0 0 180 90"
-          className="inline-block w-[180px] h-[90px] absolute -z-10 fill-feudblue drop-shadow-[0_0_5px_var(--color-feud-lightblue)] overflow-visible"
-        >
-          <ellipse cx={90} cy={45} rx={90} ry={45} />
-        </svg>
-        <div className="-translate-x-2 translate-y-2 relative text-4xl inline-block">
-          <Wrap className="-mb-3.5">
-            FAMIL<span className="float-right text-5xl -my-2.5">y</span>
-          </Wrap>
-          <Wrap className="ml-1 -mt-3.5">FEUD</Wrap>
+      <div className="mb-8 mt-6 flex justify-center">
+        <div className="w-100">
+          <img
+            src="/images/familyfeud.svg"
+            width={1416}
+            height={816}
+            title="Family Feud"
+            className="mx-auto"
+          />
         </div>
+        {/* <animated.h1 style={springProps} className="text-4xl"> */}
         {/* </animated.h1> */}
       </div>
 
       <section className="flex flex-col sm:flex-row gap-12 my-12 justify-center">
-        <GoButton>Go to your games!</GoButton>
-        <GoButton>Go to the question builder!</GoButton>
+        <Link
+          to={'/games'}
+          className={buttonVariants({
+            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0',
+          })}
+        >
+          Go to your games!
+        </Link>
+        <Link
+          to={'/questions'}
+          className={buttonVariants({
+            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0',
+          })}
+        >
+          Go to your questions!
+        </Link>
       </section>
 
       <section className="my-4">
