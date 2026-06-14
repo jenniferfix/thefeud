@@ -1,5 +1,6 @@
 import { TrashIcon } from 'lucide-react';
 import React from 'react';
+import { useAddQuestionToGame } from '#/hooks/usegamequeries';
 import {
   Dialog,
   DialogClose,
@@ -44,6 +45,7 @@ export const QuestionDialog = ({
   answers,
   gameId, // if provided we can add this question to the game
 }: NewQuestionDialogProps) => {
+  const addToGame = useAddQuestionToGame();
   const deleteAnswer = useDeleteAnswer();
   const updateAnswer = useUpdateAnswer();
   const insertQuestion = useInsertQuestion();
@@ -61,17 +63,24 @@ export const QuestionDialog = ({
     },
     onSubmit: async ({ formApi, value }) => {
       if (!editing) {
+        // New Question
         const [newQ] = await insertQuestion.mutateAsync({
           question: value.question,
         });
         const { id: question_id } = newQ;
-        const newAs = await insertAnswer.mutateAsync(
-          value.answers.map(({ answer, score }) => ({
-            question_id,
-            answer,
-            score,
-          })),
-        );
+        const [newAnswers] = await Promise.all([
+          insertAnswer.mutateAsync(
+            value.answers.map(({ answer, score }) => ({
+              question_id,
+              answer,
+              score,
+            })),
+          ),
+          gameId
+            ? addToGame.mutateAsync({ gameId, questionId: question_id })
+            : undefined,
+        ]);
+
         formApi.reset();
         setOpen(false);
       } else {

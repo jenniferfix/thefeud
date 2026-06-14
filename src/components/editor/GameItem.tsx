@@ -28,7 +28,16 @@ export const GameItem = ({ id, name, questions }: GameType) => {
           </h3>
           <div></div>
           <CollapsibleContent>
-            {!questions.length && <div>Nothing here</div>}
+            <QuestionDialog gameId={id}>
+              <Button variant="ghost" className="w-full">
+                Create New Question
+              </Button>
+            </QuestionDialog>
+            {!questions.length && (
+              <div className="text-center my-8 mx-4">
+                <p>Add your first question by clicking the button above.</p>
+              </div>
+            )}
             {questions.map((q) => (
               <QuestionListing
                 key={q.question}

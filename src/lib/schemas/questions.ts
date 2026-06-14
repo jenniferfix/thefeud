@@ -17,7 +17,7 @@ export type AnswerFormType = z.infer<typeof answerFormSchema>;
 
 export const questionFormSchema = z.object({
   question: z.string(),
-  answers: z.array(answerSchema),
+  answers: z.array(answerFormSchema),
 });
 
 export const questionSchema = z.object({

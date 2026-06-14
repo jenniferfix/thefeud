@@ -1,8 +1,8 @@
 import type { QueryData } from '@supabase/supabase-js';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
-export function getGames(client: TypedSupabaseClient) {
-  return client.from('games').select('*').throwOnError();
+export async function getGames(client: TypedSupabaseClient) {
+  return await client.from('games').select('*').throwOnError();
 }
 
 export async function getUserGames(
@@ -35,8 +35,8 @@ export async function getGameQuestions(
 // export type QueryData<T> = T extends PromiseLike<{ data: infer U }> ? Exclude<U, null> : never
 export type TGameQuestions = QueryData<ReturnType<typeof getGameQuestions>>;
 
-export function getGame(client: TypedSupabaseClient, gameid: string) {
-  return client
+export async function getGame(client: TypedSupabaseClient, gameid: string) {
+  return await client
     .from('games')
     .select('*')
     .eq('id', gameid)
