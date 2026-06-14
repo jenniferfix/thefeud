@@ -13,7 +13,6 @@ import { QuestionListing } from './QuestionListing';
 export const GameItem = ({ id, name, questions }: GameType) => {
   const [open, setOpen] = React.useState(true);
 
-  console.log('gameitem', name, questions);
   return (
     <div>
       <Collapsible open={open} onOpenChange={setOpen}>

@@ -116,24 +116,7 @@ export default function Index() {
           </p>
         </div>
       </section>
-      <div className="flex gap-4">
-        {auth.isAuthenticated && (
-          <div>
-            <div>
-              <Link to="/e">Go to your editor</Link>
-            </div>
-            <div>Start a game</div>
-            {auth?.user?.id && (
-              <div>
-                <h3>Your games</h3>
-                <StartGame />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
       <div>
-        <h3>Public games</h3>
         <ActiveGames userid={auth.user?.id} />
       </div>
     </div>

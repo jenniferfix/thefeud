@@ -29,7 +29,7 @@ export const QuestionListing = React.memo(
 
     return (
       <Collapsible open={open} onOpenChange={setOpen}>
-        <article className="grid grid-cols-[auto_1fr] items-start my-6 bg-card border-card rounded-2xl p-2">
+        <article className="grid grid-cols-[auto_1fr] items-start my-6 bg-card/50 border-card rounded-2xl p-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
@@ -45,9 +45,9 @@ export const QuestionListing = React.memo(
             <TooltipContent>{open ? 'Close' : 'Expand'}</TooltipContent>
           </Tooltip>
           <div className="flex">
-            <h3 className="flex items-center grow text-2xl self-center">
-              <CollapsibleTrigger>{question}</CollapsibleTrigger>
-            </h3>
+            <CollapsibleTrigger className="grow text-left text-2xl">
+              {question}
+            </CollapsibleTrigger>
             <ButtonGroup className="self-center">
               <QuestionDialog
                 editing
