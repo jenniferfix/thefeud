@@ -148,7 +148,7 @@ export const QuestionDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="top-20 translate-y-0 flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden">
+      <DialogContent className="top-10 translate-y-0 flex max-h-[calc(100dvh-6rem)] flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Add/Edit Question</DialogTitle>
           <DialogDescription>
@@ -156,7 +156,10 @@ export const QuestionDialog = ({
           </DialogDescription>
         </DialogHeader>
         <form.AppForm>
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={handleSubmit}
+            className="no-scrollbar max-h-[90vh] overflow-y-auto"
+          >
             <form.AppField
               name="question"
               children={(field) => (

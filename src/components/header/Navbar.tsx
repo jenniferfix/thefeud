@@ -8,7 +8,7 @@ import {
 import { MenuIcon } from 'lucide-react';
 import React from 'react';
 import NavLink from '@/components/NavLink';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -61,10 +61,10 @@ const LoginButton = ({
 
   if (auth.isAuthenticated) {
     return (
-      <div
+      <Button
+        variant={mobile ? 'link' : 'ghost'}
         className={cn(
-          'flex items-center hover:bg-accent/75 px-4',
-          mobile ? 'border-b pl-2' : 'border-x',
+          mobile ? 'justify-start border-b pl-2' : 'border-x',
           className,
         )}
         onClick={() => {
@@ -73,14 +73,17 @@ const LoginButton = ({
         }}
       >
         Logout
-      </div>
+      </Button>
     );
   } else {
     return (
       <Link
         to="/login"
         search={{ redirect: pathname }}
-        className="flex items-center hover:underline hover:bg-accent/50 border-x px-4"
+        className={buttonVariants({
+          variant: mobile ? 'link' : 'ghost',
+          className: 'justify-start text-left',
+        })}
         onClick={() => closeCallback && closeCallback()}
       >
         Login
@@ -104,7 +107,7 @@ const Navbar = () => {
             <MenuIcon />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="bg-popover/80">
+        <SheetContent side="left">
           <SheetHeader>
             <SheetTitle hidden>Menu</SheetTitle>
             <SheetDescription hidden>Application Menu</SheetDescription>

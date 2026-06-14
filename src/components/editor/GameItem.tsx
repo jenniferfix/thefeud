@@ -25,7 +25,7 @@ export const GameItem = ({ id, name, questions }: GameType) => {
   const [open, setOpen] = React.useState(true);
 
   return (
-    <Item className="bg-card/25 border border-feud-lightblue rounded-4xl my-2 sm:my-4">
+    <Item className="bg-feudblue/25 border border-feud-lightblue rounded-4xl my-2 sm:my-4">
       <ItemContent>
         <ItemTitle className="text-base">{name}</ItemTitle>
         <ItemDescription>
