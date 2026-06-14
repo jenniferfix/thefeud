@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import React from 'react';
+import { Footer } from '#/components/Footer';
 import Navbar from '@/components/header/Navbar';
 
 export const Route = createFileRoute('/_navbar-layout')({
@@ -8,11 +9,12 @@ export const Route = createFileRoute('/_navbar-layout')({
 
 function NavigationLayout() {
   return (
-    <div className="h-full flex flex-col">
+    <div className="min-h-full flex flex-col">
       <Navbar />
-      <main className="h-full max-w-4xl">
+      <main className="grow max-w-4xl">
         <Outlet />
       </main>
+      <Footer className="max-w-4xl" />
     </div>
   );
 }
