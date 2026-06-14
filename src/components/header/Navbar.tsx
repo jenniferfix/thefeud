@@ -34,10 +34,6 @@ const links = [
     to: '/questions',
   }),
   linkOptions({
-    label: 'Game Editor',
-    to: '/e/games',
-  }),
-  linkOptions({
     label: 'Play',
     to: '/c',
   }),
