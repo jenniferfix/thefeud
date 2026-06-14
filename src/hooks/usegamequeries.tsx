@@ -106,6 +106,7 @@ export function useAddQuestionToGame() {
       { client },
     ) => {
       await Promise.allSettled([
+        client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
         client.invalidateQueries({
           queryKey: getGameQuestionsQueryKey(gameId),
         }),

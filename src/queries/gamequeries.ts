@@ -42,6 +42,7 @@ export async function getGame(client: TypedSupabaseClient, gameid: string) {
       `id, name, created_at, questions(id, question, created_at, answers(id, answer, score))`,
     )
     .eq('id', gameid)
+    .order('created_at', { referencedTable: 'questions', ascending: false })
     .single()
     .throwOnError();
 }

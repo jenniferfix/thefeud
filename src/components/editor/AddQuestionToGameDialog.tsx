@@ -18,15 +18,23 @@ import { useAddQuestionToGame } from '@/hooks/usegamequeries';
 import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
 import { cn } from '@/utils/utils';
 
+export type AddQuestionToGameProps = {
+  gameId: string;
+  children: React.ReactNode;
+  existingIds?: string[];
+};
+
 export const AddQuestionToGameDialog = ({
-  gameid: gameId,
-}: {
-  gameid: string;
-}) => {
+  gameId,
+  children,
+  existingIds,
+}: AddQuestionToGameProps) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<string | null>(null);
   const addToGame = useAddQuestionToGame();
   const { data } = useGetUsersQuestions();
+
+  const unused = data?.filter((q) => !existingIds?.includes(q.id));
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -44,11 +52,7 @@ export const AddQuestionToGameDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="w-full">
-          Add <PlusIcon />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-5/6">
         <DialogHeader>
           <DialogTitle>Select question:</DialogTitle>
@@ -63,7 +67,7 @@ export const AddQuestionToGameDialog = ({
               aria-label="scrollable, selectable list of questions"
               className="p-1"
             >
-              {data?.map((q) => (
+              {unused?.map((q) => (
                 <div
                   key={q.id}
                   role="option"
@@ -96,5 +100,3 @@ export const AddQuestionToGameDialog = ({
     </Dialog>
   );
 };
-
-export default AddQuestionToGameDialog;
