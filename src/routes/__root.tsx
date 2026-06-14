@@ -8,7 +8,6 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { Toaster } from '#/components/ui/sonner';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { getServerAuth, type ServerAuth } from '@/server/auth';
 import PostHogProvider from '../integrations/posthog/provider';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
@@ -63,26 +62,24 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="dark">
         <PostHogProvider>
-          <ThemeProvider defaultTheme="dark" storageKey="FeudTheme">
-            <SupabaseAuthProvider initialUser={auth.user}>
-              <TooltipProvider>{children}</TooltipProvider>
-              <TanStackDevtools
-                config={{
-                  position: 'bottom-right',
-                }}
-                plugins={[
-                  {
-                    name: 'Tanstack Router',
-                    render: <TanStackRouterDevtoolsPanel />,
-                  },
-                  TanStackQueryDevtools,
-                ]}
-              />
-            </SupabaseAuthProvider>
-            <Toaster />
-          </ThemeProvider>
+          <SupabaseAuthProvider initialUser={auth.user}>
+            <TooltipProvider>{children}</TooltipProvider>
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right',
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+                TanStackQueryDevtools,
+              ]}
+            />
+          </SupabaseAuthProvider>
+          <Toaster />
         </PostHogProvider>
         <Scripts />
       </body>

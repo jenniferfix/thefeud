@@ -8,7 +8,7 @@ import { defineConfig } from 'vite';
 
 const config = defineConfig({
   server: {
-    allowedHosts: ['archwitch.tail2b2c5b.ts.net'],
+    allowedHosts: ['archwitch.tail2b2c5b.ts.net', 'localhost'],
   },
   resolve: { tsconfigPaths: true },
   plugins: [

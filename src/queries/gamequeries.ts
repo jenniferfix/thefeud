@@ -38,7 +38,9 @@ export type TGameQuestions = QueryData<ReturnType<typeof getGameQuestions>>;
 export async function getGame(client: TypedSupabaseClient, gameid: string) {
   return await client
     .from('games')
-    .select('*')
+    .select(
+      `id, name, created_at, questions(id, question, created_at, answers(id, answer, score))`,
+    )
     .eq('id', gameid)
     .single()
     .throwOnError();

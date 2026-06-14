@@ -1,5 +1,5 @@
-import { Pencil1Icon, PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { PlusIcon } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,24 +15,23 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Waiting } from '@/components/ui/waiting';
 import { useAddQuestionToGame } from '@/hooks/usegamequeries';
-import { getUserQuestionsQueryOptions } from '@/hooks/usequestionqueries';
-import { useSupabaseAuth } from '@/supabaseauth';
+import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
 import { cn } from '@/utils/utils';
 
-export const AddQuestionToGameDialog = ({ gameid }: { gameid: string }) => {
+export const AddQuestionToGameDialog = ({
+  gameid: gameId,
+}: {
+  gameid: string;
+}) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<string | null>(null);
-  const auth = useSupabaseAuth();
-  const addToGame = useAddQuestionToGame(gameid);
-  const questionsQuery = useSuspenseQuery(
-    getUserQuestionsQueryOptions(auth.user?.id!),
-  );
-  const questions = questionsQuery.data;
+  const addToGame = useAddQuestionToGame();
+  const { data } = useGetUsersQuestions();
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!selected) return;
-    addToGame.mutate({ questionId: selected });
+    addToGame.mutate({ gameId, questionId: selected });
   };
 
   React.useEffect(() => {
@@ -64,7 +63,7 @@ export const AddQuestionToGameDialog = ({ gameid }: { gameid: string }) => {
               aria-label="scrollable, selectable list of questions"
               className="p-1"
             >
-              {questions?.map((q) => (
+              {data?.map((q) => (
                 <div
                   key={q.id}
                   role="option"

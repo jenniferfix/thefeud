@@ -7,7 +7,6 @@ import {
 } from '@tanstack/react-router';
 import { MenuIcon } from 'lucide-react';
 import React from 'react';
-import ThemeToggle from '@/components/header/ThemeToggle';
 import NavLink from '@/components/NavLink';
 import { Button } from '@/components/ui/button';
 import {
@@ -141,7 +140,6 @@ const Navbar = () => {
       </div>
       <div className="flex">
         <LoginButton className="hidden md:flex" />
-        <ThemeToggle />
       </div>
     </header>
   );

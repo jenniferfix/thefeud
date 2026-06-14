@@ -20,23 +20,29 @@ import {
 
 export interface QuestionListingProps extends QuestionType {
   questionId: string;
+  initialOpen?: boolean;
 }
 
 export const QuestionListing = React.memo(
-  ({ question, questionId, answers }: QuestionListingProps) => {
+  ({
+    question,
+    questionId,
+    answers,
+    initialOpen = false,
+  }: QuestionListingProps) => {
     const deleteQuestion = useDeleteQuestion();
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(initialOpen);
 
     return (
       <Collapsible open={open} onOpenChange={setOpen}>
-        <article className="grid grid-cols-[auto_1fr] items-start my-6 bg-card/50 border-card rounded-2xl p-2">
+        <article className="grid grid-cols-[auto_1fr] items-start my-6 bg-feudblue/50 border border-feud-lightblue rounded-4xl p-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="mr-4 self-center bg-transparent"
+                  className="mr-4 self-center bg-transparent border border-feud-lightblue rounded-xl"
                 >
                   {open ? <MinusIcon /> : <PlusIcon />}
                 </Button>

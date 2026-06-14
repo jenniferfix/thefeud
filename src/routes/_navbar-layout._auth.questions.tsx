@@ -22,7 +22,7 @@ export const Route = createFileRoute('/_navbar-layout/_auth/questions')({
 
 function RouteComponent() {
   const { user } = Route.useRouteContext();
-  const { data } = useGetUsersQuestions(user.id);
+  const { data } = useGetUsersQuestions();
 
   return (
     <main className="p-2">
@@ -40,6 +40,7 @@ function RouteComponent() {
           <div>
             {data?.map((q, i) => (
               <QuestionListing
+                initialOpen
                 key={i}
                 id={q.id}
                 questionId={q.id}
