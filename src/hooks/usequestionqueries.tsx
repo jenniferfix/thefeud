@@ -2,11 +2,9 @@
 import {
   queryOptions,
   useMutation,
-  useQuery,
-  useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
-import useSupabase from '@/hooks/useSupabase';
+import { useSupabaseAuth } from '#/supabaseauth';
 import {
   deleteQuestion,
   getQuestion,
@@ -14,7 +12,6 @@ import {
   insertQuestion,
   updateQuestion,
 } from '@/queries/questionqueries';
-import { Tables } from '@/types/supabase.types';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
 const supabase = getSupabaseBrowserClient();
@@ -44,8 +41,9 @@ export const getUserQuestionsQueryOptions = (userId: string) =>
       (await getUsersQuestions(supabase, userId)).data ?? null,
   });
 
-export function useGetUsersQuestions(userId: string) {
-  return useQuery(getUserQuestionsQueryOptions(userId));
+export function useGetUsersQuestions() {
+  const auth = useSupabaseAuth();
+  return useSuspenseQuery(getUserQuestionsQueryOptions(auth.user!.id));
 }
 
 export function useInsertQuestion() {

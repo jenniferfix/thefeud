@@ -137,7 +137,7 @@ export function useInsertGame() {
   const supabase = useSupabase();
   return useMutation({
     mutationFn: async ({ name }: { name: string }) => {
-      return await insertGame(supabase, name);
+      return (await insertGame(supabase, name)).data ?? null;
     },
     onSettled: async (_data, _error, _variables, _result, { client }) => {
       await Promise.allSettled([
@@ -163,7 +163,7 @@ export function useDeleteGame() {
 export function useUpdateGame() {
   return useMutation({
     mutationFn: async ({ gameId, name }: { gameId: string; name: string }) => {
-      return updateGame(supabase, gameId, name);
+      return (await updateGame(supabase, gameId, name)).data ?? null;
     },
     onMutate: async ({ gameId, name }, { client }) => {
       await Promise.allSettled([
@@ -175,6 +175,7 @@ export function useUpdateGame() {
     },
     onSettled: async (_data, _error, { gameId }, _result, { client }) => {
       await Promise.allSettled([
+        client.invalidateQueries({ queryKey: getUserGamesQueryKey() }),
         client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
         client.invalidateQueries({ queryKey: getGamesQueryKey() }),
       ]);

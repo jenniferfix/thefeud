@@ -19,7 +19,7 @@ import { getUserQuestionsQueryOptions } from '@/hooks/usequestionqueries';
 import { useSupabaseAuth } from '@/supabaseauth';
 import { cn } from '@/utils/utils';
 
-const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
+export const AddQuestionToGameDialog = ({ gameid }: { gameid: string }) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<string | null>(null);
   const auth = useSupabaseAuth();
@@ -98,4 +98,4 @@ const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
   );
 };
 
-export default AddQuestionToGameModal;
+export default AddQuestionToGameDialog;

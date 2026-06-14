@@ -67,7 +67,12 @@ export async function removeQuestionFromGame(
 }
 
 export async function insertGame(client: TypedSupabaseClient, name: string) {
-  return await client.from('games').insert({ name }).throwOnError();
+  return await client
+    .from('games')
+    .insert({ name })
+    .select('id, name')
+    .single()
+    .throwOnError();
 }
 
 export async function updateGame(
@@ -79,6 +84,7 @@ export async function updateGame(
     .from('games')
     .update({ name: gameName })
     .eq('id', gameId)
+    .select('id, name')
     .throwOnError();
 }
 

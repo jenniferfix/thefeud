@@ -1,6 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { PlusIcon } from 'lucide-react';
+import { GameDialog } from '#/components/editor/GameDialog';
 import { GameItem } from '#/components/editor/GameItem';
 import type { GameType } from '#/lib/schemas/game';
+import { Button } from '@/components/ui/button';
 import { Item, ItemContent, ItemHeader, ItemTitle } from '@/components/ui/item';
 import {
   getUserGamesQueryOptions,
@@ -23,7 +26,15 @@ function RouteComponent() {
   return (
     <div className="p-2">
       <div>
-        <h2 className="my-4 text-3xl font-bold">Your Games!</h2>
+        <div className="flex">
+          <h2 className="grow my-4 text-3xl font-bold">Your Games!</h2>
+          <GameDialog>
+            <Button size="icon" variant="ghost" className="self-center mr-2">
+              <PlusIcon />
+            </Button>
+          </GameDialog>
+        </div>
+
         <div className="max-w-3xl">
           {data?.map((g) => (
             <GameItem
