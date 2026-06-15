@@ -7,7 +7,6 @@ import {
 } from '@tanstack/react-router';
 import { MenuIcon } from 'lucide-react';
 import React from 'react';
-import NavLink from '@/components/NavLink';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Sheet,
@@ -32,10 +31,6 @@ const links = [
   linkOptions({
     label: 'Questions',
     to: '/questions',
-  }),
-  linkOptions({
-    label: 'Play',
-    to: '/c',
   }),
 ];
 
@@ -64,6 +59,7 @@ const LoginButton = ({
       <Button
         variant={mobile ? 'link' : 'ghost'}
         className={cn(
+          'text-base',
           mobile ? 'justify-start border-b pl-2' : 'border-x',
           className,
         )}
@@ -82,7 +78,7 @@ const LoginButton = ({
         search={{ redirect: pathname }}
         className={buttonVariants({
           variant: mobile ? 'link' : 'ghost',
-          className: 'justify-start text-left',
+          className: 'text-base justify-start text-left',
         })}
         onClick={() => closeCallback && closeCallback()}
       >
@@ -117,7 +113,7 @@ const Navbar = () => {
                   <Link
                     key={'moblink' + link.to}
                     to={link.to}
-                    className="flex justify-start border-b py-2 pl-2 hover:bg-accent/75"
+                    className="flex justify-start border-b py-2 pl-2 hover:bg-accent/75 text-base"
                     activeProps={{ className: 'bg-active' }}
                     onClick={closeSidebar}
                   >
@@ -131,10 +127,19 @@ const Navbar = () => {
         </SheetContent>
       </Sheet>
       <div className="hidden md:flex">
-        {links.map((link) => (
-          <NavLink key={'link' + link.to} {...link}>
-            {link.label}
-          </NavLink>
+        {links.map(({ to, label, ...props }) => (
+          <Link
+            key={to}
+            to={to}
+            className={buttonVariants({
+              variant: 'link',
+              size: 'lg',
+              className: 'rounded-none',
+            })}
+            activeProps={{ className: 'bg-feudblue/40' }}
+          >
+            <span className="text-base">{label}</span>
+          </Link>
         ))}
       </div>
       <div className="flex">

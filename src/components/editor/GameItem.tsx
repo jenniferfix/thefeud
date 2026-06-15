@@ -26,8 +26,8 @@ export const GameItem = ({ id, name, questions }: GameType) => {
   }, []);
 
   return (
-    <Item className="bg-feudblue/25 border border-feud-lightblue rounded-4xl my-2 sm:my-4">
-      <ItemContent>
+    <Item className="bg-feudblue/25 border border-feud-lightblue rounded-4xl my-2 sm:my-6">
+      <ItemContent className="sm:p-2">
         <ItemTitle className="text-base w-full">
           <Link to="/games/$gameId" params={{ gameId: id }} className="grow">
             {name}
@@ -35,9 +35,12 @@ export const GameItem = ({ id, name, questions }: GameType) => {
         </ItemTitle>
         <ItemDescription className="flex flex-wrap gap-0.5 sm:gap-1">
           {questions.map((q) => (
-            <Badge key={q.id} className="text-xs bg-feud-lightblue/50">
+            <span
+              key={q.id}
+              className="text-xs bg-feud-lightblue/25 rounded-lg px-1 py-0.5"
+            >
               {q.question}
-            </Badge>
+            </span>
           ))}
         </ItemDescription>
       </ItemContent>

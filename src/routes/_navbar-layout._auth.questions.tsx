@@ -25,18 +25,20 @@ function RouteComponent() {
   const { data } = useGetUsersQuestions();
 
   return (
-    <main className="p-2">
+    <main className="px-2 sm:px-4">
       <section className="w-full">
         <h2 className="grow text-3xl font-bold my-4 self-center">Questions</h2>
+
         <div className="pl-4">
           <div className="flex justify-between">
             <QuestionDialog>
-              <Button variant="outline" size="default" className="self-center">
+              <Button variant="outline" className="self-center">
                 Add <PlusIcon />
               </Button>
             </QuestionDialog>
             <SortControl />
           </div>
+
           <div>
             {data?.map((q, i) => (
               <QuestionListing

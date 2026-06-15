@@ -1,5 +1,5 @@
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router';
-import { ArrowBigLeft, Pencil, Plus } from 'lucide-react';
+import { ArrowBigLeft, Pencil, Plus, Settings } from 'lucide-react';
 import { z } from 'zod';
 import { AddQuestionToGameDialog } from '#/components/editor/AddQuestionToGameDialog';
 import { QuestionListing } from '#/components/editor/QuestionListing';
@@ -46,20 +46,25 @@ function RouteComponent() {
           <ArrowBigLeft /> Back to games
         </Link>
         <div className="pl-4">
+          <h3 className="grow self-center text-3xl font-bold my-4">
+            {data.name}
+          </h3>
           <div className="flex">
-            <h3 className="grow self-center text-3xl font-bold my-4">
-              {data.name}
-            </h3>
             <GameDialog gameId={gameId} name={data.name!} edit>
-              <Button type="button" variant="ghost" size="icon-sm">
-                <Pencil />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="self-center"
+              >
+                <Settings />
               </Button>
             </GameDialog>
             <AddQuestionToGameDialog
               existingIds={data.questions.map((q) => q.id)}
               gameId={gameId}
             >
-              <Button variant="ghost">
+              <Button variant="ghost" className="self-center">
                 <Plus /> Add Question
               </Button>
             </AddQuestionToGameDialog>

@@ -47,14 +47,14 @@ export const QuestionListing = React.memo(
 
     return (
       <Collapsible open={open} onOpenChange={setOpen}>
-        <article className="grid grid-cols-[auto_1fr] items-start my-6 bg-feudblue/25 border border-feud-lightblue rounded-4xl p-2">
+        <article className="grid grid-cols-[auto_1fr] items-start my-2 sm:my-6 bg-feudblue/25 border border-feud-lightblue rounded-4xl p-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="mr-4 self-center bg-transparent border border-feud-lightblue rounded-xl"
+                  className="mr-4 mt-1 self-start bg-transparent border border-feud-lightblue rounded-xl"
                 >
                   {open ? <MinusIcon /> : <PlusIcon />}
                 </Button>
@@ -63,7 +63,7 @@ export const QuestionListing = React.memo(
             <TooltipContent>{open ? 'Close' : 'Expand'}</TooltipContent>
           </Tooltip>
           <div className="flex">
-            <h3 className="grow text-left text-2xl flex">
+            <h3 className="grow text-left text-base md:text-2xl flex">
               <CollapsibleTrigger className="text-left grow">
                 {question}
               </CollapsibleTrigger>
@@ -100,7 +100,7 @@ export const QuestionListing = React.memo(
           </div>
           <div></div>
           <CollapsibleContent className="">
-            <Table className="mt-2">
+            <Table className="mt-2 text-sm md:text-base">
               <TableBody>
                 {answers.map((a, i) => (
                   <TableRow key={i}>

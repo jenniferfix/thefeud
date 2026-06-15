@@ -1,6 +1,7 @@
 import { TrashIcon } from 'lucide-react';
 import React from 'react';
 import { useAddQuestionToGame } from '#/hooks/usegamequeries';
+import { useMediaQuery } from '#/hooks/useMediaQuery';
 import {
   Dialog,
   DialogClose,
@@ -24,6 +25,16 @@ import {
   type AnswerFormType,
   questionFormSchema,
 } from '@/lib/schemas/questions';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '../ui/drawer';
 import { useAppForm } from '../ui/tanstack-form';
 
 export interface ExistingAnswersType extends AnswerFormType {}
@@ -52,7 +63,7 @@ export const QuestionDialog = ({
   const insertAnswer = useInsertAnswer();
   const updateQuestion = useUpdateQuestion();
   const [open, setOpen] = React.useState(false);
-
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const form = useAppForm({
     defaultValues: {
       question: question ?? '',
