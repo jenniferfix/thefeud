@@ -1,12 +1,17 @@
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router';
-import { ArrowBigLeft, Plus } from 'lucide-react';
+import { ArrowBigLeft, Pencil, Plus } from 'lucide-react';
 import { z } from 'zod';
 import { AddQuestionToGameDialog } from '#/components/editor/AddQuestionToGameDialog';
 import { QuestionListing } from '#/components/editor/QuestionListing';
 import { LocalDateTime } from '#/components/LocalDateTime';
 import { Button, buttonVariants } from '#/components/ui/button';
-import { getGameQueryOptions, useGetGame } from '#/hooks/usegamequeries';
+import {
+  getGameQueryOptions,
+  useGetGame,
+  useRemoveQuestionFromGame,
+} from '#/hooks/usegamequeries';
 import { cn } from '#/lib/utils';
+import { GameDialog } from '@/components/editor/GameDialog';
 
 export const Route = createFileRoute('/_navbar-layout/_auth/games/$gameId')({
   loader: async ({ context: { queryClient }, params: { gameId } }) => {
@@ -24,6 +29,7 @@ const GridItem = ({ className, ...props }: React.ComponentProps<'div'>) => {
 function RouteComponent() {
   const { gameId } = Route.useParams();
   const { data, isError, error, isLoading } = useGetGame(gameId);
+  const removeQuestion = useRemoveQuestionFromGame();
 
   if (isLoading || !data) return null;
 
@@ -44,6 +50,11 @@ function RouteComponent() {
             <h3 className="grow self-center text-3xl font-bold my-4">
               {data.name}
             </h3>
+            <GameDialog gameId={gameId} name={data.name!} edit>
+              <Button type="button" variant="ghost" size="icon-sm">
+                <Pencil />
+              </Button>
+            </GameDialog>
             <AddQuestionToGameDialog
               existingIds={data.questions.map((q) => q.id)}
               gameId={gameId}
@@ -78,6 +89,10 @@ function RouteComponent() {
       <div>
         {data.questions.map((q) => (
           <QuestionListing
+            showDelete
+            deleteQuestion={async () => {
+              await removeQuestion.mutateAsync({ questionId: q.id, gameId });
+            }}
             key={q.id}
             id={q.id}
             questionId={q.id}

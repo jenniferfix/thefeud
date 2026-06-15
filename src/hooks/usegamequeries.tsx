@@ -118,16 +118,35 @@ export function useAddQuestionToGame() {
   });
 }
 
-export function useRemoveQuestionFromGame(gameId: string) {
+export function useRemoveQuestionFromGame() {
   const supabase = useSupabase();
   return useMutation({
-    mutationFn: async ({ questionId }: { questionId: string }) => {
-      return await removeQuestionFromGame(supabase, questionId, gameId);
+    mutationFn: async ({
+      questionId,
+      gameId,
+    }: {
+      questionId: string;
+      gameId: string;
+    }) => {
+      return (
+        (await removeQuestionFromGame(supabase, questionId, gameId)).data ??
+        null
+      );
     },
-    onSettled: async (_data, _error, _variables, _result, { client }) => {
+    onSettled: async (
+      _data,
+      _error,
+      { gameId, questionId },
+      _result,
+      { client },
+    ) => {
       await Promise.allSettled([
+        client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
         client.invalidateQueries({
           queryKey: getGameQuestionsQueryKey(gameId),
+        }),
+        client.invalidateQueries({
+          queryKey: getUserGamesQueryKey(),
         }),
       ]);
     },

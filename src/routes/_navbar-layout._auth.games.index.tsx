@@ -35,11 +35,14 @@ function RouteComponent() {
           </GameDialog>
         </div>
 
-        <div className="max-w-3xl">
+        <div className="">
           {data?.map((g) => (
-            <Link to="/games/$gameId" params={{ gameId: g.id }} key={g.id}>
-              <GameItem id={g.id} name={g.name ?? ''} questions={g.questions} />
-            </Link>
+            <GameItem
+              key={g.id}
+              id={g.id}
+              name={g.name ?? ''}
+              questions={g.questions}
+            />
           ))}
         </div>
       </div>

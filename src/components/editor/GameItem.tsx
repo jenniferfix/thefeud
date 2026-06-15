@@ -1,5 +1,7 @@
+import { Link } from '@tanstack/react-router';
 import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import React from 'react';
+import { useDeleteGame } from '#/hooks/usegamequeries';
 import type { GameType } from '#/lib/schemas/game';
 import {
   Item,
@@ -11,37 +13,50 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/ui/item';
+import { ConfirmDialog } from '../ConfirmDialog';
+import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '../ui/collapsible';
-import { GameDialog } from './GameDialog';
-import { QuestionDialog } from './QuestionDialog';
-import { QuestionListing } from './QuestionListing';
+import { WaitButton } from '../ui/wait-button';
 
 export const GameItem = ({ id, name, questions }: GameType) => {
-  const [open, setOpen] = React.useState(true);
+  const deleteGame = useDeleteGame();
+
+  const handleDelete = React.useCallback(async () => {
+    await deleteGame.mutateAsync({ gameId: id });
+  }, []);
 
   return (
     <Item className="bg-feudblue/25 border border-feud-lightblue rounded-4xl my-2 sm:my-4">
       <ItemContent>
-        <ItemTitle className="text-base">{name}</ItemTitle>
-        <ItemDescription>
+        <ItemTitle className="text-base w-full">
+          <Link to="/games/$gameId" params={{ gameId: id }} className="grow">
+            {name}
+          </Link>
+        </ItemTitle>
+        <ItemDescription className="flex flex-wrap gap-0.5 sm:gap-1">
           {questions.map((q) => (
-            <span key={q.id} className="text-xs">
+            <Badge key={q.id} className="text-xs bg-feud-lightblue/50">
               {q.question}
-            </span>
+            </Badge>
           ))}
         </ItemDescription>
       </ItemContent>
       <ItemActions>
-        <GameDialog gameId={id} name={name} edit>
-          <Button variant="ghost" size="icon-sm">
-            <PencilIcon />
-          </Button>
-        </GameDialog>
+        <ConfirmDialog
+          title="Are you sure"
+          message={`This will permanently delete ${name}`}
+          onConfirm={handleDelete}
+        >
+          <WaitButton
+            loading={deleteGame.isPending}
+            disabled={deleteGame.isPending || deleteGame.isError}
+            variant="ghost"
+            size="icon"
+            type="button"
+          >
+            <TrashIcon />
+          </WaitButton>
+        </ConfirmDialog>
       </ItemActions>
     </Item>
   );

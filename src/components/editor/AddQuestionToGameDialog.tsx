@@ -1,5 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { PlusIcon } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +15,7 @@ import { Waiting } from '@/components/ui/waiting';
 import { useAddQuestionToGame } from '@/hooks/usegamequeries';
 import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
 import { cn } from '@/utils/utils';
+import { QuestionDialog } from './QuestionDialog';
 
 export type AddQuestionToGameProps = {
   gameId: string;
@@ -87,6 +86,9 @@ export const AddQuestionToGameDialog = ({
           </ScrollArea>
         </div>
         <DialogFooter>
+          <QuestionDialog>
+            <Button>Create New</Button>
+          </QuestionDialog>
           <Button onClick={handleAdd} disabled={addToGame.isPending}>
             {addToGame.isPending ? <Waiting /> : 'Add'}
           </Button>

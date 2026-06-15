@@ -26,7 +26,7 @@ function RouteComponent() {
 
   return (
     <main className="p-2">
-      <section className="w-full max-w-3xl">
+      <section className="w-full">
         <h2 className="grow text-3xl font-bold my-4 self-center">Questions</h2>
         <div className="pl-4">
           <div className="flex justify-between">
@@ -40,6 +40,7 @@ function RouteComponent() {
           <div>
             {data?.map((q, i) => (
               <QuestionListing
+                showDelete
                 initialOpen
                 key={i}
                 id={q.id}

@@ -21,6 +21,8 @@ import {
 export interface QuestionListingProps extends QuestionType {
   questionId: string;
   initialOpen?: boolean;
+  showDelete?: boolean;
+  deleteQuestion?: (questionId: string) => void | Promise<void>;
 }
 
 export const QuestionListing = React.memo(
@@ -29,9 +31,19 @@ export const QuestionListing = React.memo(
     questionId,
     answers,
     initialOpen = false,
+    showDelete = false,
+    deleteQuestion,
   }: QuestionListingProps) => {
-    const deleteQuestion = useDeleteQuestion();
+    const deleteQuestionCompletely = useDeleteQuestion();
     const [open, setOpen] = React.useState(initialOpen);
+
+    const handleDelete = React.useCallback(async () => {
+      if (deleteQuestion) {
+        await deleteQuestion(questionId);
+      } else {
+        await deleteQuestionCompletely.mutateAsync({ questionId });
+      }
+    }, []);
 
     return (
       <Collapsible open={open} onOpenChange={setOpen}>
@@ -67,28 +79,28 @@ export const QuestionListing = React.memo(
                   <PencilIcon />
                 </Button>
               </QuestionDialog>
-              <ConfirmDialog
-                title="Confirm Delete"
-                message={
-                  <>
-                    Are you sure you would like to delete the question:
-                    <br />
-                    <em className="mt-2">{question}</em>
-                  </>
-                }
-                onConfirm={async () => {
-                  await deleteQuestion.mutateAsync({ questionId });
-                }}
-              >
-                <Button size="icon" variant="ghost" className="">
-                  <TrashIcon />
-                </Button>
-              </ConfirmDialog>
+              {showDelete && (
+                <ConfirmDialog
+                  title="Confirm Delete"
+                  message={
+                    <>
+                      Are you sure you would like to delete the question:
+                      <br />
+                      <em className="mt-2">{question}</em>
+                    </>
+                  }
+                  onConfirm={handleDelete}
+                >
+                  <Button size="icon" variant="ghost" className="">
+                    <TrashIcon />
+                  </Button>
+                </ConfirmDialog>
+              )}
             </ButtonGroup>
           </div>
           <div></div>
           <CollapsibleContent className="">
-            <Table className="mt-2 max-w-sm">
+            <Table className="mt-2">
               <TableBody>
                 {answers.map((a, i) => (
                   <TableRow key={i}>
