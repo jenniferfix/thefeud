@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -6,8 +5,8 @@ import {
   useGetAnswersByQuestionId,
 } from '@/hooks/useanswerqueries';
 import { useInsertEvent } from '@/hooks/useeventqueries';
-import useFeudEvents from '@/hooks/useFeudEvents';
 import { GameActions } from '@/types';
+import { useFeudEventsContext } from '../providers/FeudEvents';
 
 const AnswerButtons = ({
   instanceId,
@@ -16,7 +15,7 @@ const AnswerButtons = ({
   instanceId: string;
   questionId: string;
 }) => {
-  const { answered } = useFeudEvents({ instanceId });
+  const { answered } = useFeudEventsContext();
   const insertEvent = useInsertEvent();
   const { data, isLoading, isError, error } =
     useGetAnswersByQuestionId(questionId);

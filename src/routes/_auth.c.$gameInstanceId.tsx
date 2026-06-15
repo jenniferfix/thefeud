@@ -1,6 +1,10 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { Gamepad2Icon } from 'lucide-react';
 import React from 'react';
+import {
+  FeudEventsProvider,
+  useFeudEventsContext,
+} from '#/components/providers/FeudEvents';
 import QRCode from '@/components/gamecontrol/QRCode';
 import Strikes from '@/components/gamecontrol/Strikes';
 import { Button } from '@/components/ui/button';
@@ -15,7 +19,6 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer';
 import { useInsertEvent } from '@/hooks/useeventqueries';
-import useFeudEvents from '@/hooks/useFeudEvents';
 import {
   getInstanceGameQueryOptions,
   useGetInstanceGame,
@@ -30,8 +33,17 @@ export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
       queryClient.ensureQueryData(getInstanceGameQueryOptions(gameInstanceId)),
     ]);
   },
-  component: ControlComponent,
+  component: Component,
 });
+
+function Component() {
+  const { gameInstanceId } = Route.useParams();
+  return (
+    <FeudEventsProvider instanceId={gameInstanceId} sound={false}>
+      <ControlComponent />
+    </FeudEventsProvider>
+  );
+}
 
 function ControlComponent() {
   const { gameInstanceId } = Route.useParams();
@@ -57,7 +69,7 @@ function ControlComponent() {
     leftTeamScore,
     rightTeamScore,
     roundScore,
-  } = useFeudEvents({ instanceId: gameInstanceId, sound: false });
+  } = useFeudEventsContext();
 
   // if (isLoading && isFeudEventsLoading) return <div>Loading...</div>;
   // if (isError) return <div>{error.message}</div>;
