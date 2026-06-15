@@ -118,28 +118,34 @@ export type Database = {
         Row: {
           created_at: string
           finished: string | null
-          game: string
+          gameid: string
           id: string
+          team_left: string | null
+          team_right: string | null
           userid: string
         }
         Insert: {
           created_at?: string
           finished?: string | null
-          game: string
+          gameid: string
           id?: string
+          team_left?: string | null
+          team_right?: string | null
           userid?: string
         }
         Update: {
           created_at?: string
           finished?: string | null
-          game?: string
+          gameid?: string
           id?: string
+          team_left?: string | null
+          team_right?: string | null
           userid?: string
         }
         Relationships: [
           {
             foreignKeyName: "game_instance_game_fkey"
-            columns: ["game"]
+            columns: ["gameid"]
             isOneToOne: false
             referencedRelation: "games"
             referencedColumns: ["id"]
@@ -148,16 +154,19 @@ export type Database = {
       }
       game_questions: {
         Row: {
+          created_at: string
           gameid: string
           questionid: string
           userid: string
         }
         Insert: {
+          created_at?: string
           gameid: string
           questionid: string
           userid?: string
         }
         Update: {
+          created_at?: string
           gameid?: string
           questionid?: string
           userid?: string
@@ -183,19 +192,19 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          name: string | null
+          name: string
           userid: string
         }
         Insert: {
           created_at?: string
           id?: string
-          name?: string | null
+          name?: string
           userid?: string
         }
         Update: {
           created_at?: string
           id?: string
-          name?: string | null
+          name?: string
           userid?: string
         }
         Relationships: []

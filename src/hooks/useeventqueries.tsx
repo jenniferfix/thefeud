@@ -29,18 +29,31 @@ export const useGetEventsForGameInstance = (instanceId: string) => {
   return useSuspenseQuery(getEventsForGameInstanceQueryOptions(instanceId));
 };
 
-export const useInsertEvent = (instanceId: string) => {
-  const client = useSupabase();
-  const queryClient = useQueryClient();
-  const mutationFn = async (
-    event: Database['public']['Tables']['game_events']['Insert'],
-  ) => {
-    return (await insertEvent(client, event)).data ?? null;
-  };
-  const onSuccess = () => {
-    queryClient.invalidateQueries({
-      queryKey: getEventsForGameInstanceQueryKey(instanceId),
-    });
-  };
-  return useMutation({ mutationFn, onSuccess });
+export const useInsertEvent = () => {
+  const supabase = useSupabase();
+
+  return useMutation({
+    mutationFn: async ({
+      gameInstanceId,
+      event,
+    }: {
+      gameInstanceId: string;
+      event: Database['public']['Tables']['game_events']['Insert'];
+    }) => {
+      return (await insertEvent(supabase, event)).data ?? null;
+    },
+    onSettled: async (
+      _data,
+      _error,
+      { gameInstanceId },
+      _result,
+      { client },
+    ) => {
+      await Promise.allSettled([
+        client.invalidateQueries({
+          queryKey: getEventsForGameInstanceQueryKey(gameInstanceId),
+        }),
+      ]);
+    },
+  });
 };

@@ -41,6 +41,12 @@ export const SupabaseAuthProvider = ({
   const [error, setError] = React.useState<AuthError | null>(null);
 
   React.useEffect(() => {
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUser(data?.session?.user ?? null);
+      setIsInitialized(true);
+    };
+    getSession();
     void supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
       setIsInitialized(true);

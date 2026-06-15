@@ -14,6 +14,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { ConfirmDialog } from '../ConfirmDialog';
+import { StartGameDialog } from '../gamecontrol/StartGameDialog';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { WaitButton } from '../ui/wait-button';
@@ -29,7 +30,11 @@ export const GameItem = ({ id, name, questions }: GameType) => {
     <Item className="bg-feudblue/25 border border-feud-lightblue rounded-4xl my-2 sm:my-6">
       <ItemContent className="sm:p-2">
         <ItemTitle className="text-base w-full">
-          <Link to="/games/$gameId" params={{ gameId: id }} className="grow">
+          <Link
+            to="/games/$gameId"
+            params={{ gameId: id }}
+            className="grow text-base md:text-2xl"
+          >
             {name}
           </Link>
         </ItemTitle>
@@ -45,6 +50,7 @@ export const GameItem = ({ id, name, questions }: GameType) => {
         </ItemDescription>
       </ItemContent>
       <ItemActions>
+        <StartGameDialog gameId={id} name={name} />
         <ConfirmDialog
           title="Are you sure"
           message={`This will permanently delete ${name}`}

@@ -29,8 +29,8 @@ export async function getGameQuestions(
     .from('games')
     .select(`id, questions(id, question)`)
     .match({ id: gameId })
-    .throwOnError()
-    .single();
+    .single()
+    .throwOnError();
 }
 // export type QueryData<T> = T extends PromiseLike<{ data: infer U }> ? Exclude<U, null> : never
 export type TGameQuestions = QueryData<ReturnType<typeof getGameQuestions>>;

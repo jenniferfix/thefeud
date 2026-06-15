@@ -6,6 +6,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
+import type { CreateGameInstance } from '#/lib/schemas/gameInstance';
 import useSupabase from '@/hooks/useSupabase';
 import {
   createGameInstance,
@@ -20,36 +21,40 @@ import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 const supabase = getSupabaseBrowserClient();
 
 export function useCreateGameInstance() {
-  const client = useSupabase();
-  const queryClient = useQueryClient();
-  const mutationFn = async ({ gameId }: { gameId: string }) => {
-    return (await createGameInstance(client, gameId)).data ?? undefined;
-  };
-  const onSuccess = async () => {
-    queryClient.invalidateQueries({ queryKey: ['gameInstances'] }); //
-  };
-  return useMutation({ mutationFn, onSuccess });
+  const supabase = useSupabase();
+  return useMutation({
+    mutationFn: async (values: CreateGameInstance) => {
+      return (await createGameInstance(supabase, values)).data ?? null;
+    },
+    onSettled: async (_data, _error, _variables, _result, { client }) => {
+      await Promise.allSettled([
+        client.invalidateQueries({ queryKey: ['gameInstances'] }),
+      ]);
+    },
+  });
 }
 
 export function useGetGameInstance(instanceId: string) {
   const client = useSupabase();
   const queryKey = ['gameInstance', instanceId];
   const queryFn = async () => {
-    return await getGameInstance(client, instanceId);
+    return (await getGameInstance(client, instanceId)).data ?? null;
   };
   return useQuery({ queryKey, queryFn });
 }
 
 export function useDeleteGameInstance() {
-  const client = useSupabase();
-  const queryClient = useQueryClient();
-  const mutationFn = async ({ instanceId }: { instanceId: string }) => {
-    return await deleteGameInstance(client, instanceId);
-  };
-  const onSuccess = async () => {
-    queryClient.invalidateQueries({ queryKey: ['gameInstances'] });
-  };
-  return useMutation({ mutationFn, onSuccess });
+  const supabase = useSupabase();
+  return useMutation({
+    mutationFn: async ({ instanceId }: { instanceId: string }) => {
+      return await deleteGameInstance(supabase, instanceId);
+    },
+    onSettled: async (_data, _error, _variables, _result, { client }) => {
+      await Promise.allSettled([
+        client.invalidateQueries({ queryKey: ['gameInstances'] }),
+      ]);
+    },
+  });
 }
 
 export const getInstanceGameQueryKey = (instanceId: string) =>
@@ -67,32 +72,26 @@ export function useGetInstanceGame(instanceId: string) {
   return useSuspenseQuery(getInstanceGameQueryOptions(instanceId));
 }
 
+export const getActiveInstancesQueryOptions = () =>
+  queryOptions({
+    queryKey: ['activeinstances'],
+    queryFn: async () => (await getActiveInstances(supabase)).data ?? null,
+  });
+
 export function useGetActiveInstances() {
-  const client = useSupabase();
-  const queryKey = ['activeinstances'];
-  const queryFn = async () => {
-    return getActiveInstances(client).then((result) => result?.data);
-  };
-  return useQuery({ queryKey, queryFn });
+  return useQuery(getActiveInstancesQueryOptions());
 }
 
-export const getActiveInstancesQueryOptions = queryOptions({
-  queryKey: ['activeinstances'],
-  queryFn: async () => (await getActiveInstances(supabase)) ?? null,
-});
-
-export function useGetUserInstances(userId: string) {
-  const client = useSupabase();
-  const queryKey = ['activeinstances'];
-  const queryFn = async () => {
-    return getUserInstances(client, userId).then((result) => result?.data);
-  };
-  return useQuery({ queryKey, queryFn });
-}
+const getUserInstancesQueryKey = () => ['instances'];
 
 export const getUserInstancesQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: ['activeinstances'],
-    queryFn: async () =>
-      getUserInstances(supabase, userId).then((result) => result?.data),
+    queryKey: getUserInstancesQueryKey(),
+    queryFn: async () => {
+      return (await getUserInstances(supabase, userId)).data ?? null;
+    },
   });
+
+export function useGetUserInstances(userId: string) {
+  return useQuery(getUserInstancesQueryOptions(userId));
+}

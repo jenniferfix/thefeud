@@ -17,7 +17,7 @@ const AnswerButtons = ({
   questionId: string;
 }) => {
   const { answered } = useFeudEvents({ instanceId });
-  const insertEvent = useInsertEvent(instanceId);
+  const insertEvent = useInsertEvent();
   const { data, isLoading, isError, error } =
     useGetAnswersByQuestionId(questionId);
 
@@ -35,11 +35,14 @@ const AnswerButtons = ({
           disabled={answered[item.id]}
           onClick={() =>
             insertEvent.mutate({
-              instanceid: instanceId,
-              // team: activeTeam,
-              answerid: item.id,
-              eventid: GameActions.CorrectAnswer,
-              points: item.score,
+              gameInstanceId: instanceId,
+              event: {
+                instanceid: instanceId,
+                // team: activeTeam,
+                answerid: item.id,
+                eventid: GameActions.CorrectAnswer,
+                points: item.score,
+              },
             })
           }
         >
