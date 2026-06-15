@@ -46,32 +46,35 @@ const Page = () => {
   };
 
   return (
-    <ScrollArea className="grow h-full">
-      <div
-        role="listbox"
-        aria-label="Scrollable listbox of games"
-        className="h-full"
-      >
-        {!data.games.questions.length && (
-          <div className="flex flex-col justify-center items-center ">
-            <div className="font-semibold text-xl my-8">
-              There are no questions..
+    <div className="grow flex flex-col px-2">
+      <h3 className="text-xl font-semibold my-4">Select Next Question</h3>
+      <ScrollArea className="grow h-1">
+        <div
+          role="listbox"
+          aria-label="Scrollable listbox of games"
+          className="flex flex-col gap-2"
+        >
+          {!data.games.questions.length && (
+            <div className="flex flex-col justify-center items-center ">
+              <div className="font-semibold text-xl my-8">
+                There are no questions..
+              </div>
             </div>
-          </div>
-        )}
-        {data.games.questions?.map((question) => (
-          <div
-            key={question.id}
-            onClick={() => handleQuestionClick(question.id)}
-            className={cn(
-              'cursor-pointer px-2 py-1 rounded-sm',
-              'hover:bg-muted',
-            )}
-          >
-            {question.question}
-          </div>
-        ))}
-      </div>
-    </ScrollArea>
+          )}
+          {data.games.questions?.map((question) => (
+            <div
+              key={question.id}
+              onClick={() => handleQuestionClick(question.id)}
+              className={cn(
+                'cursor-pointer px-2 py-2  rounded-sm',
+                'hover:bg-muted',
+              )}
+            >
+              {question.question}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };

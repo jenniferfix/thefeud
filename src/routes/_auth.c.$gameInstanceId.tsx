@@ -133,7 +133,7 @@ function ControlComponent() {
           <Score score={rightTeamScore} />
         </div>
       </aside>
-      <div className="grow">
+      <div className="grow flex flex-col">
         <Outlet />
       </div>
       <Drawer>
