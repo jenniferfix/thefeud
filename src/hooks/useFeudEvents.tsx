@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTimer } from 'react-timer-hook';
+import timer from 'react-timer-hook';
 import useSound from 'use-sound';
 import { useGetEventsForGameInstance } from '@/hooks/useeventqueries';
 import { useGetInstanceGame } from '@/hooks/useinstancequeries';
@@ -9,6 +9,8 @@ import { getQuestionFromId } from '@/queries/questionqueries';
 // import { type TGameQuestions } from '@/queries/gamequeries';
 import { GameActions, type IAnswered } from '@/types';
 import type { Tables } from '@/types/supabase.types';
+
+const { useTimer } = timer;
 
 type TEvents = Tables<'game_events'>;
 

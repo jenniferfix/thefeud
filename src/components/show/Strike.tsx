@@ -1,5 +1,7 @@
 import React from 'react';
-import { useTimer } from 'react-timer-hook';
+import timer from 'react-timer-hook';
+
+const { useTimer } = timer;
 
 const Strike = ({ count }: { count: number }) => {
   if (count > 3) count = 1;
