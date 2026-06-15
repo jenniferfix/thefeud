@@ -41,7 +41,10 @@ export const StartGameDialog = ({ gameId, name }: StartGameProps) => {
         teamLeft,
         teamRight,
       });
-      navigate({});
+      navigate({
+        to: '/c/$gameInstanceId',
+        params: { gameInstanceId: newGame.id },
+      });
     },
   });
 
