@@ -1,50 +1,12 @@
 import { animated, useSpring } from '@react-spring/web';
-import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import React from 'react';
 import { cn } from '#/lib/utils';
 import ActiveGames from '@/components/ActiveGames';
-import StartGame from '@/components/gamecontrol/SelectAndStart';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
 import { useSupabaseAuth } from '@/supabaseauth';
 
-const GoButton = ({
-  children,
-  className,
-  ...props
-}: { children: React.ReactNode } & React.ComponentProps<typeof Button>) => {
-  return (
-    <Button
-      className={cn('h-12 text-lg font-semibold mx-4 sm:mx-0', className)}
-      {...props}
-    >
-      {children}
-    </Button>
-  );
-};
-
-const Wrap = ({
-  children,
-  className,
-  ...props
-}: { children: React.ReactNode } & React.ComponentProps<'span'>) => {
-  return (
-    <div className="whitespace-nowrap">
-      <span
-        className={cn(
-          'inline-block tracking-wider first-letter:float-left first-letter:ml-4  first-letter:-mt-2 first-letter:text-6xl feudtext',
-          className,
-        )}
-        {...props}
-      >
-        {children}
-      </span>
-    </div>
-  );
-};
-
-export default function Index() {
+export function Home() {
   const auth = useSupabaseAuth();
   // console.log(auth?.user?.id);
   const springProps = useSpring({
@@ -60,7 +22,7 @@ export default function Index() {
       <div className="mb-8 mt-6 flex justify-center">
         <div className="w-100">
           <img
-            src="/images/familyfeud.svg"
+            src="/images/funnyfeud.svg"
             width={1416}
             height={816}
             title="Family Feud"
@@ -71,11 +33,12 @@ export default function Index() {
         {/* </animated.h1> */}
       </div>
 
+      {auth?.user && <ActiveGames userid={auth.user?.id} />}
       <section className="flex flex-col sm:flex-row gap-12 my-12 justify-center">
         <Link
           to={'/games'}
           className={buttonVariants({
-            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0',
+            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0 w-sm',
           })}
         >
           Go to your games!
@@ -83,7 +46,7 @@ export default function Index() {
         <Link
           to={'/questions'}
           className={buttonVariants({
-            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0',
+            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0 w-sm',
           })}
         >
           Go to your questions!
@@ -136,9 +99,6 @@ export default function Index() {
           </p>
         </div>
       </section>
-      <div>
-        <ActiveGames userid={auth.user?.id} />
-      </div>
     </div>
   );
 }

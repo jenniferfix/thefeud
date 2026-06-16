@@ -127,3 +127,8 @@ export const useSupabaseAuth = () => {
   }
   return context;
 };
+export const useAuthenticatedUser = () => {
+  const { user, ...other } = useSupabaseAuth();
+  if (!user?.id) throw Error('User must be authenticated');
+  return { user, ...other };
+};

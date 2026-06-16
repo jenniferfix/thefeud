@@ -45,6 +45,27 @@ function Component() {
   );
 }
 
+const Score = ({ score, className }: { score: number; className?: string }) => {
+  return <div className={cn('text-3xl', className)}>{score}</div>;
+};
+
+const TeamScore = ({
+  score,
+  className,
+  teamName,
+}: {
+  score: number;
+  className?: string;
+  teamName: string;
+}) => {
+  return (
+    <div className="flex flex-col">
+      <div>{teamName}</div>
+      <Score className={className} score={score} />
+    </div>
+  );
+};
+
 function ControlComponent() {
   const { gameInstanceId } = Route.useParams();
   const insertEvent = useInsertEvent();
@@ -100,16 +121,6 @@ function ControlComponent() {
     });
   };
 
-  const Score = ({
-    score,
-    className,
-  }: {
-    score: number;
-    className?: string;
-  }) => {
-    return <div className={cn('px-6 py-1 text-3xl', className)}>{score}</div>;
-  };
-
   return (
     <div className="relative flex flex-col justify-between min-h-screen max-w-lg mx-auto pb-2 px-2">
       <div className="absolute top-2 right-2">
@@ -128,9 +139,17 @@ function ControlComponent() {
       <aside className="flex flex-col gap-2 border-b py-2">
         <Score className="flex justify-center" score={roundScore} />
         <div className="flex justify-between align-middle">
-          <Score score={leftTeamScore} />
+          <TeamScore
+            teamName={instanceQueryData.team_left ?? ''}
+            score={leftTeamScore}
+            className="text-left mx-2"
+          />
           <Strikes className="self-center" strikes={strikes} />
-          <Score score={rightTeamScore} />
+          <TeamScore
+            teamName={instanceQueryData.team_right ?? ''}
+            score={rightTeamScore}
+            className="text-right"
+          />
         </div>
       </aside>
       <div className="grow flex flex-col">

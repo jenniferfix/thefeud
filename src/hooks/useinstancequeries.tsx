@@ -7,6 +7,7 @@ import {
   useSuspenseQuery,
 } from '@tanstack/react-query';
 import type { CreateGameInstance } from '#/lib/schemas/gameInstance';
+import { useAuthenticatedUser } from '#/supabaseauth';
 import useSupabase from '@/hooks/useSupabase';
 import {
   createGameInstance,
@@ -15,6 +16,7 @@ import {
   getGameInstance,
   getInstanceGame,
   getUserInstances,
+  markFinished,
 } from '@/queries/instancequeries';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
@@ -82,16 +84,55 @@ export function useGetActiveInstances() {
   return useQuery(getActiveInstancesQueryOptions());
 }
 
-const getUserInstancesQueryKey = () => ['instances'];
+const getUserInstancesQueryKey = (userId: string, finished?: boolean) => [
+  'instances',
+  userId,
+  finished,
+];
 
-export const getUserInstancesQueryOptions = (userId: string) =>
+export const getUserInstancesQueryOptions = (
+  userId: string,
+  finished?: boolean,
+) =>
   queryOptions({
-    queryKey: getUserInstancesQueryKey(),
+    queryKey: getUserInstancesQueryKey(userId, finished),
     queryFn: async () => {
-      return (await getUserInstances(supabase, userId)).data ?? null;
+      return (await getUserInstances(supabase, userId, finished)).data ?? null;
     },
   });
 
-export function useGetUserInstances(userId: string) {
-  return useQuery(getUserInstancesQueryOptions(userId));
+export function useGetUserInstances(userId: string, finished?: boolean) {
+  return useQuery(getUserInstancesQueryOptions(userId, finished));
+}
+
+export function useMarkInstanceFinished() {
+  const { user } = useAuthenticatedUser();
+  return useMutation({
+    mutationFn: async ({ gameInstanceId }: { gameInstanceId: string }) => {
+      return (await markFinished(supabase, gameInstanceId)).data ?? null;
+    },
+    onSettled: async (
+      _data,
+      _error,
+      { gameInstanceId },
+      _result,
+      { client },
+    ) => {
+      await Promise.allSettled([
+        client.invalidateQueries({
+          queryKey: getUserInstancesQueryKey(user.id),
+        }),
+        client.invalidateQueries({
+          queryKey: getUserInstancesQueryKey(user.id, false),
+        }),
+        client.invalidateQueries({
+          queryKey: getUserInstancesQueryKey(user.id, true),
+        }),
+        client.invalidateQueries({ queryKey: ['activeinstances'] }),
+        client.invalidateQueries({
+          queryKey: getInstanceGameQueryKey(gameInstanceId),
+        }),
+      ]);
+    },
+  });
 }

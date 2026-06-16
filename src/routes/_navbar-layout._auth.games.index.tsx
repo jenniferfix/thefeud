@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
-import { DevInstances } from '#/components/DevInstances';
 import { GameDialog } from '#/components/editor/GameDialog';
 import { GameItem } from '#/components/editor/GameItem';
 import { SortControl } from '#/components/SortControl';
@@ -49,7 +48,6 @@ function RouteComponent() {
           </div>
         </div>
       </section>
-      <DevInstances />
     </div>
   );
 }

@@ -27,6 +27,18 @@ export async function getGameInstance(
     .single();
 }
 
+export async function markFinished(
+  client: TypedSupabaseClient,
+  instanceId: string,
+) {
+  console.log(instanceId);
+  return await client
+    .from('game_instance')
+    .update({ finished: new Date().toISOString() })
+    .eq('id', instanceId)
+    .throwOnError();
+}
+
 export async function deleteGameInstance(
   client: TypedSupabaseClient,
   instanceId: string,
@@ -66,16 +78,24 @@ export async function getActiveInstances(client: TypedSupabaseClient) {
     .order('created_at', { ascending: false })
     .throwOnError();
 }
+
 export async function getUserInstances(
   client: TypedSupabaseClient,
   userId: string,
+  finished?: boolean,
 ) {
-  return await client
+  let query = client
     .from('game_instance')
     .select('id, created_at, userid, games(id,name)')
-    .eq('userid', userId)
-    .order('created_at', { ascending: false })
-    .throwOnError();
+    .eq('userid', userId);
+
+  if (finished !== undefined) {
+    query = finished
+      ? query.not('finished', 'eq', null)
+      : query.is('finished', null);
+  }
+
+  return await query.order('created_at', { ascending: false }).throwOnError();
 }
 
 export type TInstance = QueryData<ReturnType<typeof getInstanceGame>>;
