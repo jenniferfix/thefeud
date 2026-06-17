@@ -38,13 +38,13 @@ export const InputCodeField = () => {
     validators: {
       onSubmit: joinCodeFormSchema,
     },
-    onSubmit: async ({ value: { code } }) => {
+    onSubmit: async ({ formApi, value: { code } }) => {
       const gameInstanceId = await joinGameData.mutateAsync({ code });
       if (!gameInstanceId) {
         toast('Invalid code');
         return;
       }
-
+      formApi.reset();
       navigate({
         to: '/g/$gameInstanceId',
         params: { gameInstanceId: gameInstanceId },
@@ -70,9 +70,9 @@ export const InputCodeField = () => {
       <form.AppForm>
         <form onSubmit={handleSubmit} className="flex justify-center">
           <form.Subscribe
-            selector={(state) => [state.isSubmitting]}
-            children={([isSubmitting]) => (
-              <>{isSubmitting && <WaitOverlay />}</>
+            selector={(state) => [state.isSubmitting, state.isSubmitted]}
+            children={([isSubmitting, isSubmitted]) => (
+              <>{isSubmitting || (isSubmitted && <WaitOverlay />)}</>
             )}
           />
           <form.AppField
