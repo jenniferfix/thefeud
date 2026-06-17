@@ -63,7 +63,8 @@ export const QuestionDialog = ({
   const insertAnswer = useInsertAnswer();
   const updateQuestion = useUpdateQuestion();
   const [open, setOpen] = React.useState(false);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
   const form = useAppForm({
     defaultValues: {
       question: question ?? '',
