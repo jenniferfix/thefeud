@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { Gamepad2Icon } from 'lucide-react';
 import React from 'react';
+import { ShowJoinCode } from '#/components/gamecontrol/ShowJoinCode';
 import {
   FeudEventsProvider,
   useFeudEventsContext,
@@ -124,13 +125,10 @@ function ControlComponent() {
   return (
     <div className="relative flex flex-col justify-between min-h-screen max-w-lg mx-auto pb-2 px-2">
       <div className="absolute top-2 right-2">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => navigate({ to: `/c` })}
-        >
-          <Gamepad2Icon />
-        </Button>
+        <ShowJoinCode
+          gameInstanceId={gameInstanceId}
+          joinCode={instanceQueryData.join_code}
+        />
         <QRCode instanceId={gameInstanceId} />
       </div>
       <h2 className="flex justify-center text-2xl py-2 border-b">
