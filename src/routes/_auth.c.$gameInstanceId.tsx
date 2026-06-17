@@ -6,7 +6,6 @@ import {
   FeudEventsProvider,
   useFeudEventsContext,
 } from '#/components/providers/FeudEvents';
-import QRCode from '@/components/gamecontrol/QRCode';
 import Strikes from '@/components/gamecontrol/Strikes';
 import { Button } from '@/components/ui/button';
 import {
@@ -129,7 +128,6 @@ function ControlComponent() {
           gameInstanceId={gameInstanceId}
           joinCode={instanceQueryData.join_code}
         />
-        <QRCode instanceId={gameInstanceId} />
       </div>
       <h2 className="flex justify-center text-2xl py-2 border-b">
         {instanceQueryData?.games?.name}
