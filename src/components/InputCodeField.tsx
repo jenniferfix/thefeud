@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useJoinGame } from '#/hooks/usejoincodes';
 import {
@@ -16,6 +17,15 @@ import {
 } from '@/components/ui/input-otp';
 import { useAppForm } from '@/components/ui/tanstack-form';
 import { Spinner } from './ui/spinner';
+
+export const WaitOverlay = () => {
+  return createPortal(
+    <div className="absolute inset-0 bg-feudblue/80 flex items-center justify-center">
+      <Spinner className="h-[50vh] w-[50vw] object-contain" />
+    </div>,
+    document.body,
+  );
+};
 
 export const InputCodeField = () => {
   const joinGameData = useJoinGame();
@@ -59,6 +69,12 @@ export const InputCodeField = () => {
       </div>
       <form.AppForm>
         <form onSubmit={handleSubmit} className="flex justify-center">
+          <form.Subscribe
+            selector={(state) => [state.isSubmitting]}
+            children={([isSubmitting]) => (
+              <>{isSubmitting && <WaitOverlay />}</>
+            )}
+          />
           <form.AppField
             name="code"
             children={(field) => (
