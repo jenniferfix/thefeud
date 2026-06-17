@@ -58,7 +58,7 @@ export async function getInstanceGame(
     .from('game_instance')
     // .select('*')
     .select(
-      'id, team_left, team_right, games(id, name, questions(id, question, answers(id, answer, score)))',
+      'id, team_left, team_right, join_code, games(id, name, questions(id, question, answers(id, answer, score)))',
     )
     .eq('id', instanceId)
     .throwOnError()

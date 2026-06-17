@@ -120,6 +120,8 @@ export type Database = {
           finished: string | null
           gameid: string
           id: string
+          join_code: string | null
+          join_code_expires: string | null
           team_left: string | null
           team_right: string | null
           userid: string
@@ -129,6 +131,8 @@ export type Database = {
           finished?: string | null
           gameid: string
           id?: string
+          join_code?: string | null
+          join_code_expires?: string | null
           team_left?: string | null
           team_right?: string | null
           userid?: string
@@ -138,6 +142,8 @@ export type Database = {
           finished?: string | null
           gameid?: string
           id?: string
+          join_code?: string | null
+          join_code_expires?: string | null
           team_left?: string | null
           team_right?: string | null
           userid?: string

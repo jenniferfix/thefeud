@@ -22,6 +22,8 @@ import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
 const supabase = getSupabaseBrowserClient();
 
+const getGameInstancesQueryKey = () => ['gameinstances'];
+
 export function useCreateGameInstance() {
   const supabase = useSupabase();
   return useMutation({
@@ -30,7 +32,7 @@ export function useCreateGameInstance() {
     },
     onSettled: async (_data, _error, _variables, _result, { client }) => {
       await Promise.allSettled([
-        client.invalidateQueries({ queryKey: ['gameInstances'] }),
+        client.invalidateQueries({ queryKey: getGameInstancesQueryKey() }),
       ]);
     },
   });
@@ -53,7 +55,7 @@ export function useDeleteGameInstance() {
     },
     onSettled: async (_data, _error, _variables, _result, { client }) => {
       await Promise.allSettled([
-        client.invalidateQueries({ queryKey: ['gameInstances'] }),
+        client.invalidateQueries({ queryKey: getGameInstancesQueryKey() }),
       ]);
     },
   });
@@ -84,11 +86,10 @@ export function useGetActiveInstances() {
   return useQuery(getActiveInstancesQueryOptions());
 }
 
-const getUserInstancesQueryKey = (userId: string, finished?: boolean) => [
-  'instances',
-  userId,
-  finished,
-];
+export const getUserInstancesQueryKey = (
+  userId: string,
+  finished?: boolean,
+) => ['instances', userId, finished];
 
 export const getUserInstancesQueryOptions = (
   userId: string,

@@ -21,3 +21,11 @@ export const createJoinCodeRPCSchema = z.object({
   use: codeUsesEnum.default('watch'),
 });
 export type CreateJoinCodeRPCType = z.infer<typeof createJoinCodeRPCSchema>;
+
+export const getJoinCodeGameRPCSchema = z.object({
+  code,
+});
+
+export const joinCodeFormSchema = z.object({
+  ...getJoinCodeGameRPCSchema.shape,
+});

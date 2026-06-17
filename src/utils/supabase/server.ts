@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   getCookies,
   setCookie,
@@ -6,8 +7,15 @@ import {
 } from '@tanstack/react-start/server';
 import type { Database } from '@/types/supabase.types';
 
+export type TypedSupabaseClient = SupabaseClient<Database>;
+let client: TypedSupabaseClient;
+
 export const createSupabaseServerClient = () => {
-  return createServerClient<Database>(
+  if (client) {
+    return client;
+  }
+
+  client = createServerClient<Database>(
     import.meta.env.VITE_SUPABASE_URL,
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     {
@@ -33,4 +41,5 @@ export const createSupabaseServerClient = () => {
       },
     },
   );
+  return client;
 };
