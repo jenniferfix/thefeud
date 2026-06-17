@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const JOIN_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export const OTP_REGEX = '^[A-HJ-NP-Za-hj-np-z2-9]*$';
 export const JOIN_CODE_LENGTH = 5;
 const codeUsesArray = ['watch'] as const;
-
 const codeUsesEnum = z.enum(codeUsesArray);
 
 export const code = z.string().length(JOIN_CODE_LENGTH);

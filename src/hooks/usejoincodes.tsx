@@ -77,6 +77,7 @@ export const useJoinGame = () => {
   return useMutation({
     mutationFn: async ({ code }: { code: string }) => {
       const joinCodeRes = await getJoinCodeGame({ data: { code } });
+      console.log(joinCodeRes);
       if (!joinCodeRes?.success) return null;
       // TODO: return a redirect path based on the use
       return joinCodeRes.data?.gameInstanceId;

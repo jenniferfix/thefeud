@@ -75,8 +75,6 @@ export const createJoinCode = createServerFn({ method: 'GET' })
 export const getJoinCodeGame = createServerFn({ method: 'GET' })
   .validator(getJoinCodeGameRPCSchema)
   .handler(async ({ data: { code: inputCode } }) => {
-    const auth = await getServerAuth();
-    if (!auth.user) return;
     try {
       const code = normalizeJoinCode(inputCode);
       const redisReturn = await redis.get(`${redisPrefix}${code}`);
@@ -86,6 +84,7 @@ export const getJoinCodeGame = createServerFn({ method: 'GET' })
       );
       if (!success)
         throw Error(error.message, { cause: 'Redis schema invalid' });
+
       return { success, data: success ? data : undefined };
     } catch (error) {
       console.error(error);

@@ -123,7 +123,7 @@ function ControlComponent() {
   };
 
   return (
-    <div className="relative flex flex-col justify-between min-h-screen max-w-lg mx-auto pb-2 px-2">
+    <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
       <div className="absolute top-2 right-2">
         <ShowJoinCode
           gameInstanceId={gameInstanceId}

@@ -5,6 +5,7 @@ import { cn } from '#/lib/utils';
 import ActiveGames from '@/components/ActiveGames';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { useSupabaseAuth } from '@/supabaseauth';
+import { InputCodeField } from '../InputCodeField';
 
 export function Home() {
   const auth = useSupabaseAuth();
@@ -18,7 +19,7 @@ export function Home() {
   });
 
   return (
-    <div className="px-4">
+    <div className="px-4 flex flex-col">
       <div className="mb-8 mt-6 flex justify-center">
         <div className="w-100">
           <img
@@ -33,25 +34,31 @@ export function Home() {
         {/* </animated.h1> */}
       </div>
 
-      {auth?.user && <ActiveGames userid={auth.user?.id} />}
-      <section className="flex flex-col sm:flex-row gap-12 my-12 justify-center">
-        <Link
-          to={'/games'}
-          className={buttonVariants({
-            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0 w-sm',
-          })}
-        >
-          Go to your games!
-        </Link>
-        <Link
-          to={'/questions'}
-          className={buttonVariants({
-            className: 'h-12 text-lg font-semibold mx-4 sm:mx-0 w-sm',
-          })}
-        >
-          Go to your questions!
-        </Link>
-      </section>
+      {auth?.user && (
+        <>
+          <ActiveGames userid={auth.user?.id} />
+          <section className="flex flex-col md:flex-row gap-12 my-12 justify-center items-center">
+            <Link
+              to={'/games'}
+              className={buttonVariants({
+                className: 'h-12 text-lg font-semibold w-full md:w-sm',
+              })}
+            >
+              Go to your games!
+            </Link>
+            <Link
+              to={'/questions'}
+              className={buttonVariants({
+                className: 'h-12 text-lg font-semibold w-full md:w-sm',
+              })}
+            >
+              Go to your questions!
+            </Link>
+          </section>
+        </>
+      )}
+
+      <InputCodeField />
 
       <section className="my-4">
         <div>
