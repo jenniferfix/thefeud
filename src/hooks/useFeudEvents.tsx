@@ -308,5 +308,7 @@ export default function useGameEvents(props: Props) {
     answered,
     currentQuestion: currentQuestionId,
     currentQuestionText,
+    leftName: gameData.team_left,
+    rightName: gameData.team_right,
   };
 }
