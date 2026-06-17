@@ -14,6 +14,7 @@
 }
 
 :root {
+  --yellow-lt: #fcd836ff;
   --surface: rgba(256, 255, 255, 0.74);
   --surface-strong: rgba(255, 255, 255, 0.9);
   --line: rgba(23, 58, 64, 0.14);
@@ -68,6 +69,7 @@
 }
 
 .dark {
+  --yellow-lt: #fcd836ff;
   --surface: rgba(16, 30, 34, 0.8);
   --surface-strong: rgba(15, 27, 31, 0.92);
   --line: rgba(141, 229, 219, 0.18);
@@ -121,6 +123,7 @@
 }
 
 @theme inline {
+  --color-yellow-lt: var(--yellow-lt);
   --font-sans:  ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
