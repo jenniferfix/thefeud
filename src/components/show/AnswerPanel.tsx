@@ -1,8 +1,6 @@
-import React from 'react';
-import { useSpring, animated } from '@react-spring/web';
+import { animated, useSpring } from '@react-spring/web';
 
 const AnswerPanel = ({
-  id,
   answer,
   flipped,
   points,
@@ -24,7 +22,7 @@ const AnswerPanel = ({
     },
   });
   return (
-    <div className="relative border m-2 h-20 bg-gradient-to-b from-[#1182f6] to-[#594cc3]">
+    <div className="relative border m-2 h-20 bg-linear-to-b from-[#1182f6] to-[#594cc3]">
       <animated.div
         className="absolute flex justify-between h-full w-full items-center"
         style={{
@@ -33,7 +31,7 @@ const AnswerPanel = ({
         }}
       >
         <div
-          className="text-3xl font-semibold text-white uppercase grow bg-black h-full w-full flex items-center justify-center bg-gradient-to-b  from-blue-900 to-indigo-950"
+          className="text-3xl font-semibold text-white uppercase grow bg-black h-full w-full flex items-center justify-center bg-linear-to-b  from-blue-900 to-indigo-950"
           style={{ textShadow: '5px 5px black' }}
         >
           {answer}

@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -35,7 +34,7 @@ export const StartGameDialog = ({ gameId, name }: StartGameProps) => {
         teamRight: z.string(),
       }),
     },
-    onSubmit: async ({ formApi, value: { teamLeft, teamRight } }) => {
+    onSubmit: async ({ value: { teamLeft, teamRight } }) => {
       const newGame = await createGame.mutateAsync({
         gameId,
         teamLeft,

@@ -1,5 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import React from 'react';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useInsertEvent } from '@/hooks/useeventqueries';
 import {

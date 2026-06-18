@@ -24,8 +24,7 @@ export const getQuestionQueryKey = (questionId: string) => [
 export const getQuestionQueryOptions = (questionId: string) =>
   queryOptions({
     queryKey: getQuestionQueryKey(questionId),
-    queryFn: async (ctx) =>
-      (await getQuestion(supabase, questionId)).data ?? null,
+    queryFn: async () => (await getQuestion(supabase, questionId)).data ?? null,
   });
 
 export const useGetQuestion = (questionId: string) => {

@@ -77,6 +77,7 @@ const { useAppForm, withForm } = createFormHook({
     FormDescription,
     FormLabel,
     WaitButton,
+    FormMessage,
   },
 });
 

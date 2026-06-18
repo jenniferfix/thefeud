@@ -1,7 +1,6 @@
 import {
   queryOptions,
   useMutation,
-  useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
 import { normalizeToArray } from '#/lib/utils';
@@ -12,7 +11,7 @@ import {
   insertAnswer,
   updateAnswer,
 } from '@/queries/answerqueries';
-import type { Database, Tables } from '@/types/supabase.types';
+import type { Database } from '@/types/supabase.types';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 import {
   getQuestionQueryKey,

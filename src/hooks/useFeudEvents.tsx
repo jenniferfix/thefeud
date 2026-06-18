@@ -29,14 +29,11 @@ export default function useGameEvents(props: Props) {
     // error: initialError,
   } = useGetEventsForGameInstance(props.instanceId);
 
-  const {
-    data: gameData,
-    isLoading: isGameLoading,
-    isError: isGameError,
-    error: gameError,
-  } = useGetInstanceGame(props.instanceId);
+  const { data: gameData, isLoading: isGameLoading } = useGetInstanceGame(
+    props.instanceId,
+  );
 
-  const [playSounds, setPlaySounds] = React.useState<boolean>(
+  const [playSounds, _setPlaySounds] = React.useState<boolean>(
     props?.sound ?? true,
   );
 
@@ -48,8 +45,6 @@ export default function useGameEvents(props: Props) {
   const [currentQuestionText, setCurrentQuestionText] = React.useState<
     string | undefined
   >();
-  const [ncurrentQuestion, nsetCurrentQuestion] =
-    React.useState<Tables<'game_questions'>>();
   const [answers, setAnswers] = React.useState<Tables<'answers'>[]>([]);
   const [answered, setAnswered] = React.useState<IAnswered>({});
   const [leftTeamScore, setLeftTeamScore] = React.useState(0);
@@ -137,7 +132,7 @@ export default function useGameEvents(props: Props) {
     const channel = supabaseClient
       .channel(props.instanceId)
       .on('broadcast', { event: 'sound' }, (retData) => {
-        const { event, payload } = retData;
+        const { payload } = retData;
         handleSoundPlay(payload.sound);
       })
       .subscribe();
@@ -160,7 +155,7 @@ export default function useGameEvents(props: Props) {
   React.useEffect(() => {
     if (!currentQuestionId) return;
     const getData = async () => {
-      const { data, error } = await getAnswersByQuestionId(
+      const { data } = await getAnswersByQuestionId(
         supabaseClient,
         currentQuestionId,
       );

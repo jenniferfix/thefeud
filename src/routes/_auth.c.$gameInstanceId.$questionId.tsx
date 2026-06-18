@@ -22,12 +22,11 @@ export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
 function Page() {
   const { gameInstanceId, questionId } = Route.useParams();
   const insertEvent = useInsertEvent();
-  const { data, isError, error, isLoading } =
-    useGetInstanceGame(gameInstanceId);
+  const { data } = useGetInstanceGame(gameInstanceId);
 
-  const [activeTeam, setActiveTeam] = React.useState<number | null | undefined>(
-    null,
-  );
+  const [activeTeam, _setActiveTeam] = React.useState<
+    number | null | undefined
+  >(null);
 
   const question = data.games.questions.find((q) => q.id === questionId);
 

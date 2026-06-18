@@ -1,18 +1,9 @@
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
-import { useServerFn } from '@tanstack/react-start';
-import { gameInstanceId } from '#/lib/schemas/joincode';
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
 import {
   createJoinCode,
   deleteJoinCode,
   getJoinCodeGame,
 } from '#/server/joincodes';
-import { getEventsForGameInstanceQueryKey } from './useeventqueries';
 import {
   getInstanceGameQueryKey,
   getUserInstancesQueryKey,
@@ -22,7 +13,6 @@ export const useCreateJoinCode = () => {
   return useMutation({
     mutationFn: async ({
       gameInstanceId,
-      userId,
     }: {
       gameInstanceId: string;
       userId: string;
@@ -53,9 +43,9 @@ export const useDeleteJoinCode = () => {
     mutationFn: async ({ code }: { code: string }) => {
       return await deleteJoinCode({ data: { code } });
     },
-    onSettled: async (_data, _error, _var, _result, { client }) => {
-      await Promise.allSettled([]);
-    },
+    // onSettled: async (_data, _error, _var, _result, {0 client }) => {
+    //   await Promise.allSettled([]);
+    // },
   });
 };
 

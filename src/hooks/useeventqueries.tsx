@@ -2,7 +2,6 @@
 import {
   queryOptions,
   useMutation,
-  useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
 import useSupabase from '@/hooks/useSupabase';
@@ -21,7 +20,7 @@ export const getEventsForGameInstanceQueryOptions = (instanceId: string) =>
   queryOptions({
     queryKey: getEventsForGameInstanceQueryKey(instanceId),
 
-    queryFn: async (opts) =>
+    queryFn: async () =>
       (await getEventsForGameInstance(supabase, instanceId)).data ?? null,
   });
 
@@ -34,7 +33,6 @@ export const useInsertEvent = () => {
 
   return useMutation({
     mutationFn: async ({
-      gameInstanceId,
       event,
     }: {
       gameInstanceId: string;

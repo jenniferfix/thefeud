@@ -44,7 +44,7 @@ export const createJoinCode = createServerFn({ method: 'GET' })
         JSON.stringify(insertData),
         'EX',
         EXPIRE_SECONDS, // Week
-        (err, result) => {
+        (err, _result) => {
           if (err) {
             attempt + 1;
             if (attempt >= MAX_RETRIES) {

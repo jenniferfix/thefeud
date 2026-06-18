@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { TrashIcon } from 'lucide-react';
 import React from 'react';
 import { useDeleteGame } from '#/hooks/usegamequeries';
 import type { GameType } from '#/lib/schemas/game';
@@ -8,15 +8,10 @@ import {
   ItemActions,
   ItemContent,
   ItemDescription,
-  ItemFooter,
-  ItemHeader,
-  ItemMedia,
   ItemTitle,
 } from '@/components/ui/item';
 import { ConfirmDialog } from '../ConfirmDialog';
 import { StartGameDialog } from '../gamecontrol/StartGameDialog';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
 import { WaitButton } from '../ui/wait-button';
 
 export const GameItem = ({ id, name, questions }: GameType) => {

@@ -1,5 +1,5 @@
-import { memo } from "react";
-import { useSupabaseAuth } from "@/supabaseauth";
+import { memo } from 'react';
+import { useSupabaseAuth } from '@/supabaseauth';
 
 export const SignedIn = memo(({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useSupabaseAuth();

@@ -7,7 +7,7 @@ export const CopyButton = ({
   copyValue,
   ...props
 }: { copyValue?: string | null } & React.ComponentProps<typeof Button>) => {
-  const { copy, isCopied, reset } = useCopyToClipboard();
+  const { copy, isCopied } = useCopyToClipboard();
   const [showCheck, setShowCheck] = React.useState(false);
 
   const handleClick = React.useCallback(() => {

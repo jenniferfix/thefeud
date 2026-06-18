@@ -1,12 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { MinusIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
-import React from 'react';
+import { PlusIcon } from 'lucide-react';
 import { QuestionDialog } from '#/components/editor/QuestionDialog';
 import { QuestionListing } from '#/components/editor/QuestionListing';
 import { SortControl } from '#/components/SortControl';
 import {
   getUserQuestionsQueryOptions,
-  useDeleteQuestion,
   useGetUsersQuestions,
 } from '#/hooks/usequestionqueries';
 import { Button } from '@/components/ui/button';
@@ -21,7 +19,7 @@ export const Route = createFileRoute('/_navbar-layout/_auth/questions')({
 });
 
 function RouteComponent() {
-  const { user } = Route.useRouteContext();
+  //const { user } = Route.useRouteContext();
   const { data } = useGetUsersQuestions();
 
   return (

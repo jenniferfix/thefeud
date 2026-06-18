@@ -36,10 +36,10 @@ export const GameDialog = ({
     validators: {},
     onSubmit: async ({ formApi, value }) => {
       if (!edit) {
-        const newGame = await insertGame.mutateAsync({ name: value.name });
+        await insertGame.mutateAsync({ name: value.name });
       } else {
         if (!gameId) throw Error('Must provide gameId if edit is true');
-        const updatedGame = await updateGame.mutateAsync({
+        await updateGame.mutateAsync({
           gameId,
           name: value.name,
         });

@@ -1,10 +1,8 @@
 import { ClientOnly, Link } from '@tanstack/react-router';
 import { Binoculars, PlayIcon, X } from 'lucide-react';
-import React from 'react';
 import { useAuthenticatedUser } from '#/supabaseauth';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Tooltip,
   TooltipContent,
@@ -12,7 +10,6 @@ import {
 } from '@/components/ui/tooltip';
 import { WaitButton } from '@/components/ui/wait-button';
 import {
-  useGetActiveInstances,
   useGetUserInstances,
   useMarkInstanceFinished,
 } from '@/hooks/useinstancequeries';
@@ -50,13 +47,13 @@ const FinishedButton = ({ gameInstanceId }: { gameInstanceId: string }) => {
   );
 };
 
-const ActiveGames = ({ userid }: { userid?: string }) => {
+const ActiveGames = () => {
   const { user } = useAuthenticatedUser();
   const { data, error, isError, isLoading } = useGetUserInstances(
     user.id,
     false,
   );
-  const markFinished = useMarkInstanceFinished();
+  // const markFinished = useMarkInstanceFinished();
   if (isLoading) return <div>Loading</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
@@ -67,7 +64,7 @@ const ActiveGames = ({ userid }: { userid?: string }) => {
         Your active games
       </h3>
       {!data?.length && (
-        <div className="h-[100px] flex justify-center items-center">
+        <div className="h-[25] flex justify-center items-center">
           Nothing here :(
         </div>
       )}

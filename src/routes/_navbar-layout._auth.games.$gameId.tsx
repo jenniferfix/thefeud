@@ -1,6 +1,5 @@
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router';
-import { ArrowBigLeft, Pencil, Plus, Settings } from 'lucide-react';
-import { z } from 'zod';
+import { ArrowBigLeft, Plus, Settings } from 'lucide-react';
 import { AddQuestionToGameDialog } from '#/components/editor/AddQuestionToGameDialog';
 import { QuestionListing } from '#/components/editor/QuestionListing';
 import { LocalDateTime } from '#/components/LocalDateTime';
@@ -28,7 +27,7 @@ const GridItem = ({ className, ...props }: React.ComponentProps<'div'>) => {
 
 function RouteComponent() {
   const { gameId } = Route.useParams();
-  const { data, isError, error, isLoading } = useGetGame(gameId);
+  const { data, isLoading } = useGetGame(gameId);
   const removeQuestion = useRemoveQuestionFromGame();
 
   if (isLoading || !data) return null;

@@ -1,9 +1,5 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  getAnswersByQuestionIdQueryOptions,
-  useGetAnswersByQuestionId,
-} from '@/hooks/useanswerqueries';
+import { useGetAnswersByQuestionId } from '@/hooks/useanswerqueries';
 import { useInsertEvent } from '@/hooks/useeventqueries';
 import { GameActions } from '@/types';
 import { useFeudEventsContext } from '../providers/FeudEvents';

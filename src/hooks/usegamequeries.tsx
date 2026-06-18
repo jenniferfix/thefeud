@@ -1,12 +1,8 @@
-import { PostgrestError } from '@supabase/supabase-js';
 import {
   queryOptions,
   useMutation,
-  useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
-import { produce } from 'immer';
-import { useSupabaseAuth } from '#/supabaseauth';
 import useSupabase from '@/hooks/useSupabase';
 import {
   addQuestionToGame,
@@ -20,16 +16,6 @@ import {
   updateGame,
 } from '@/queries/gamequeries';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
-
-type QueryError = {
-  message: string;
-  originalError: PostgrestError;
-};
-
-const handQueryError = (error: PostgrestError): QueryError => ({
-  message: error.message || 'An error occurred while fetching data',
-  originalError: error,
-});
 
 const supabase = getSupabaseBrowserClient();
 
@@ -98,13 +84,7 @@ export function useAddQuestionToGame() {
       gameId: string;
     }) => (await addQuestionToGame(supabase, questionId, gameId)).data ?? null,
 
-    onSettled: async (
-      _data,
-      _error,
-      { questionId, gameId },
-      _result,
-      { client },
-    ) => {
+    onSettled: async (_data, _error, { gameId }, _result, { client }) => {
       await Promise.allSettled([
         client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
         client.invalidateQueries({
@@ -133,13 +113,7 @@ export function useRemoveQuestionFromGame() {
         null
       );
     },
-    onSettled: async (
-      _data,
-      _error,
-      { gameId, questionId },
-      _result,
-      { client },
-    ) => {
+    onSettled: async (_data, _error, { gameId }, _result, { client }) => {
       await Promise.allSettled([
         client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
         client.invalidateQueries({
@@ -185,12 +159,12 @@ export function useUpdateGame() {
     mutationFn: async ({ gameId, name }: { gameId: string; name: string }) => {
       return (await updateGame(supabase, gameId, name)).data ?? null;
     },
-    onMutate: async ({ gameId, name }, { client }) => {
+    onMutate: async ({ gameId }, { client }) => {
       await Promise.allSettled([
         client.cancelQueries({ queryKey: getGamesQueryKey() }),
         client.cancelQueries({ queryKey: getGameQueryKey(gameId) }),
       ]);
-      const previous = client.getQueryData(getGameQueryKey(gameId));
+      //const previous = client.getQueryData(getGameQueryKey(gameId));
       // TODO: Finish
     },
     onSettled: async (_data, _error, { gameId }, _result, { client }) => {

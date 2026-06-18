@@ -1,4 +1,3 @@
-import { normalizeToArray } from '#/lib/utils';
 import type { Database } from '@/types/supabase.types';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
 

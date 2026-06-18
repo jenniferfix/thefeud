@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,8 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/alert-dialog';
 
 export function WarningDialog({
   children,
@@ -23,9 +22,9 @@ export function WarningDialog({
   title?: string;
   description?: string;
 }) {
-  const defaultTitle = "Are you absolutely sure?";
+  const defaultTitle = 'Are you absolutely sure?';
   const displayTitle = title || defaultTitle;
-  const defaultDescription = "You cannot undo this!";
+  const defaultDescription = 'You cannot undo this!';
   const displayDescription = description || defaultDescription;
   return (
     <AlertDialog>

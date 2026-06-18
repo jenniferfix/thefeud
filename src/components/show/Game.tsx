@@ -3,14 +3,10 @@ import React from 'react';
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
 import GameBg from '@/components/show/GameBg';
 import { Button } from '@/components/ui/button';
-import { Tables } from '@/types/supabase.types';
+import useFeudEvents from '@/hooks/useFeudEvents';
 import { cn } from '@/utils/utils';
 import Gameboard from './Gameboard';
 import Strike from './Strike';
-
-type TEvents = Tables<'game_events'>;
-
-import useFeudEvents from '@/hooks/useFeudEvents';
 
 const TeamName = ({ value }: { value: string }) => {
   const long = value.length >= 11;
@@ -35,7 +31,6 @@ const Game = ({ instanceId }: { instanceId: string }) => {
     roundScore,
     showStrike,
     strikes,
-    currentQuestion,
     currentQuestionText,
     rightName,
     leftName,

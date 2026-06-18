@@ -1,7 +1,7 @@
 import { TrashIcon } from 'lucide-react';
 import React from 'react';
 import { useAddQuestionToGame } from '#/hooks/usegamequeries';
-import { useMediaQuery } from '#/hooks/useMediaQuery';
+//import { useMediaQuery } from '#/hooks/useMediaQuery';
 import {
   Dialog,
   DialogClose,
@@ -25,16 +25,6 @@ import {
   type AnswerFormType,
   questionFormSchema,
 } from '@/lib/schemas/questions';
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '../ui/drawer';
 import { useAppForm } from '../ui/tanstack-form';
 
 export interface ExistingAnswersType extends AnswerFormType {}
@@ -64,7 +54,7 @@ export const QuestionDialog = ({
   const updateQuestion = useUpdateQuestion();
   const [open, setOpen] = React.useState(false);
 
-  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+  //const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
   const form = useAppForm({
     defaultValues: {
       question: question ?? '',
@@ -80,7 +70,7 @@ export const QuestionDialog = ({
           question: value.question,
         });
         const { id: question_id } = newQ;
-        const [newAnswers] = await Promise.all([
+        const [_newAnswers] = await Promise.all([
           insertAnswer.mutateAsync(
             value.answers.map(({ answer, score }) => ({
               question_id,

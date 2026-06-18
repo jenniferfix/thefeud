@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom';
 import { toast } from 'sonner';
 import { useJoinGame } from '#/hooks/usejoincodes';
 import {
-  JOIN_CODE_ALPHABET,
   JOIN_CODE_LENGTH,
   joinCodeFormSchema,
   OTP_REGEX,
@@ -12,7 +11,6 @@ import {
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSeparator,
   InputOTPSlot,
 } from '@/components/ui/input-otp';
 import { useAppForm } from '@/components/ui/tanstack-form';

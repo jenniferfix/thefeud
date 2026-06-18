@@ -1,22 +1,20 @@
-import { animated, useSpring } from '@react-spring/web';
+// import {  useSpring } from '@react-spring/web';
 import { Link } from '@tanstack/react-router';
-import React from 'react';
-import { cn } from '#/lib/utils';
 import ActiveGames from '@/components/ActiveGames';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { useSupabaseAuth } from '@/supabaseauth';
 import { InputCodeField } from '../InputCodeField';
 
 export function Home() {
   const auth = useSupabaseAuth();
   // console.log(auth?.user?.id);
-  const springProps = useSpring({
-    from: { opacity: 0 },
-    opacity: 1,
-    config: {
-      duration: 1200,
-    },
-  });
+  // const springProps = useSpring({
+  //   from: { opacity: 0 },
+  //   opacity: 1,
+  //   config: {
+  //     duration: 1200,
+  //   },
+  // });
 
   return (
     <div className="px-4 flex flex-col">
@@ -36,7 +34,7 @@ export function Home() {
 
       {auth?.user && (
         <>
-          <ActiveGames userid={auth.user?.id} />
+          <ActiveGames />
           <section className="flex flex-col md:flex-row gap-12 my-12 justify-center items-center">
             <Link
               to={'/games'}

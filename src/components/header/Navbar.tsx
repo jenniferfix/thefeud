@@ -1,10 +1,4 @@
-import {
-  Link,
-  type LinkProps,
-  linkOptions,
-  useLocation,
-  useNavigate,
-} from '@tanstack/react-router';
+import { Link, linkOptions, useLocation } from '@tanstack/react-router';
 import { MenuIcon } from 'lucide-react';
 import React from 'react';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -137,6 +131,7 @@ const Navbar = () => {
               className: 'rounded-none',
             })}
             activeProps={{ className: 'bg-feudblue/40' }}
+            {...props}
           >
             <span className="text-base">{label}</span>
           </Link>

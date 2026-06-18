@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { PlusIcon } from 'lucide-react';
 import { GameDialog } from '#/components/editor/GameDialog';
 import { GameItem } from '#/components/editor/GameItem';
-import { SortControl } from '#/components/SortControl';
+// import { SortControl } from '#/components/SortControl';
 import { Button } from '@/components/ui/button';
 import {
   getUserGamesQueryOptions,

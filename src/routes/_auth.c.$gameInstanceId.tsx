@@ -1,6 +1,5 @@
-import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
-import { Gamepad2Icon } from 'lucide-react';
-import React from 'react';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+// import React from 'react';
 import { ShowJoinCode } from '#/components/gamecontrol/ShowJoinCode';
 import {
   FeudEventsProvider,
@@ -18,13 +17,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { useInsertEvent } from '@/hooks/useeventqueries';
+//import { useInsertEvent } from '@/hooks/useeventqueries';
 import {
   getInstanceGameQueryOptions,
   useGetInstanceGame,
 } from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
-import { GameActions } from '@/types';
+//import { GameActions } from '@/types';
 import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
@@ -68,50 +67,39 @@ const TeamScore = ({
 
 function ControlComponent() {
   const { gameInstanceId } = Route.useParams();
-  const insertEvent = useInsertEvent();
-  const [activeTeam, setActiveTeam] = React.useState<number | null | undefined>(
-    null,
-  );
-  const {
-    data: instanceQueryData,
-    isLoading: isInstanceQueryLoading,
-    isError: isInstanceQueryError,
-    error: instanceQueryError,
-  } = useGetInstanceGame(gameInstanceId);
+  //const insertEvent = useInsertEvent();
+  // const [activeTeam, setActiveTeam] = React.useState<number | null | undefined>(
+  //   null,
+  // );
+  const { data: instanceQueryData } = useGetInstanceGame(gameInstanceId);
   const supabaseClient = useSupabase();
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   const thisGameActions = supabaseClient.channel(gameInstanceId);
 
-  const {
-    isLoading: isFeudEventsLoading,
-    currentQuestion,
-    strikes,
-    leftTeamScore,
-    rightTeamScore,
-    roundScore,
-  } = useFeudEventsContext();
+  const { strikes, leftTeamScore, rightTeamScore, roundScore } =
+    useFeudEventsContext();
 
   // if (isLoading && isFeudEventsLoading) return <div>Loading...</div>;
   // if (isError) return <div>{error.message}</div>;
   // if (!data) return <div>no data yet</div>;
 
-  const handleTeamToggle = (value: string) => {
-    setActiveTeam(parseInt(value));
-  };
+  // const handleTeamToggle = (value: string) => {
+  //   setActiveTeam(parseInt(value));
+  // };
 
-  const handleTeamWin = () => {
-    if (!activeTeam) return;
-    insertEvent.mutate({
-      gameInstanceId,
-      event: {
-        eventid: GameActions.TeamWin,
-        instanceid: gameInstanceId,
-        team: activeTeam,
-      },
-    });
-    navigate({ to: `/c/$gameInstanceId`, params: { gameInstanceId } });
-  };
+  // const handleTeamWin = () => {
+  //   if (!activeTeam) return;
+  //   insertEvent.mutate({
+  //     gameInstanceId,
+  //     event: {
+  //       eventid: GameActions.TeamWin,
+  //       instanceid: gameInstanceId,
+  //       team: activeTeam,
+  //     },
+  //   });
+  //   navigate({ to: `/c/$gameInstanceId`, params: { gameInstanceId } });
+  // };
 
   const handleSendSound = (sound: string) => {
     thisGameActions.send({

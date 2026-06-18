@@ -1,17 +1,17 @@
-import * as React from "react";
+import * as React from 'react';
 
 type EventType =
-  | "mousedown"
-  | "mouseup"
-  | "touchstart"
-  | "touchend"
-  | "focusin"
-  | "focusout";
+  | 'mousedown'
+  | 'mouseup'
+  | 'touchstart'
+  | 'touchend'
+  | 'focusin'
+  | 'focusout';
 
 export function useOnClickOutside<T extends HTMLElement = HTMLElement>(
   ref: React.RefObject<T | null> | React.RefObject<T | null>[],
   handler: (event: MouseEvent | TouchEvent | FocusEvent) => void,
-  eventType: EventType = "mousedown",
+  eventType: EventType = 'mousedown',
   eventListenerOptions: AddEventListenerOptions = {},
 ): void {
   const savedHandler = React.useRef(handler);

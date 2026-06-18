@@ -1,9 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import * as React from 'react';
-import {
-  getActiveInstancesQueryOptions,
-  getUserInstancesQueryOptions,
-} from '#/hooks/useinstancequeries';
+import { getUserInstancesQueryOptions } from '#/hooks/useinstancequeries';
 import { Home } from '@/components/home/Home';
 import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
 

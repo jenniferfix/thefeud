@@ -1,13 +1,12 @@
 import { RefreshCcw, UserRound } from 'lucide-react';
 import React from 'react';
 import { useCreateJoinCode } from '#/hooks/usejoincodes';
-import { useMediaQuery } from '#/hooks/useMediaQuery';
+// import { useMediaQuery } from '#/hooks/useMediaQuery';
 import { useAuthenticatedUser } from '#/supabaseauth';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -21,12 +20,12 @@ export interface ShowJoinCodeProps {
   joinCode?: string | null;
 }
 
-const RefreshCode = ({ gameInstanceId, joinCode }: ShowJoinCodeProps) => {
+const RefreshCode = ({ gameInstanceId }: ShowJoinCodeProps) => {
   const { user } = useAuthenticatedUser();
   const createCode = useCreateJoinCode();
 
   const handleRefresh = React.useCallback(async () => {
-    const v = await createCode.mutateAsync({ userId: user.id, gameInstanceId });
+    await createCode.mutateAsync({ userId: user.id, gameInstanceId });
   }, []);
   const loading = createCode.isPending;
   const disabled = createCode.isPending || createCode.isError;
@@ -55,7 +54,7 @@ export const ShowJoinCode = ({
   gameInstanceId,
   joinCode,
 }: ShowJoinCodeProps) => {
-  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+  // const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
   const [open, setOpen] = React.useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>

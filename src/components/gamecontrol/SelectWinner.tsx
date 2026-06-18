@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -21,7 +20,6 @@ import { GameActions } from '@/types';
 
 const SelectWinner = ({
   instanceId,
-  questionId,
 }: {
   instanceId: string;
   questionId: string;

@@ -1,13 +1,12 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
-import { getSafeRedirectPath } from '@/lib/auth';
 
 export const Route = createFileRoute('/_navbar-layout/_auth')({
   beforeLoad: ({ context: { auth }, location }) => {
     if (!auth.user) {
       throw redirect({
-        to: '/login',
+        to: '/',
         search: {
-          redirect: getSafeRedirectPath(location.href),
+          redirect: location.href,
         },
       });
     }
