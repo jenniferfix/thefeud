@@ -56,7 +56,7 @@ const Game = ({ instanceId }: { instanceId: string }) => {
     <React.Fragment>
       <FullScreen handle={fullscreen}>
         <GameBg
-          className="h-screen w-screen object-contain"
+          className="h-screen w-screen object-contain pointer-events-none select-none"
           board={<Gameboard answers={answers} answered={answered} />}
           leftTeam={leftTeamScore}
           rightTeam={rightTeamScore}
