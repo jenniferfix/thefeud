@@ -1,3 +1,4 @@
+import { RestrictToVerticalAxis } from '@dnd-kit/abstract/modifiers';
 import { move } from '@dnd-kit/helpers';
 import { DragDropProvider } from '@dnd-kit/react';
 import { ClientOnly, createFileRoute, Link } from '@tanstack/react-router';
@@ -112,6 +113,7 @@ function RouteComponent() {
       </div>
       <div>
         <DragDropProvider
+          modifiers={[RestrictToVerticalAxis]}
           onDragStart={() => {
             lastValidOrderRef.current = sortedQuestionIds;
           }}

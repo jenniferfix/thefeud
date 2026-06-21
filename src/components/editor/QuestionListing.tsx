@@ -40,10 +40,12 @@ export const QuestionListing = React.memo(
   }: QuestionListingProps) => {
     const deleteQuestionCompletely = useDeleteQuestion();
     const [open, setOpen] = React.useState(initialOpen);
+
     const { ref } = useSortable({
       id: question.id,
       index,
       disabled: !sortable,
+      alignment: { y: 'center', x: 'start' },
     });
 
     const handleDelete = React.useCallback(async () => {
