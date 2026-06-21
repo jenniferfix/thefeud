@@ -14,6 +14,7 @@ import {
   insertGame,
   removeQuestionFromGame,
   updateGame,
+  updateQuestionForGame,
 } from '@/queries/gamequeries';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
@@ -79,10 +80,14 @@ export function useAddQuestionToGame() {
     mutationFn: async ({
       questionId,
       gameId,
+      position,
     }: {
       questionId: string;
       gameId: string;
-    }) => (await addQuestionToGame(supabase, questionId, gameId)).data ?? null,
+      position: string;
+    }) =>
+      (await addQuestionToGame(supabase, questionId, gameId, position)).data ??
+      null,
 
     onSettled: async (_data, _error, { gameId }, _result, { client }) => {
       await Promise.allSettled([
@@ -111,6 +116,40 @@ export function useRemoveQuestionFromGame() {
       return (
         (await removeQuestionFromGame(supabase, questionId, gameId)).data ??
         null
+      );
+    },
+    onSettled: async (_data, _error, { gameId }, _result, { client }) => {
+      await Promise.allSettled([
+        client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
+        client.invalidateQueries({
+          queryKey: getGameQuestionsQueryKey(gameId),
+        }),
+        client.invalidateQueries({
+          queryKey: getUserGamesQueryKey(),
+        }),
+      ]);
+    },
+  });
+}
+
+export function useUpdateQuestionForGame() {
+  const supabase = useSupabase();
+  return useMutation({
+    mutationFn: async ({
+      questionId,
+      gameId,
+      position,
+    }: {
+      questionId: string;
+      gameId: string;
+      position: string;
+    }) => {
+      return (
+        (
+          await updateQuestionForGame(supabase, questionId, gameId, {
+            position,
+          })
+        ).data ?? null
       );
     },
     onSettled: async (_data, _error, { gameId }, _result, { client }) => {

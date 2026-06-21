@@ -1,5 +1,8 @@
 import type { QueryData } from '@supabase/supabase-js';
+import { TablesUpdate } from '#/types/supabase.types';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
+
+type GameQuestionUpdate = TablesUpdate<'game_questions'>;
 
 export async function getGames(client: TypedSupabaseClient) {
   return await client.from('games').select('*').throwOnError();
@@ -11,15 +14,12 @@ export async function getUserGames(
 ) {
   return await client
     .from('games')
-    .select(`id, name, questions(id, question, answers(id, answer, score))`)
+    .select(
+      `id, name, game_questions(position, question:questions(id, question, answers(id, answer, score)))`,
+    )
     .eq('userid', userId)
-    .order('created_at', { ascending: false })
     .throwOnError();
 }
-
-export type GetUserGamesType = Awaited<
-  ReturnType<typeof getUserGames>
->['data'][number];
 
 export async function getGameQuestions(
   client: TypedSupabaseClient,
@@ -27,33 +27,33 @@ export async function getGameQuestions(
 ) {
   return await client
     .from('games')
-    .select(`id, questions(id, question)`)
+    .select(`id, game_questions(position, questions(id, question))`)
     .match({ id: gameId })
     .single()
     .throwOnError();
 }
-// export type QueryData<T> = T extends PromiseLike<{ data: infer U }> ? Exclude<U, null> : never
+
 export type TGameQuestions = QueryData<ReturnType<typeof getGameQuestions>>;
 
 export async function getGame(client: TypedSupabaseClient, gameid: string) {
   return await client
     .from('games')
     .select(
-      `id, name, created_at, questions(id, question, created_at, answers(id, answer, score))`,
+      `id, name, created_at, game_questions(position, questions(id, question, created_at, answers(id, answer, score)))`,
     )
     .eq('id', gameid)
-    .order('created_at', { referencedTable: 'questions', ascending: false })
-    .single()
     .throwOnError();
 }
+
 export async function addQuestionToGame(
   client: TypedSupabaseClient,
   questionid: string,
   gameid: string,
+  position: string,
 ) {
   return await client
     .from('game_questions')
-    .insert({ gameid, questionid })
+    .insert({ gameid, questionid, position })
     .throwOnError();
 }
 
@@ -65,6 +65,19 @@ export async function removeQuestionFromGame(
   return await client
     .from('game_questions')
     .delete()
+    .match({ gameid, questionid })
+    .throwOnError();
+}
+
+export async function updateQuestionForGame(
+  client: TypedSupabaseClient,
+  questionid: string,
+  gameid: string,
+  values: GameQuestionUpdate,
+) {
+  return await client
+    .from('game_questions')
+    .update(values)
     .match({ gameid, questionid })
     .throwOnError();
 }

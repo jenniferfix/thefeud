@@ -26,4 +26,11 @@ export const questionSchema = z.object({
   answers: z.array(answerFormSchema),
 });
 
+export const gameQuestionSchema = z.object({
+  position: z.string(),
+  question: questionSchema,
+});
+
+export type GameQuestionsType = z.infer<typeof gameQuestionSchema>;
+
 export type QuestionType = z.infer<typeof questionSchema>;

@@ -40,13 +40,12 @@ function RouteComponent() {
           <div>
             {data?.map((q, i) => (
               <QuestionListing
+                sortable={false}
+                question={q}
+                index={i}
                 showDelete
                 initialOpen
                 key={i}
-                id={q.id}
-                questionId={q.id}
-                question={q.question}
-                answers={q.answers}
               />
             ))}
           </div>

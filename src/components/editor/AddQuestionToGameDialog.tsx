@@ -1,3 +1,4 @@
+import { generateKeyBetween } from 'fractional-indexing';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,12 +22,14 @@ export type AddQuestionToGameProps = {
   gameId: string;
   children: React.ReactNode;
   existingIds?: string[];
+  lastPosition?: string | null;
 };
 
 export const AddQuestionToGameDialog = ({
   gameId,
   children,
   existingIds,
+  lastPosition = null,
 }: AddQuestionToGameProps) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<string | null>(null);
@@ -38,7 +41,8 @@ export const AddQuestionToGameDialog = ({
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!selected) return;
-    addToGame.mutate({ gameId, questionId: selected });
+    const position = generateKeyBetween(lastPosition, null);
+    addToGame.mutate({ gameId, questionId: selected, position });
   };
 
   React.useEffect(() => {
@@ -60,7 +64,7 @@ export const AddQuestionToGameDialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="">
-          <ScrollArea className="border min-h-0 h-[300px]">
+          <ScrollArea className="border min-h-0 h-75">
             <div
               role="listbox"
               aria-label="scrollable, selectable list of questions"

@@ -1,3 +1,4 @@
+import { useSortable } from '@dnd-kit/react/sortable';
 import {
   Collapsible,
   CollapsibleContent,
@@ -10,6 +11,7 @@ import { QuestionDialog } from '#/components/editor/QuestionDialog';
 import { ButtonGroup } from '#/components/ui/button-group';
 import { useDeleteQuestion } from '#/hooks/usequestionqueries';
 import type { QuestionType } from '#/lib/schemas/questions';
+import { cn } from '#/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import {
@@ -18,8 +20,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-export interface QuestionListingProps extends QuestionType {
-  questionId: string;
+export interface QuestionListingProps {
+  sortable?: boolean;
+  question: QuestionType;
+  index: number;
   initialOpen?: boolean;
   showDelete?: boolean;
   deleteQuestion?: (questionId: string) => void | Promise<void>;
@@ -27,27 +31,37 @@ export interface QuestionListingProps extends QuestionType {
 
 export const QuestionListing = React.memo(
   ({
-    question,
-    questionId,
-    answers,
+    sortable = false,
+    index,
     initialOpen = false,
     showDelete = false,
+    question,
     deleteQuestion,
   }: QuestionListingProps) => {
     const deleteQuestionCompletely = useDeleteQuestion();
     const [open, setOpen] = React.useState(initialOpen);
+    const { ref } = useSortable({
+      id: question.id,
+      index,
+      disabled: !sortable,
+    });
 
     const handleDelete = React.useCallback(async () => {
       if (deleteQuestion) {
-        await deleteQuestion(questionId);
+        await deleteQuestion(question.id);
       } else {
-        await deleteQuestionCompletely.mutateAsync({ questionId });
+        await deleteQuestionCompletely.mutateAsync({ questionId: question.id });
       }
     }, []);
 
     return (
-      <Collapsible open={open} onOpenChange={setOpen}>
-        <article className="grid grid-cols-[auto_1fr] items-start my-2 sm:my-6 bg-feudblue/25 border border-feud-lightblue rounded-4xl p-2">
+      <Collapsible ref={ref} open={open} onOpenChange={setOpen}>
+        <article
+          className={cn(
+            sortable ? 'cursor-grab' : 'cursor-default',
+            'grid grid-cols-[auto_1fr] items-start my-2 sm:my-6 bg-feudblue/25 border border-feud-lightblue rounded-4xl p-2',
+          )}
+        >
           <Tooltip>
             <TooltipTrigger asChild>
               <CollapsibleTrigger asChild>
@@ -64,16 +78,16 @@ export const QuestionListing = React.memo(
           </Tooltip>
           <div className="flex">
             <h3 className="grow text-left text-base md:text-2xl flex">
-              <CollapsibleTrigger className="text-left grow">
-                {question}
-              </CollapsibleTrigger>
+              {/* <CollapsibleTrigger className="text-left grow"> */}
+              {question.question}
+              {/* </CollapsibleTrigger> */}
             </h3>
             <ButtonGroup className="self-center">
               <QuestionDialog
                 editing
-                question={question}
-                questionId={questionId}
-                answers={answers}
+                question={question.question}
+                questionId={question.id}
+                answers={question.answers}
               >
                 <Button size="icon" variant="ghost" className="">
                   <PencilIcon />
@@ -86,7 +100,7 @@ export const QuestionListing = React.memo(
                     <>
                       Are you sure you would like to delete the question:
                       <br />
-                      <em className="mt-2">{question}</em>
+                      <em className="mt-2">{question.question}</em>
                     </>
                   }
                   onConfirm={handleDelete}
@@ -102,7 +116,7 @@ export const QuestionListing = React.memo(
           <CollapsibleContent className="">
             <Table className="mt-2 text-sm md:text-base">
               <TableBody>
-                {answers.map((a, i) => (
+                {question.answers.map((a, i) => (
                   <TableRow key={i}>
                     <TableCell>{a.answer}</TableCell>
                     <TableCell align="right">{a.score}</TableCell>

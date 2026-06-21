@@ -162,18 +162,21 @@ export type Database = {
         Row: {
           created_at: string
           gameid: string
+          position: string
           questionid: string
           userid: string
         }
         Insert: {
           created_at?: string
           gameid: string
+          position: string
           questionid: string
           userid?: string
         }
         Update: {
           created_at?: string
           gameid?: string
+          position?: string
           questionid?: string
           userid?: string
         }

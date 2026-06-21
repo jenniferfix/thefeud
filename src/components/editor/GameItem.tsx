@@ -36,10 +36,10 @@ export const GameItem = ({ id, name, questions }: GameType) => {
         <ItemDescription className="flex flex-wrap gap-0.5 sm:gap-1">
           {questions.map((q) => (
             <span
-              key={q.id}
+              key={q.question.id}
               className="text-xs bg-feud-lightblue/25 rounded-lg px-1 py-0.5"
             >
-              {q.question}
+              {q.question.question}
             </span>
           ))}
         </ItemDescription>

@@ -42,7 +42,7 @@ function RouteComponent() {
                 key={g.id}
                 id={g.id}
                 name={g.name ?? ''}
-                questions={g.questions}
+                questions={g.game_questions}
               />
             ))}
           </div>

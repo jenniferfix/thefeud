@@ -1,5 +1,6 @@
 {
   "name": "feud",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "imports": {
@@ -19,6 +20,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@dnd-kit/helpers": "^0.5.0",
+    "@dnd-kit/react": "^0.5.0",
     "@fontsource-variable/noto-serif": "^5.2.9",
     "@hookform/resolvers": "^5.4.0",
     "@posthog/react": "^1.10.1",
@@ -62,6 +65,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv-cli": "^11.0.0",
+    "fractional-indexing": "^3.2.0",
     "immer": "^11.1.8",
     "input-otp": "^1.4.2",
     "iovalkey": "^0.3.3",
