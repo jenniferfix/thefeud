@@ -5,7 +5,7 @@ import {
   getJoinCodeGame,
 } from '#/server/joincodes';
 import {
-  getInstanceGameQueryKey,
+  getGetGameInstanceQueryKey,
   getUserInstancesQueryKey,
 } from './useinstancequeries';
 
@@ -28,7 +28,7 @@ export const useCreateJoinCode = () => {
     ) => {
       await Promise.allSettled([
         client.invalidateQueries({
-          queryKey: getInstanceGameQueryKey(gameInstanceId),
+          queryKey: getGetGameInstanceQueryKey(gameInstanceId),
         }),
         client.invalidateQueries({
           queryKey: getUserInstancesQueryKey(userId),

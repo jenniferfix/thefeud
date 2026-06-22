@@ -15,18 +15,6 @@ export async function createGameInstance(
     .throwOnError();
 }
 
-export async function getGameInstance(
-  client: TypedSupabaseClient,
-  instanceId: string,
-) {
-  return await client
-    .from('game_instance')
-    .select('*')
-    .eq('id', instanceId)
-    .throwOnError()
-    .single();
-}
-
 export async function markFinished(
   client: TypedSupabaseClient,
   instanceId: string,
@@ -50,7 +38,7 @@ export async function deleteGameInstance(
     .throwOnError();
 }
 
-export async function getInstanceGame(
+export async function getGameInstance(
   client: TypedSupabaseClient,
   instanceId: string,
 ) {
@@ -58,12 +46,16 @@ export async function getInstanceGame(
     .from('game_instance')
     // .select('*')
     .select(
-      'id, team_left, team_right, join_code, games(id, name, questions(id, question, answers(id, answer, score)))',
+      'id, team_left, team_right, join_code, game:games(id, name, questions:game_questions(position, question:questions(id, question, answers(id, answer, score))))',
     )
     .eq('id', instanceId)
-    .throwOnError()
-    .single();
+    .single()
+    .throwOnError();
 }
+
+export type GameInstance = Awaited<ReturnType<typeof getGameInstance>>['data'];
+
+export type GameQuestion = GameInstance['game']['questions'][number];
 
 export async function getActiveInstances(client: TypedSupabaseClient) {
   // Select events within last 10 min
@@ -98,4 +90,4 @@ export async function getUserInstances(
   return await query.order('created_at', { ascending: false }).throwOnError();
 }
 
-export type TInstance = QueryData<ReturnType<typeof getInstanceGame>>;
+export type TInstance = QueryData<ReturnType<typeof getGameInstance>>;

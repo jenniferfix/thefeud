@@ -13,7 +13,6 @@ import {
   deleteGameInstance,
   getActiveInstances,
   getGameInstance,
-  getInstanceGame,
   getUserInstances,
   markFinished,
 } from '@/queries/instancequeries';
@@ -37,15 +36,6 @@ export function useCreateGameInstance() {
   });
 }
 
-export function useGetGameInstance(instanceId: string) {
-  const client = useSupabase();
-  const queryKey = ['gameInstance', instanceId];
-  const queryFn = async () => {
-    return (await getGameInstance(client, instanceId)).data ?? null;
-  };
-  return useQuery({ queryKey, queryFn });
-}
-
 export function useDeleteGameInstance() {
   const supabase = useSupabase();
   return useMutation({
@@ -60,19 +50,19 @@ export function useDeleteGameInstance() {
   });
 }
 
-export const getInstanceGameQueryKey = (instanceId: string) =>
+export const getGetGameInstanceQueryKey = (instanceId: string) =>
   ['gameinstancegame', instanceId] as const;
 
-export const getInstanceGameQueryOptions = (instanceId: string) => {
+export const getGameInstanceQueryOptions = (instanceId: string) => {
   return queryOptions({
-    queryKey: getInstanceGameQueryKey(instanceId),
+    queryKey: getGetGameInstanceQueryKey(instanceId),
     queryFn: async () =>
-      (await getInstanceGame(supabase, instanceId)).data ?? null,
+      (await getGameInstance(supabase, instanceId)).data ?? null,
   });
 };
 
-export function useGetInstanceGame(instanceId: string) {
-  return useSuspenseQuery(getInstanceGameQueryOptions(instanceId));
+export function useGetGameInstance(instanceId: string) {
+  return useSuspenseQuery(getGameInstanceQueryOptions(instanceId));
 }
 
 export const getActiveInstancesQueryOptions = () =>
@@ -130,7 +120,7 @@ export function useMarkInstanceFinished() {
         }),
         client.invalidateQueries({ queryKey: ['activeinstances'] }),
         client.invalidateQueries({
-          queryKey: getInstanceGameQueryKey(gameInstanceId),
+          queryKey: getGetGameInstanceQueryKey(gameInstanceId),
         }),
       ]);
     },

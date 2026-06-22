@@ -1,6 +1,8 @@
 import { ExpandIcon, ShrinkIcon } from 'lucide-react';
 import React from 'react';
+import Confetti from 'react-confetti';
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
+import { useWindowSize } from '#/hooks/useWindowSize';
 import GameBg from '@/components/show/GameBg';
 import { Button } from '@/components/ui/button';
 import useFeudEvents from '@/hooks/useFeudEvents';
@@ -21,6 +23,7 @@ const TeamName = ({ value }: { value: string }) => {
 };
 
 const Game = ({ instanceId }: { instanceId: string }) => {
+  const { width, height } = useWindowSize();
   const {
     isLoading,
     // isError,
@@ -34,6 +37,7 @@ const Game = ({ instanceId }: { instanceId: string }) => {
     currentQuestionText,
     rightName,
     leftName,
+    confettiMode,
   } = useFeudEvents({ instanceId, sound: true });
   const fullscreen = useFullScreenHandle();
 
@@ -48,31 +52,32 @@ const Game = ({ instanceId }: { instanceId: string }) => {
   };
 
   return (
-    <React.Fragment>
-      <FullScreen handle={fullscreen}>
-        <GameBg
-          className="h-screen w-screen object-contain pointer-events-none select-none"
-          board={<Gameboard answers={answers} answered={answered} />}
-          leftTeam={leftTeamScore}
-          rightTeam={rightTeamScore}
-          overheadScore={roundScore}
-          question={currentQuestionText}
-          leftName={<TeamName value={leftName?.toUpperCase() ?? ''} />}
-          rightName={<TeamName value={rightName?.toUpperCase() ?? ''} />}
-        />
-        {showStrike && <Strike count={strikes} />}
-        <div
-          className={cn(
-            'absolute top-2 right-2',
-            fullscreen.active ? 'text-muted' : '',
-          )}
-        >
-          <Button variant="ghost" size="icon" onClick={handleFullscreenClick}>
-            {fullscreen.active ? <ShrinkIcon /> : <ExpandIcon />}
-          </Button>
-        </div>
-      </FullScreen>
-    </React.Fragment>
+    <FullScreen handle={fullscreen}>
+      {confettiMode !== 'disabled' && (
+        <Confetti width={width} height={height} />
+      )}
+      <GameBg
+        className="h-screen w-screen object-contain pointer-events-none select-none"
+        board={<Gameboard answers={answers} answered={answered} />}
+        leftTeam={leftTeamScore}
+        rightTeam={rightTeamScore}
+        overheadScore={roundScore}
+        question={currentQuestionText}
+        leftName={<TeamName value={leftName?.toUpperCase() ?? ''} />}
+        rightName={<TeamName value={rightName?.toUpperCase() ?? ''} />}
+      />
+      {showStrike && <Strike count={strikes} />}
+      <div
+        className={cn(
+          'absolute top-2 right-2',
+          fullscreen.active ? 'text-muted' : '',
+        )}
+      >
+        <Button variant="ghost" size="icon" onClick={handleFullscreenClick}>
+          {fullscreen.active ? <ShrinkIcon /> : <ExpandIcon />}
+        </Button>
+      </div>
+    </FullScreen>
   );
 };
 

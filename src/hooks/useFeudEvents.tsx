@@ -2,7 +2,7 @@ import React from 'react';
 import timer from 'react-timer-hook';
 import useSound from 'use-sound';
 import { useGetEventsForGameInstance } from '@/hooks/useeventqueries';
-import { useGetInstanceGame } from '@/hooks/useinstancequeries';
+import { useGetGameInstance } from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
 import { getAnswersByQuestionId } from '@/queries/answerqueries';
 import { getQuestionFromId } from '@/queries/questionqueries';
@@ -11,6 +11,8 @@ import { GameActions, type IAnswered } from '@/types';
 import type { Tables } from '@/types/supabase.types';
 
 const { useTimer } = timer;
+
+export type ConfettiMode = 'full' | 'left' | 'right' | 'disabled';
 
 type TEvents = Tables<'game_events'>;
 
@@ -29,7 +31,7 @@ export default function useGameEvents(props: Props) {
     // error: initialError,
   } = useGetEventsForGameInstance(props.instanceId);
 
-  const { data: gameData, isLoading: isGameLoading } = useGetInstanceGame(
+  const { data: gameInstance, isLoading: isGameLoading } = useGetGameInstance(
     props.instanceId,
   );
 
@@ -40,8 +42,8 @@ export default function useGameEvents(props: Props) {
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [events, setEvents] = React.useState(initialData);
   const [currentQuestionId, setCurrentQuestionId] = React.useState<
-    string | undefined
-  >();
+    string | null
+  >(null);
   const [currentQuestionText, setCurrentQuestionText] = React.useState<
     string | undefined
   >();
@@ -52,6 +54,18 @@ export default function useGameEvents(props: Props) {
   const [roundScore, setRoundScore] = React.useState(0);
   const [strikes, setStrikes] = React.useState(0);
   const [showStrike, setShowStrike] = React.useState(false);
+  const [finishedQuestions, setFinishedQuestions] = React.useState<string[]>(
+    [],
+  );
+  const [confettiMode, setConfettiMode] =
+    React.useState<ConfettiMode>('disabled');
+  const [allQuestions] = React.useState(() => gameInstance.game.questions);
+
+  const remainingQuestions = React.useMemo(
+    () =>
+      allQuestions.filter((q) => !finishedQuestions.includes(q.question.id)),
+    [finishedQuestions, allQuestions],
+  );
 
   React.useEffect(() => {
     if (initialData && !isInitialLoading && !isInitialError) {
@@ -74,7 +88,7 @@ export default function useGameEvents(props: Props) {
     } else {
       setShowStrike(false);
     }
-  }, [isRunning, setShowStrike]);
+  }, [isRunning]);
 
   const [dingSound] = useSound(
     'https://utfs.io/f/H6iSz68ZupCoYLk2Vwhdq2xsSpPTCoOnh5XK83a70LRkiGEt',
@@ -101,7 +115,7 @@ export default function useGameEvents(props: Props) {
     { format: 'mp3' },
   );
 
-  const broadcastChannel = supabaseClient.channel(props.instanceId);
+  // const broadcastChannel = supabaseClient.channel(props.instanceId);
 
   React.useEffect(() => {
     const handleSoundPlay = (sound: string) => {
@@ -141,7 +155,6 @@ export default function useGameEvents(props: Props) {
     };
   }, [
     playSounds,
-    broadcastChannel,
     supabaseClient,
     props.instanceId,
     clap,
@@ -194,18 +207,24 @@ export default function useGameEvents(props: Props) {
           filter: `instanceid=eq.${props.instanceId}`,
         },
         (payload) => {
-          setEvents([...events!, payload.new as TEvents]);
+          setEvents((last) => [...last, payload.new as TEvents]);
         },
       )
       .subscribe();
     return () => {
       supabaseClient.removeChannel(channel);
     };
-  }, [supabaseClient, events]);
+  }, [supabaseClient, events, props.instanceId]);
+
+  const finishQuestion = React.useCallback((questionId: string) => {
+    setFinishedQuestions((last) =>
+      last.includes(questionId) ? last : [...last, questionId],
+    );
+  }, []);
 
   React.useEffect(() => {
     if (!events) return;
-    let lastQuestion;
+    let lastQuestion: string | null = null;
     let roundPoints = 0;
     let teamAPoints = 0;
     let teamBPoints = 0;
@@ -223,6 +242,7 @@ export default function useGameEvents(props: Props) {
       lastEventType = i.eventid;
       switch (i.eventid) {
         case GameActions.StartQuestion:
+          setConfettiMode('disabled');
           // TODO: First make sure the previous game, if one, had the points assigned to a team
           // lets see if the roundPoints are zero first
           lastQuestion = i.questionid;
@@ -231,19 +251,31 @@ export default function useGameEvents(props: Props) {
           tempAnswered = {};
           break;
         case GameActions.CorrectAnswer:
-          tempAnswered[i.answerid!] = true;
+          if (!i.answerid)
+            throw Error('Must have answerid for CorrectAnswer Event');
+          tempAnswered[i.answerid] = true;
           roundPoints += i.points ?? 0;
           break;
         case GameActions.Strike:
           strikeCounter++;
           break;
-        case GameActions.TeamWin:
+        case GameActions.RoundWin:
+          if (!i.questionid)
+            throw Error('must have questionid attached to a RoundWin');
           if (i.team === 1) {
             teamAPoints += roundPoints;
+            setConfettiMode('left');
           } else if (i.team === 2) {
             teamBPoints += roundPoints;
+            setConfettiMode('left');
           }
           roundPoints = 0;
+          finishQuestion(i.questionid);
+          break;
+        case GameActions.GameOver:
+          if (teamAPoints > teamBPoints) setConfettiMode('left');
+          if (teamAPoints < teamBPoints) setConfettiMode('right');
+          setConfettiMode('full');
           break;
         default:
         //
@@ -251,7 +283,8 @@ export default function useGameEvents(props: Props) {
     });
 
     if (tempAnswered) setAnswered(tempAnswered);
-    if (lastQuestion !== currentQuestionId) setCurrentQuestionId(lastQuestion);
+    if (lastQuestion && lastQuestion !== currentQuestionId)
+      setCurrentQuestionId(lastQuestion);
     if (roundPoints !== roundScore) setRoundScore(roundPoints);
     if (teamAPoints !== leftTeamScore) setLeftTeamScore(teamAPoints);
     if (teamBPoints !== rightTeamScore) setRightTeamScore(teamBPoints);
@@ -259,10 +292,12 @@ export default function useGameEvents(props: Props) {
 
     if (lastEventType) {
       switch (lastEventType) {
-        case GameActions.StartQuestion:
-          setCurrentQuestionId(events.at(-1)?.questionid!);
+        case GameActions.StartQuestion: {
+          const questionId = events.at(-1)?.questionid ?? null;
+          setCurrentQuestionId(questionId);
           if (playSounds) themeMusic();
           break;
+        }
         case GameActions.CorrectAnswer:
           if (playSounds) dingSound();
           break;
@@ -270,7 +305,7 @@ export default function useGameEvents(props: Props) {
           if (playSounds) strikeSound();
           handleShowStrike();
           break;
-        case GameActions.TeamWin:
+        case GameActions.RoundWin:
           if (playSounds) clap();
           break;
         default:
@@ -290,9 +325,12 @@ export default function useGameEvents(props: Props) {
     dingSound,
     themeMusic,
     clap,
+    finishQuestion,
   ]);
 
   return {
+    allQuestions,
+    remainingQuestions,
     isLoading,
     leftTeamScore,
     rightTeamScore,
@@ -301,9 +339,12 @@ export default function useGameEvents(props: Props) {
     strikes,
     answers,
     answered,
-    currentQuestion: currentQuestionId,
+    currentQuestionId,
     currentQuestionText,
-    leftName: gameData.team_left,
-    rightName: gameData.team_right,
+    leftName: gameInstance.team_left,
+    rightName: gameInstance.team_right,
+    finishedQuestions,
+    confettiMode,
+    setConfettiMode,
   };
 }

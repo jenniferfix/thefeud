@@ -19,8 +19,8 @@ import {
 } from '@/components/ui/drawer';
 //import { useInsertEvent } from '@/hooks/useeventqueries';
 import {
-  getInstanceGameQueryOptions,
-  useGetInstanceGame,
+  getGameInstanceQueryOptions,
+  useGetGameInstance,
 } from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
 //import { GameActions } from '@/types';
@@ -29,7 +29,7 @@ import { cn } from '@/utils/utils';
 export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
   loader: async ({ context: { queryClient }, params: { gameInstanceId } }) => {
     await Promise.allSettled([
-      queryClient.ensureQueryData(getInstanceGameQueryOptions(gameInstanceId)),
+      queryClient.ensureQueryData(getGameInstanceQueryOptions(gameInstanceId)),
     ]);
   },
   component: Component,
@@ -71,7 +71,7 @@ function ControlComponent() {
   // const [activeTeam, setActiveTeam] = React.useState<number | null | undefined>(
   //   null,
   // );
-  const { data: instanceQueryData } = useGetInstanceGame(gameInstanceId);
+  const { data: gameInstance } = useGetGameInstance(gameInstanceId);
   const supabaseClient = useSupabase();
   //const navigate = useNavigate();
 
@@ -114,23 +114,23 @@ function ControlComponent() {
       <div className="absolute top-2 right-2">
         <ShowJoinCode
           gameInstanceId={gameInstanceId}
-          joinCode={instanceQueryData.join_code}
+          joinCode={gameInstance.join_code}
         />
       </div>
       <h2 className="flex justify-center text-2xl py-2 border-b">
-        {instanceQueryData?.games?.name}
+        {gameInstance?.game?.name}
       </h2>
       <aside className="flex flex-col gap-2 border-b py-2">
         <Score className="flex justify-center" score={roundScore} />
         <div className="flex justify-between align-middle">
           <TeamScore
-            teamName={instanceQueryData.team_left ?? ''}
+            teamName={gameInstance.team_left ?? ''}
             score={leftTeamScore}
             className="text-left mx-2"
           />
           <Strikes className="self-center" strikes={strikes} />
           <TeamScore
-            teamName={instanceQueryData.team_right ?? ''}
+            teamName={gameInstance.team_right ?? ''}
             score={rightTeamScore}
             className="text-right"
           />

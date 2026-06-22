@@ -1,5 +1,5 @@
 import type { QueryData } from '@supabase/supabase-js';
-import { TablesUpdate } from '#/types/supabase.types';
+import type { TablesUpdate } from '#/types/supabase.types';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
 type GameQuestionUpdate = TablesUpdate<'game_questions'>;

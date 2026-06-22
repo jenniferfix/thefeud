@@ -1,11 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
 import React from 'react';
-import Confetti from 'react-confetti';
-import {
-  useGetInstanceGame,
-  useMarkInstanceFinished,
-} from '#/hooks/useinstancequeries';
-import { useWindowSize } from '#/hooks/useWindowSize';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,19 +11,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useInsertEvent } from '@/hooks/useeventqueries';
 import { GameActions } from '@/types';
+import { useFeudEventsContext } from '../providers/FeudEvents';
 
 const SelectWinner = ({
-  instanceId,
+  instanceId: gameInstanceId,
 }: {
   instanceId: string;
   questionId: string;
 }) => {
   const insertEvent = useInsertEvent();
-  const markFinished = useMarkInstanceFinished();
   const navigate = useNavigate();
-  const { data } = useGetInstanceGame(instanceId);
-  const { width, height } = useWindowSize();
   const [showConfetti, setShowConfetti] = React.useState(false);
+  const { rightName, leftName, currentQuestionId } = useFeudEventsContext();
 
   React.useEffect(() => {
     const handleDocClick = () => {
@@ -37,47 +30,44 @@ const SelectWinner = ({
       setShowConfetti(false);
       navigate({
         to: `/c/$gameInstanceId`,
-        params: { gameInstanceId: instanceId },
+        params: { gameInstanceId },
       });
     };
     document.addEventListener('click', handleDocClick);
     return () => document.removeEventListener('click', handleDocClick);
-  }, [showConfetti, navigate]);
+  }, [gameInstanceId, showConfetti, navigate]);
 
   const handleTeamWin = async (team: number) => {
     await Promise.all([
       insertEvent.mutateAsync({
-        gameInstanceId: instanceId,
+        gameInstanceId,
         event: {
-          eventid: GameActions.TeamWin,
-          instanceid: instanceId,
+          eventid: GameActions.RoundWin,
+          instanceid: gameInstanceId,
           team: team,
+          questionid: currentQuestionId,
         },
       }),
-      markFinished.mutateAsync({ gameInstanceId: instanceId }),
     ]);
     setShowConfetti(true);
   };
 
   return (
-    <>
-      {showConfetti && <Confetti width={width} height={height} />}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline">Select round winner</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="">
-          <DropdownMenuLabel>Select Winner</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={async () => await handleTeamWin(1)}>
-            {data.team_left}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={async () => await handleTeamWin(2)}>
-            {data.team_right}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">Select round winner</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="">
+        <DropdownMenuLabel>Select Winner</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={async () => await handleTeamWin(1)}>
+          {leftName}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={async () => await handleTeamWin(2)}>
+          {rightName}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

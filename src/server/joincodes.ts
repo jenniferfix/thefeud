@@ -78,6 +78,7 @@ export const getJoinCodeGame = createServerFn({ method: 'GET' })
     try {
       const code = normalizeJoinCode(inputCode);
       const redisReturn = await redis.get(`${redisPrefix}${code}`);
+      console.log('redis', redisPrefix, code, redisReturn);
       if (!redisReturn) throw notFound();
       const { data, error, success } = redisCodeStorageSchema.safeParse(
         JSON.parse(redisReturn),

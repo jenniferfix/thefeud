@@ -8,7 +8,7 @@ import {
   addQuestionToGame,
   deleteGame,
   getGame,
-  getGameQuestions,
+  // getGameQuestions,
   getGames,
   getUserGames,
   insertGame,
@@ -58,21 +58,21 @@ export const useGetUserGames = (userId: string) => {
   return useSuspenseQuery(getUserGamesQueryOptions(userId));
 };
 
-export const getGameQuestionsQueryKey = (gameId: string) => [
-  'gamequestions',
-  gameId,
-];
-
-export const getGameQuestionsQueryOptions = (gameId: string) =>
-  queryOptions({
-    queryKey: getGameQuestionsQueryKey(gameId),
-    queryFn: async () =>
-      (await getGameQuestions(supabase, gameId)).data ?? null,
-  });
-
-export function useGetGameQuestions(gameId: string) {
-  return useSuspenseQuery(getGameQuestionsQueryOptions(gameId));
-}
+// export const getGameQuestionsQueryKey = (gameId: string) => [
+//   'gamequestions',
+//   gameId,
+// ];
+//
+// export const getGameQuestionsQueryOptions = (gameId: string) =>
+//   queryOptions({
+//     queryKey: getGameQuestionsQueryKey(gameId),
+//     queryFn: async () =>
+//       (await getGameQuestions(supabase, gameId)).data ?? null,
+//   });
+//
+// export function useGetGameQuestions(gameId: string) {
+//   return useSuspenseQuery(getGameQuestionsQueryOptions(gameId));
+// }
 
 export function useAddQuestionToGame() {
   const supabase = useSupabase();
@@ -92,9 +92,9 @@ export function useAddQuestionToGame() {
     onSettled: async (_data, _error, { gameId }, _result, { client }) => {
       await Promise.allSettled([
         client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
-        client.invalidateQueries({
-          queryKey: getGameQuestionsQueryKey(gameId),
-        }),
+        // client.invalidateQueries({
+        //   queryKey: getGameQuestionsQueryKey(gameId),
+        // }),
         client.invalidateQueries({
           queryKey: getUserGamesQueryKey(),
         }),
@@ -121,9 +121,9 @@ export function useRemoveQuestionFromGame() {
     onSettled: async (_data, _error, { gameId }, _result, { client }) => {
       await Promise.allSettled([
         client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
-        client.invalidateQueries({
-          queryKey: getGameQuestionsQueryKey(gameId),
-        }),
+        // client.invalidateQueries({
+        //   queryKey: getGameQuestionsQueryKey(gameId),
+        // }),
         client.invalidateQueries({
           queryKey: getUserGamesQueryKey(),
         }),
@@ -155,9 +155,9 @@ export function useUpdateQuestionForGame() {
     onSettled: async (_data, _error, { gameId }, _result, { client }) => {
       await Promise.allSettled([
         client.invalidateQueries({ queryKey: getGameQueryKey(gameId) }),
-        client.invalidateQueries({
-          queryKey: getGameQuestionsQueryKey(gameId),
-        }),
+        // client.invalidateQueries({
+        //   queryKey: getGameQuestionsQueryKey(gameId),
+        // }),
         client.invalidateQueries({
           queryKey: getUserGamesQueryKey(),
         }),
