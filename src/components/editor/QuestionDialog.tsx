@@ -36,6 +36,7 @@ export type NewQuestionDialogProps = {
   question?: string;
   answers?: ExistingAnswersType[];
   gameId?: string;
+  lastQuestionPosition?: string | null;
 };
 
 export const QuestionDialog = ({
@@ -45,6 +46,7 @@ export const QuestionDialog = ({
   questionId,
   answers,
   gameId, // if provided we can add this question to the game
+  lastQuestionPosition, // if provided we can add this question to the game
 }: NewQuestionDialogProps) => {
   const addToGame = useAddQuestionToGame();
   const deleteAnswer = useDeleteAnswer();

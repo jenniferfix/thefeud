@@ -90,9 +90,6 @@ export const AddQuestionToGameDialog = ({
           </ScrollArea>
         </div>
         <DialogFooter>
-          <QuestionDialog>
-            <Button>Create New</Button>
-          </QuestionDialog>
           <Button onClick={handleAdd} disabled={addToGame.isPending}>
             {addToGame.isPending ? <Waiting /> : 'Add'}
           </Button>
