@@ -19,7 +19,6 @@ export async function markFinished(
   client: TypedSupabaseClient,
   instanceId: string,
 ) {
-  console.log(instanceId);
   return await client
     .from('game_instance')
     .update({ finished: new Date().toISOString() })

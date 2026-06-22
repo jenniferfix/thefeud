@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useInsertEvent } from '@/hooks/useeventqueries';
-import { GameActions } from '@/types';
+import { GameActions, Teams } from '@/types';
 import { useFeudEventsContext } from '../providers/FeudEvents';
 
 const SelectWinner = ({
@@ -21,23 +21,9 @@ const SelectWinner = ({
 }) => {
   const insertEvent = useInsertEvent();
   const navigate = useNavigate();
-  const [showConfetti, setShowConfetti] = React.useState(false);
   const { rightName, leftName, currentQuestionId } = useFeudEventsContext();
 
-  React.useEffect(() => {
-    const handleDocClick = () => {
-      if (!showConfetti) return;
-      setShowConfetti(false);
-      navigate({
-        to: `/c/$gameInstanceId`,
-        params: { gameInstanceId },
-      });
-    };
-    document.addEventListener('click', handleDocClick);
-    return () => document.removeEventListener('click', handleDocClick);
-  }, [gameInstanceId, showConfetti, navigate]);
-
-  const handleTeamWin = async (team: number) => {
+  const handleRoundWinner = async (team: number) => {
     await Promise.all([
       insertEvent.mutateAsync({
         gameInstanceId,
@@ -49,7 +35,10 @@ const SelectWinner = ({
         },
       }),
     ]);
-    setShowConfetti(true);
+    navigate({
+      to: `/c/$gameInstanceId`,
+      params: { gameInstanceId },
+    });
   };
 
   return (
@@ -60,10 +49,14 @@ const SelectWinner = ({
       <DropdownMenuContent className="">
         <DropdownMenuLabel>Select Winner</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={async () => await handleTeamWin(1)}>
+        <DropdownMenuItem
+          onClick={async () => await handleRoundWinner(Teams.Left)}
+        >
           {leftName}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={async () => await handleTeamWin(2)}>
+        <DropdownMenuItem
+          onClick={async () => await handleRoundWinner(Teams.Right)}
+        >
           {rightName}
         </DropdownMenuItem>
       </DropdownMenuContent>

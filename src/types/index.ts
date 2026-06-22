@@ -21,3 +21,8 @@ export enum GameActions {
   RoundWin,
   GameOver,
 }
+
+export enum Teams {
+  Left = 1,
+  Right,
+}

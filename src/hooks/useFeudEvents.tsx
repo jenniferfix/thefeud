@@ -7,7 +7,7 @@ import useSupabase from '@/hooks/useSupabase';
 import { getAnswersByQuestionId } from '@/queries/answerqueries';
 import { getQuestionFromId } from '@/queries/questionqueries';
 // import { type TGameQuestions } from '@/queries/gamequeries';
-import { GameActions, type IAnswered } from '@/types';
+import { GameActions, type IAnswered, Teams } from '@/types';
 import type { Tables } from '@/types/supabase.types';
 
 const { useTimer } = timer;
@@ -57,6 +57,7 @@ export default function useGameEvents(props: Props) {
   const [finishedQuestions, setFinishedQuestions] = React.useState<string[]>(
     [],
   );
+  const [isGameOver, setIsGameOver] = React.useState(false);
   const [confettiMode, setConfettiMode] =
     React.useState<ConfettiMode>('disabled');
   const [allQuestions] = React.useState(() => gameInstance.game.questions);
@@ -231,6 +232,7 @@ export default function useGameEvents(props: Props) {
     let strikeCounter = 0;
     let lastEventType: undefined | GameActions = undefined;
     let tempAnswered: IAnswered = {};
+    let lastTeam: number | null = null;
 
     const handleShowStrike = () => {
       const time = new Date();
@@ -242,7 +244,6 @@ export default function useGameEvents(props: Props) {
       lastEventType = i.eventid;
       switch (i.eventid) {
         case GameActions.StartQuestion:
-          setConfettiMode('disabled');
           // TODO: First make sure the previous game, if one, had the points assigned to a team
           // lets see if the roundPoints are zero first
           lastQuestion = i.questionid;
@@ -262,20 +263,18 @@ export default function useGameEvents(props: Props) {
         case GameActions.RoundWin:
           if (!i.questionid)
             throw Error('must have questionid attached to a RoundWin');
-          if (i.team === 1) {
+          if (i.team === Teams.Left) {
+            lastTeam = Teams.Left;
             teamAPoints += roundPoints;
-            setConfettiMode('left');
-          } else if (i.team === 2) {
+          } else if (i.team === Teams.Right) {
+            lastTeam = Teams.Right;
             teamBPoints += roundPoints;
-            setConfettiMode('left');
           }
           roundPoints = 0;
-          finishQuestion(i.questionid);
+          // finishQuestion(i.questionid);
           break;
         case GameActions.GameOver:
-          if (teamAPoints > teamBPoints) setConfettiMode('left');
-          if (teamAPoints < teamBPoints) setConfettiMode('right');
-          setConfettiMode('full');
+          setIsGameOver(true);
           break;
         default:
         //
@@ -296,6 +295,7 @@ export default function useGameEvents(props: Props) {
           const questionId = events.at(-1)?.questionid ?? null;
           setCurrentQuestionId(questionId);
           if (playSounds) themeMusic();
+          setConfettiMode('disabled');
           break;
         }
         case GameActions.CorrectAnswer:
@@ -307,6 +307,11 @@ export default function useGameEvents(props: Props) {
           break;
         case GameActions.RoundWin:
           if (playSounds) clap();
+          setConfettiMode(lastTeam === Teams.Left ? 'left' : 'right');
+          break;
+        case GameActions.GameOver:
+          if (teamAPoints > teamBPoints) setConfettiMode('left');
+          if (teamAPoints < teamBPoints) setConfettiMode('right');
           break;
         default:
           break;
@@ -325,7 +330,6 @@ export default function useGameEvents(props: Props) {
     dingSound,
     themeMusic,
     clap,
-    finishQuestion,
   ]);
 
   return {
@@ -346,5 +350,6 @@ export default function useGameEvents(props: Props) {
     finishedQuestions,
     confettiMode,
     setConfettiMode,
+    isGameOver,
   };
 }

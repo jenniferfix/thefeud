@@ -23,7 +23,6 @@ export const createJoinCode = createServerFn({ method: 'GET' })
   .validator(createJoinCodeRPCSchema)
   .handler(async ({ data: { gameInstanceId } }) => {
     const auth = await getServerAuth();
-    console.log(auth);
     if (!auth.user) return;
     const game = await getGameInstance(supabase, gameInstanceId);
     if (!game.data) throw notFound();

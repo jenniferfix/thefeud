@@ -5,6 +5,7 @@ import { FullScreen, useFullScreenHandle } from 'react-full-screen';
 import { useWindowSize } from '#/hooks/useWindowSize';
 import GameBg from '@/components/show/GameBg';
 import { Button } from '@/components/ui/button';
+import type { ConfettiMode } from '@/hooks/useFeudEvents';
 import useFeudEvents from '@/hooks/useFeudEvents';
 import { cn } from '@/utils/utils';
 import Gameboard from './Gameboard';
@@ -22,8 +23,52 @@ const TeamName = ({ value }: { value: string }) => {
   );
 };
 
-const Game = ({ instanceId }: { instanceId: string }) => {
+const ConfettiDiv = React.memo(({ mode }: { mode: ConfettiMode }) => {
   const { width, height } = useWindowSize();
+  const [animate, setAnimate] = React.useState(mode !== 'disabled');
+
+  const confettiWidth = React.useMemo(
+    () => (mode === 'left' || mode === 'right' ? width / 2 : width),
+    [mode, width],
+  );
+
+  React.useEffect(() => {
+    if (mode !== 'disabled') return;
+
+    const timer = setTimeout(() => {
+      setAnimate(false);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [mode]);
+
+  return (
+    <div
+      className={cn(
+        'absolute top-0 bottom-0 pointer-events-none transition-opacity duration-200 overflow-hidden',
+        mode === 'disabled' ? 'opacity-0' : 'opacity-100',
+        mode === 'full' ? 'left-0 right-0' : '',
+        mode === 'left' ? `left-0 right-1/2` : '',
+        mode === 'right' ? `left-1/2 right-0` : '',
+      )}
+    >
+      <Confetti
+        width={confettiWidth}
+        height={height}
+        run={animate}
+        numberOfPieces={100}
+      />
+    </div>
+  );
+});
+
+const Game = ({
+  instanceId,
+  isIframe = false,
+}: {
+  instanceId: string;
+  isIframe?: boolean;
+}) => {
   const {
     isLoading,
     // isError,
@@ -53,11 +98,9 @@ const Game = ({ instanceId }: { instanceId: string }) => {
 
   return (
     <FullScreen handle={fullscreen}>
-      {confettiMode !== 'disabled' && (
-        <Confetti width={width} height={height} />
-      )}
+      <ConfettiDiv mode={confettiMode} />
       <GameBg
-        className="h-screen w-screen object-contain pointer-events-none select-none"
+        className="h-screen w-screen object-contain pointer-events-none select-none p-2"
         board={<Gameboard answers={answers} answered={answered} />}
         leftTeam={leftTeamScore}
         rightTeam={rightTeamScore}
@@ -73,7 +116,16 @@ const Game = ({ instanceId }: { instanceId: string }) => {
           fullscreen.active ? 'text-muted' : '',
         )}
       >
-        <Button variant="ghost" size="icon" onClick={handleFullscreenClick}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleFullscreenClick}
+          className={cn(
+            isIframe
+              ? 'opacity-0 pointer-events-none'
+              : 'opacity-100 pointer-events-auto',
+          )}
+        >
           {fullscreen.active ? <ShrinkIcon /> : <ExpandIcon />}
         </Button>
       </div>
