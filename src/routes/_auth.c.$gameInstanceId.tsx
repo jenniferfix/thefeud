@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { GameboardIframe } from '#/components/GameboardIframe';
 // import React from 'react';
 import { ShowJoinCode } from '#/components/gamecontrol/ShowJoinCode';
 import {
@@ -65,6 +66,26 @@ const TeamScore = ({
   );
 };
 
+const MaybeGameboard = ({
+  instanceId,
+  children,
+}: {
+  instanceId: string;
+  children: React.ReactNode;
+}) => {
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+
+  if (isMobile) return children;
+  return (
+    <div className="flex">
+      <div>{children}</div>
+      <div className="grow relative">
+        <GameboardIframe instanceId={instanceId} className="w-full h-full" />
+      </div>
+    </div>
+  );
+};
+
 function ControlComponent() {
   const { gameInstanceId } = Route.useParams();
   //const insertEvent = useInsertEvent();
@@ -110,6 +131,7 @@ function ControlComponent() {
   };
 
   return (
+    <MaybeGameboard instanceId={gameInstanceId}>
     <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
       <div className="absolute top-2 right-2">
         <ShowJoinCode
@@ -172,5 +194,6 @@ function ControlComponent() {
         </DrawerContent>
       </Drawer>
     </div>
+    </MaybeGameboard>
   );
 }
