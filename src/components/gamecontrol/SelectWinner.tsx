@@ -12,6 +12,7 @@ import {
 import { useInsertEvent } from '@/hooks/useeventqueries';
 import { GameActions, Teams } from '@/types';
 import { useFeudEventsContext } from '../providers/FeudEvents';
+import { HoldButton } from '../ui/holdbutton';
 
 const SelectWinner = ({
   instanceId: gameInstanceId,
@@ -42,25 +43,20 @@ const SelectWinner = ({
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">Select round winner</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="">
-        <DropdownMenuLabel>Select Winner</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={async () => await handleRoundWinner(Teams.Left)}
-        >
-          {leftName}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={async () => await handleRoundWinner(Teams.Right)}
-        >
-          {rightName}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex gap-2">
+      <HoldButton
+        className="grow"
+        onActivate={async () => await handleRoundWinner(Teams.Left)}
+      >
+        {leftName}
+      </HoldButton>
+      <HoldButton
+        className="grow"
+        onActivate={async () => await handleRoundWinner(Teams.Right)}
+      >
+        {rightName}
+      </HoldButton>
+    </div>
   );
 };
 
