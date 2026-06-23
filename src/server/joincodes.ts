@@ -2,9 +2,11 @@ import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRedisClient } from '#/integrations/redis';
 import { generateJoinCode, normalizeJoinCode } from '#/lib/api/joincodes';
+import { gameboardState } from '#/lib/schemas/gameboard';
 import {
   createJoinCodeRPCSchema,
   getJoinCodeGameRPCSchema,
+  type RedisCodeStorageType,
   redisCodeStorageSchema,
 } from '#/lib/schemas/joincode';
 import { createSupabaseServerClient } from '#/utils/supabase/server';
@@ -21,55 +23,70 @@ const redisPrefix = `${prefix}:joincode:`;
 
 export const createJoinCode = createServerFn({ method: 'GET' })
   .validator(createJoinCodeRPCSchema)
-  .handler(async ({ data: { gameInstanceId } }) => {
-    const auth = await getServerAuth();
-    if (!auth.user) return;
-    const game = await getGameInstance(supabase, gameInstanceId);
-    if (!game.data) throw notFound();
-    let finished = false;
-    let success = false;
-    let attempt = 0;
-    while (!finished) {
-      const code = generateJoinCode();
-      const insertData = redisCodeStorageSchema.parse({
-        code,
-        gameInstanceId,
-        use: 'watch',
-      });
-      const expireTime = new Date(Date.now() + EXPIRE_SECONDS * 1000);
+  .handler(
+    async ({ data: { gameInstanceId, gameTitle, rightTeam, leftTeam } }) => {
+      const auth = await getServerAuth();
+      if (!auth.user) return;
+      const game = await getGameInstance(supabase, gameInstanceId);
+      if (!game.data) throw notFound();
+      let finished = false;
+      let success = false;
+      let attempt = 0;
+      while (!finished) {
+        const code = generateJoinCode();
 
-      await redis.set(
-        `${redisPrefix}${code}`,
-        JSON.stringify(insertData),
-        'EX',
-        EXPIRE_SECONDS, // Week
-        (err, _result) => {
-          if (err) {
-            attempt + 1;
-            if (attempt >= MAX_RETRIES) {
+        const {
+          data: insertData,
+          success: parseSuccess,
+          error: parseError,
+        } = redisCodeStorageSchema.safeParse({
+          code,
+          gameInstanceId,
+          use: 'watch',
+          state: {
+            gameInstanceId,
+            gameTitle,
+            leftTeam,
+            rightTeam,
+          },
+        });
+        if (!parseSuccess)
+          throw Error('Problem parsing initial redis data', parseError);
+        const expireTime = new Date(Date.now() + EXPIRE_SECONDS * 1000);
+
+        await redis.set(
+          `${redisPrefix}${code}`,
+          JSON.stringify(insertData),
+          'EX',
+          EXPIRE_SECONDS, // Week
+          (err, _result) => {
+            if (err) {
+              attempt + 1;
+              if (attempt >= MAX_RETRIES) {
+                finished = true;
+                throw Error(`Maximum code insert attempts reached: ${attempt}`);
+              }
+            } else {
               finished = true;
-              throw Error(`Maximum code insert attempts reached: ${attempt}`);
+              success = true;
             }
-          } else {
-            finished = true;
-            success = true;
-          }
-        },
-      );
+          },
+        );
 
-      if (success) {
-        await supabase
-          .from('game_instance')
-          .update({
-            join_code: code,
-            join_code_expires: expireTime.toISOString(),
-          })
-          .eq('id', gameInstanceId)
-          .throwOnError();
+        if (success) {
+          await supabase
+            .from('game_instance')
+            .update({
+              join_code: code,
+              join_code_expires: expireTime.toISOString(),
+            })
+            .eq('id', gameInstanceId)
+            .throwOnError();
+        }
+        return { success, data: success ? code : undefined };
       }
-      return { success, data: success ? code : undefined };
-    }
-  });
+    },
+  );
 
 export const getJoinCodeGame = createServerFn({ method: 'GET' })
   .validator(getJoinCodeGameRPCSchema)
