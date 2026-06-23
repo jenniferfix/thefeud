@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { gameId, teamName } from './base';
 
 export const createGameInstanceSchema = z.object({
-  gameId: z.string(),
-  teamLeft: z.string(),
-  teamRight: z.string(),
+  gameId,
+  teamLeft: teamName,
+  teamRight: teamName,
 });
 
 export type CreateGameInstance = z.infer<typeof createGameInstanceSchema>;

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { gameId, gameTitle } from './base';
 import {
   gameQuestionSchema,
   questionFormSchema,
@@ -6,14 +7,14 @@ import {
 } from './questions';
 
 export const gameSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+  id: gameId,
+  name: gameTitle,
   questions: z.array(gameQuestionSchema),
 });
 
 export const gameFormSchema = z.object({
   id: z.string().optional(),
-  name: z.string(),
+  name: gameTitle,
   questions: z.array(questionFormSchema),
 });
 
