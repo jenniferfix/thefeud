@@ -55,7 +55,7 @@ export const getJoinCodeGameQueryOption = (code: string) =>
   queryOptions({
     queryKey: getJoinCodeGameQueryKey(code),
     queryFn: async () => {
-      return await getJoinCodeGame({ data: { code } });
+      return (await getJoinCodeGame({ data: { code } })) ?? null;
     },
   });
 

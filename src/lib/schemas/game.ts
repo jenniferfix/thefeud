@@ -6,6 +6,10 @@ import {
   questionSchema,
 } from './questions';
 
+export const confettiModeArray = ['full', 'left', 'right', 'disabled'] as const;
+export const confettiModeEnum = z.enum(confettiModeArray);
+export type ConfettiMode = z.infer<typeof confettiModeEnum>;
+
 export const gameSchema = z.object({
   id: gameId,
   name: gameTitle,

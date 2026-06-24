@@ -13,7 +13,7 @@ export const GameboardIframe = React.memo(
       <iframe
         className={cn('', className)}
         title="Game"
-        src={`${url}/g/${instanceId}?isiframe=true`}
+        src={`${url}/watch/${instanceId}?isiframe=true`}
         {...props}
       />
     );

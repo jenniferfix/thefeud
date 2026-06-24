@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  answerNumber,
   gameId,
   gameInstanceId,
   gameover,
@@ -9,8 +10,10 @@ import {
   rightScore,
   roundScore,
   score,
+  strikes,
   teamName,
 } from './base';
+import { confettiModeEnum } from './game';
 
 export const gameboardRouteURLPropsSchema = z.object({
   isiframe: z.boolean().optional(),
@@ -20,11 +23,12 @@ export const answerSchema = z.object({
   text: questionName,
   score,
 });
+export type Answer = z.infer<typeof answerSchema>;
 
-export const gameboardAnswers = z.record(z.int(), answerSchema.nullable());
+export const gameboardAnswers = z.record(answerNumber, answerSchema.nullable());
+export type AnswerRecord = z.infer<typeof gameboardAnswers>;
 
 export const gameboardRequiredState = z.object({
-  gameInstanceId,
   leftTeam: teamName,
   rightTeam: teamName,
   gameTitle: gameTitle,
@@ -37,7 +41,8 @@ export const gameboardState = z.object({
   roundScore: roundScore.default(0),
   leftScore: leftScore.default(0),
   rightScore: rightScore.default(0),
-  strikes: z.int().default(0),
+  strikes: strikes.default(0),
+  confettiMode: confettiModeEnum.default('disabled'),
   answers: gameboardAnswers,
 });
 export type GameBoardState = z.infer<typeof gameboardState>;

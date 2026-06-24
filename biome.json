@@ -26,6 +26,13 @@
       "tailwindDirectives": true
     }
   },
+  "linter": {
+    "rules": {
+      "correctness": {
+        "noChildrenProp": "off"
+      }
+    }
+  },
   "assist": {
     "actions": {
       "source": {

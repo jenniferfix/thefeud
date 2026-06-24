@@ -34,7 +34,6 @@ export const createJoinCode = createServerFn({ method: 'GET' })
       let attempt = 0;
       while (!finished) {
         const code = generateJoinCode();
-
         const {
           data: insertData,
           success: parseSuccess,
@@ -44,10 +43,10 @@ export const createJoinCode = createServerFn({ method: 'GET' })
           gameInstanceId,
           use: 'watch',
           state: {
-            gameInstanceId,
             gameTitle,
             leftTeam,
             rightTeam,
+            answers: {},
           },
         });
         if (!parseSuccess)
@@ -91,21 +90,15 @@ export const createJoinCode = createServerFn({ method: 'GET' })
 export const getJoinCodeGame = createServerFn({ method: 'GET' })
   .validator(getJoinCodeGameRPCSchema)
   .handler(async ({ data: { code: inputCode } }) => {
-    try {
-      const code = normalizeJoinCode(inputCode);
-      const redisReturn = await redis.get(`${redisPrefix}${code}`);
-      console.log('redis', redisPrefix, code, redisReturn);
-      if (!redisReturn) throw notFound();
-      const { data, error, success } = redisCodeStorageSchema.safeParse(
-        JSON.parse(redisReturn),
-      );
-      if (!success)
-        throw Error(error.message, { cause: 'Redis schema invalid' });
+    const code = normalizeJoinCode(inputCode);
+    const redisReturn = await redis.get(`${redisPrefix}${code}`);
+    if (!redisReturn) throw notFound();
+    const { data, error, success } = redisCodeStorageSchema.safeParse(
+      JSON.parse(redisReturn),
+    );
+    if (!success) throw Error(error.message, { cause: 'Redis schema invalid' });
 
-      return { success, data: success ? data : undefined };
-    } catch (error) {
-      console.error(error);
-    }
+    return data;
   });
 
 export const deleteJoinCode = createServerFn({ method: 'POST' })

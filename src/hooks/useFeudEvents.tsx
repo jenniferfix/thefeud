@@ -1,6 +1,7 @@
 import React from 'react';
 import timer from 'react-timer-hook';
 import useSound from 'use-sound';
+import type { ConfettiMode } from '#/lib/schemas/game';
 import { useGetEventsForGameInstance } from '@/hooks/useeventqueries';
 import { useGetGameInstance } from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
@@ -11,8 +12,6 @@ import { GameActions, type IAnswered, Teams } from '@/types';
 import type { Tables } from '@/types/supabase.types';
 
 const { useTimer } = timer;
-
-export type ConfettiMode = 'full' | 'left' | 'right' | 'disabled';
 
 type TEvents = Tables<'game_events'>;
 

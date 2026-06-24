@@ -10,3 +10,6 @@ export const roundScore = score;
 export const leftScore = score;
 export const rightScore = score;
 export const teamName = z.string();
+export const strikes = z.int();
+export const answerNumber = z.int().min(1).max(8);
+export const team = z.int().min(1).max(2);

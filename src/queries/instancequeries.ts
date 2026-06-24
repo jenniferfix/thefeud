@@ -1,6 +1,9 @@
 import type { QueryData } from '@supabase/supabase-js';
 import type { CreateGameInstance } from '#/lib/schemas/gameInstance';
+import { Tables, TablesInsert } from '#/types/supabase.types';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
+
+type In = TablesInsert<'game_instance'>;
 
 export async function createGameInstance(
   client: TypedSupabaseClient,
@@ -10,7 +13,7 @@ export async function createGameInstance(
     .from('game_instance')
     .insert({ gameid: gameId, team_left: teamLeft, team_right: teamRight })
     .throwOnError()
-    .select()
+    .select('id, team_left, team_right, game:games(name)')
     .single()
     .throwOnError();
 }
@@ -43,9 +46,12 @@ export async function getGameInstance(
 ) {
   return await client
     .from('game_instance')
-    // .select('*')
     .select(
-      'id, team_left, team_right, join_code, game:games(id, name, questions:game_questions(position, question:questions(id, question, answers(id, answer, score))))',
+      `id, join_code,
+                team_left, team_right, 
+                left_score, right_score, round_score,
+                answers, confetti_mode, 
+      game:games(id, name, questions:game_questions(position, question:questions(id, question, answers(id, answer, score))))`,
     )
     .eq('id', instanceId)
     .single()

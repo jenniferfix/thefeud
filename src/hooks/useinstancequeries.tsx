@@ -1,4 +1,3 @@
-'use client';
 import {
   queryOptions,
   useMutation,
@@ -16,6 +15,7 @@ import {
   getUserInstances,
   markFinished,
 } from '@/queries/instancequeries';
+import { createJoinCode } from '@/server/joincodes';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
 const supabase = getSupabaseBrowserClient();
@@ -26,7 +26,20 @@ export function useCreateGameInstance() {
   const supabase = useSupabase();
   return useMutation({
     mutationFn: async (values: CreateGameInstance) => {
-      return (await createGameInstance(supabase, values)).data ?? null;
+      const gameInstance =
+        (await createGameInstance(supabase, values)).data ?? null;
+      if (!gameInstance) throw Error('Failed to create game instance');
+      console.log('gameinstance', gameInstance);
+      const joinCode = await createJoinCode({
+        data: {
+          use: 'watch',
+          gameInstanceId: gameInstance.id,
+          leftTeam: gameInstance.team_left ?? '',
+          rightTeam: gameInstance.team_right ?? '',
+          gameTitle: gameInstance.game.name,
+        },
+      });
+      return gameInstance;
     },
     onSettled: async (_data, _error, _variables, _result, { client }) => {
       await Promise.allSettled([

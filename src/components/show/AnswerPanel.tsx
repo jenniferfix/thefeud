@@ -1,4 +1,5 @@
 import { animated, useSpring } from '@react-spring/web';
+import { Answer } from '#/lib/schemas/gameboard';
 
 const AnswerPanel = ({
   answer,
@@ -6,7 +7,6 @@ const AnswerPanel = ({
   points,
   order,
 }: {
-  id: string;
   answer: string;
   points: number;
   flipped: boolean;

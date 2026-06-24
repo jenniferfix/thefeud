@@ -193,14 +193,26 @@ p {
   /* drop-shadow(0 0 6px #fff); */
 }
 
+.orangeborder {
+  border: 4px solid transparent;
+  border-radius: 16px;
+  background:
+    linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(
+      to bottom,
+      var(--color-feud-dark-orange),
+      var(--color-feud-light-orange)
+    )
+    border-box;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    background-color: var(--background);
-    color: var(--foreground);
     @apply bg-background text-foreground;
+    overflow: hidden;
   }
   html {
     @apply font-serif;

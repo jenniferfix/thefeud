@@ -2,11 +2,11 @@ import { ExpandIcon, ShrinkIcon } from 'lucide-react';
 import React from 'react';
 import Confetti from 'react-confetti';
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
+import { useIsolatedViewer } from '#/hooks/useIsolatedViewer';
 import { useWindowSize } from '#/hooks/useWindowSize';
 import type { ConfettiMode } from '#/lib/schemas/game';
 import GameBg from '@/components/show/GameBg';
 import { Button } from '@/components/ui/button';
-import useFeudEvents from '@/hooks/useFeudEvents';
 import { cn } from '@/utils/utils';
 import Gameboard from './Gameboard';
 import Strike from './Strike';
@@ -62,31 +62,27 @@ const ConfettiDiv = React.memo(({ mode }: { mode: ConfettiMode }) => {
   );
 });
 
-const Game = ({
-  instanceId,
+export const IsolatedGame = ({
+  gameCode,
   isIframe = false,
 }: {
-  instanceId: string;
+  gameCode: string;
   isIframe?: boolean;
 }) => {
-  const {
-    isLoading,
-    // isError,
-    answers,
-    answered,
-    leftTeamScore,
-    rightTeamScore,
-    roundScore,
-    showStrike,
-    strikes,
-    currentQuestionText,
-    rightName,
-    leftName,
-    confettiMode,
-  } = useFeudEvents({ instanceId, sound: true });
   const fullscreen = useFullScreenHandle();
-
-  if (isLoading) return <div>Loading...</div>;
+  const {
+    strikes,
+    showStrikes,
+    questionText,
+    gameTitle,
+    leftTeam,
+    rightTeam,
+    rightScore,
+    roundScore,
+    answers,
+    leftScore,
+    confettiMode,
+  } = useIsolatedViewer(gameCode);
 
   const handleFullscreenClick = () => {
     if (fullscreen.active) {
@@ -98,18 +94,18 @@ const Game = ({
 
   return (
     <FullScreen handle={fullscreen}>
-      <ConfettiDiv mode={confettiMode} />
+      {/*!**<ConfettiDiv mode={confettiMode} /> **/}
       <GameBg
         className="h-screen w-screen object-contain pointer-events-none select-none p-2"
-        board={<Gameboard answers={answers} answered={answered} />}
-        leftTeam={leftTeamScore}
-        rightTeam={rightTeamScore}
-        overheadScore={roundScore}
-        question={currentQuestionText}
-        leftName={<TeamName value={leftName?.toUpperCase() ?? ''} />}
-        rightName={<TeamName value={rightName?.toUpperCase() ?? ''} />}
+        board={<Gameboard answers={answers} />}
+        leftTeam={leftScore ?? 0}
+        rightTeam={rightScore ?? 0}
+        overheadScore={roundScore ?? 0}
+        question={questionText ?? ''}
+        leftName={<TeamName value={leftTeam?.toUpperCase() ?? ''} />}
+        rightName={<TeamName value={rightTeam?.toUpperCase() ?? ''} />}
       />
-      {showStrike && <Strike count={strikes} />}
+      {showStrikes && <Strike count={strikes} />}
       <div
         className={cn(
           'absolute top-2 right-2',
@@ -132,5 +128,3 @@ const Game = ({
     </FullScreen>
   );
 };
-
-export default Game;

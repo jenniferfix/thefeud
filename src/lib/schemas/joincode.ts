@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { gameInstanceId } from './base';
 import { gameboardRequiredState, gameboardState } from './gameboard';
 
 export const JOIN_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -8,17 +9,17 @@ const codeUsesArray = ['watch'] as const;
 const codeUsesEnum = z.enum(codeUsesArray);
 
 export const code = z.string().length(JOIN_CODE_LENGTH);
-export const gameInstanceId = z.string();
 
 export const redisCodeStorageSchema = z.object({
   code,
-  gameInstanceId: z.string(),
+  gameInstanceId,
   use: codeUsesEnum,
   state: gameboardState,
 });
 export type RedisCodeStorageType = z.infer<typeof redisCodeStorageSchema>;
 
 export const createJoinCodeRPCSchema = z.object({
+  gameInstanceId,
   ...gameboardRequiredState.shape,
   use: codeUsesEnum.default('watch'),
 });

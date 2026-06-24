@@ -116,34 +116,52 @@ export type Database = {
       }
       game_instance: {
         Row: {
+          answers: Json
+          confetti_mode: string
           created_at: string
+          current_question: string
           finished: string | null
           gameid: string
           id: string
           join_code: string | null
           join_code_expires: string | null
+          left_score: number
+          right_score: number
+          round_score: number
           team_left: string | null
           team_right: string | null
           userid: string
         }
         Insert: {
+          answers?: Json
+          confetti_mode?: string
           created_at?: string
+          current_question?: string
           finished?: string | null
           gameid: string
           id?: string
           join_code?: string | null
           join_code_expires?: string | null
+          left_score?: number
+          right_score?: number
+          round_score?: number
           team_left?: string | null
           team_right?: string | null
           userid?: string
         }
         Update: {
+          answers?: Json
+          confetti_mode?: string
           created_at?: string
+          current_question?: string
           finished?: string | null
           gameid?: string
           id?: string
           join_code?: string | null
           join_code_expires?: string | null
+          left_score?: number
+          right_score?: number
+          round_score?: number
           team_left?: string | null
           team_right?: string | null
           userid?: string

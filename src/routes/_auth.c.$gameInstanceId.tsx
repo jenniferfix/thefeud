@@ -88,12 +88,12 @@ const MaybeGameboard = ({
   instanceId,
   children,
 }: {
-  instanceId: string;
+  instanceId?: string | null;
   children: React.ReactNode;
 }) => {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
-  if (isMobile) return children;
+  if (isMobile || !instanceId) return children;
   return (
     <div className="flex grow h-full">
       <div>{children}</div>
@@ -150,8 +150,10 @@ function ControlComponent() {
     });
   };
 
+  if (!gameInstance) return <div>Loading...</div>;
+
   return (
-    <MaybeGameboard instanceId={gameInstanceId}>
+    <MaybeGameboard instanceId={gameInstance.join_code}>
       <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
         <div className="absolute top-2 right-2">
           <ShowJoinCode
