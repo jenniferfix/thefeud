@@ -1,16 +1,6 @@
 import { useNavigate } from '@tanstack/react-router';
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useInsertEvent } from '@/hooks/useeventqueries';
-import { GameActions, Teams } from '@/types';
+import { useProcessEvent } from '@/hooks/useeventqueries';
+import { Teams } from '@/types';
 import { useFeudEventsContext } from '../providers/FeudEvents';
 import { HoldButton } from '../ui/holdbutton';
 
@@ -20,19 +10,17 @@ const SelectWinner = ({
   instanceId: string;
   questionId: string;
 }) => {
-  const insertEvent = useInsertEvent();
+  const processEvent = useProcessEvent();
   const navigate = useNavigate();
-  const { rightName, leftName, currentQuestionId } = useFeudEventsContext();
+  const { rightName, leftName } = useFeudEventsContext();
 
-  const handleRoundWinner = async (team: number) => {
+  const handleRoundWinner = async (team: Teams) => {
     await Promise.all([
-      insertEvent.mutateAsync({
+      processEvent.mutateAsync({
         gameInstanceId,
-        event: {
-          eventid: GameActions.RoundWin,
-          instanceid: gameInstanceId,
+        type: 'RoundWin',
+        data: {
           team: team,
-          questionid: currentQuestionId,
         },
       }),
     ]);

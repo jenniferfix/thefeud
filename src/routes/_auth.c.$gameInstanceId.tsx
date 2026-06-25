@@ -22,13 +22,11 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-//import { useInsertEvent,getEventsForGameInstanceQueryOptions } from '@/hooks/useeventqueries';
 import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
 } from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
-//import { GameActions } from '@/types';
 import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
@@ -108,10 +106,6 @@ const MaybeGameboard = ({
 
 function ControlComponent() {
   const { gameInstanceId } = Route.useParams();
-  //const insertEvent = useInsertEvent();
-  // const [activeTeam, setActiveTeam] = React.useState<number | null | undefined>(
-  //   null,
-  // );
   const { data: gameInstance } = useGetGameInstance(gameInstanceId);
   const supabaseClient = useSupabase();
   //const navigate = useNavigate();
@@ -153,12 +147,12 @@ function ControlComponent() {
   if (!gameInstance) return <div>Loading...</div>;
 
   return (
-    <MaybeGameboard instanceId={gameInstance.join_code}>
+    <MaybeGameboard instanceId={gameInstance.joinCode}>
       <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
         <div className="absolute top-2 right-2">
           <ShowJoinCode
             gameInstanceId={gameInstanceId}
-            joinCode={gameInstance.join_code}
+            joinCode={gameInstance.joinCode}
           />
         </div>
         <h2 className="flex justify-center text-2xl py-2 border-b">
@@ -168,7 +162,7 @@ function ControlComponent() {
           <div className="flex align-middle">
             <TeamScore
               confetti={confettiMode === 'left'}
-              teamName={gameInstance.team_left ?? ''}
+              teamName={gameInstance.leftTeam ?? ''}
               score={leftTeamScore}
               className="grow text-left mx-2"
             />
@@ -178,7 +172,7 @@ function ControlComponent() {
             </div>
             <TeamScore
               confetti={confettiMode === 'right'}
-              teamName={gameInstance.team_right ?? ''}
+              teamName={gameInstance.rightTeam ?? ''}
               score={rightTeamScore}
               className="grow text-right"
             />

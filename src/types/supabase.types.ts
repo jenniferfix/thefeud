@@ -119,15 +119,17 @@ export type Database = {
           answers: Json
           confetti_mode: string
           created_at: string
-          current_question: string
+          current_question_id: string | null
           finished: string | null
           gameid: string
           id: string
           join_code: string | null
           join_code_expires: string | null
           left_score: number
+          question_text: string
           right_score: number
           round_score: number
+          strikes: number
           team_left: string | null
           team_right: string | null
           userid: string
@@ -136,15 +138,17 @@ export type Database = {
           answers?: Json
           confetti_mode?: string
           created_at?: string
-          current_question?: string
+          current_question_id?: string | null
           finished?: string | null
           gameid: string
           id?: string
           join_code?: string | null
           join_code_expires?: string | null
           left_score?: number
+          question_text?: string
           right_score?: number
           round_score?: number
+          strikes?: number
           team_left?: string | null
           team_right?: string | null
           userid?: string
@@ -153,15 +157,17 @@ export type Database = {
           answers?: Json
           confetti_mode?: string
           created_at?: string
-          current_question?: string
+          current_question_id?: string | null
           finished?: string | null
           gameid?: string
           id?: string
           join_code?: string | null
           join_code_expires?: string | null
           left_score?: number
+          question_text?: string
           right_score?: number
           round_score?: number
+          strikes?: number
           team_left?: string | null
           team_right?: string | null
           userid?: string

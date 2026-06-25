@@ -1,9 +1,10 @@
 import type { QueryData } from '@supabase/supabase-js';
 import type { CreateGameInstance } from '#/lib/schemas/gameInstance';
-import { Tables, TablesInsert } from '#/types/supabase.types';
+import { Tables, TablesInsert, TablesUpdate } from '#/types/supabase.types';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
-type In = TablesInsert<'game_instance'>;
+type GameInstanceInsert = TablesInsert<'game_instance'>;
+type GameInstanceUpdate = TablesUpdate<'game_instance'>;
 
 export async function createGameInstance(
   client: TypedSupabaseClient,
@@ -15,6 +16,18 @@ export async function createGameInstance(
     .throwOnError()
     .select('id, team_left, team_right, game:games(name)')
     .single()
+    .throwOnError();
+}
+
+export async function updateGameInstance(
+  client: TypedSupabaseClient,
+  gameInstanceId: string,
+  values: GameInstanceUpdate,
+) {
+  return await client
+    .from('game_instance')
+    .update(values)
+    .eq('id', gameInstanceId)
     .throwOnError();
 }
 
@@ -40,6 +53,18 @@ export async function deleteGameInstance(
     .throwOnError();
 }
 
+export async function getGameInstanceUser(
+  client: TypedSupabaseClient,
+  instanceId: string,
+) {
+  return await client
+    .from('game_instance')
+    .select('id, userid, join_code')
+    .eq('id', instanceId)
+    .single()
+    .throwOnError();
+}
+
 export async function getGameInstance(
   client: TypedSupabaseClient,
   instanceId: string,
@@ -47,11 +72,18 @@ export async function getGameInstance(
   return await client
     .from('game_instance')
     .select(
-      `id, join_code,
-                team_left, team_right, 
-                left_score, right_score, round_score,
-                answers, confetti_mode, 
-      game:games(id, name, questions:game_questions(position, question:questions(id, question, answers(id, answer, score))))`,
+      `gameInstanceId:id, joinCode:join_code,
+          leftTeam:team_left, rightTeam:team_right, 
+          leftScore:left_score, rightScore:right_score, roundScore:round_score,
+          strikes, answers, confettiMode:confetti_mode, finished, 
+          questionText:question_text, currentQuestionId:current_question_id,
+          game:games(id, name, 
+            questions:game_questions(position, 
+              question:questions(id, text:question, 
+                answers(id, text:answer, score)
+              )
+            )
+          )`,
     )
     .eq('id', instanceId)
     .single()

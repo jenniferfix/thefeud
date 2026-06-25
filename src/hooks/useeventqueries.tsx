@@ -4,6 +4,11 @@ import {
   useMutation,
   useSuspenseQuery,
 } from '@tanstack/react-query';
+import {
+  BackendEventType,
+  backendEventSchema,
+} from '#/lib/schemas/eventsbackend';
+import { processEvent } from '#/server/events';
 import useSupabase from '@/hooks/useSupabase';
 import { getEventsForGameInstance, insertEvent } from '@/queries/eventqueries';
 import { Database } from '@/types/supabase.types';
@@ -28,6 +33,26 @@ export const useGetEventsForGameInstance = (instanceId: string) => {
   return useSuspenseQuery(getEventsForGameInstanceQueryOptions(instanceId));
 };
 
+export const useProcessEvent = () => {
+  return useMutation({
+    mutationFn: async (event: BackendEventType) => {
+      return await processEvent({ data: event });
+    },
+    onSettled: async (
+      _data,
+      _error,
+      { gameInstanceId },
+      _result,
+      { client },
+    ) => {
+      await Promise.allSettled([
+        client.invalidateQueries({
+          queryKey: getEventsForGameInstanceQueryKey(gameInstanceId),
+        }),
+      ]);
+    },
+  });
+};
 export const useInsertEvent = () => {
   const supabase = useSupabase();
 

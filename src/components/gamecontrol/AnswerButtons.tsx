@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useGetAnswersByQuestionId } from '@/hooks/useanswerqueries';
-import { useInsertEvent } from '@/hooks/useeventqueries';
-import { GameActions } from '@/types';
+import { useProcessEvent } from '@/hooks/useeventqueries';
 import { useFeudEventsContext } from '../providers/FeudEvents';
 
 const AnswerButtons = ({
@@ -12,7 +11,7 @@ const AnswerButtons = ({
   questionId: string;
 }) => {
   const { answered } = useFeudEventsContext();
-  const insertEvent = useInsertEvent();
+  const processEvent = useProcessEvent();
   const { data, isLoading, isError, error } =
     useGetAnswersByQuestionId(questionId);
 
@@ -29,14 +28,13 @@ const AnswerButtons = ({
           key={'actionbutton' + item.id}
           disabled={answered[item.id]}
           onClick={() =>
-            insertEvent.mutate({
+            processEvent.mutate({
               gameInstanceId: instanceId,
-              event: {
-                instanceid: instanceId,
-                // team: activeTeam,
-                answerid: item.id,
-                eventid: GameActions.CorrectAnswer,
+              type: 'CorrectAnswer',
+              data: {
+                answerId: item.id,
                 points: item.score,
+                text: item.answer,
               },
             })
           }

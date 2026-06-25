@@ -12,4 +12,16 @@ export const rightScore = score;
 export const teamName = z.string();
 export const strikes = z.int();
 export const answerNumber = z.int().min(1).max(8);
+export const answerId = z.string();
+export const questionId = z.string();
 export const team = z.int().min(1).max(2);
+
+export const actionsArray = [
+  'StartQuestion',
+  'CorrectAnswer',
+  'Strike',
+  'RoundWin',
+  'GameOver',
+] as const;
+export const actionsEnum = z.enum(actionsArray);
+export type ActionType = z.infer<typeof actionsEnum>;

@@ -5,13 +5,12 @@ import SelectWinner from '@/components/gamecontrol/SelectWinner';
 import { Button } from '@/components/ui/button';
 import {
   getEventsForGameInstanceQueryOptions,
-  useInsertEvent,
+  useProcessEvent,
 } from '@/hooks/useeventqueries';
 import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
 } from '@/hooks/useinstancequeries';
-import { GameActions } from '@/types';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
   loader: async ({ context: { queryClient }, params: { gameInstanceId } }) => {
@@ -27,12 +26,8 @@ export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
 
 function Page() {
   const { gameInstanceId, questionId } = Route.useParams();
-  const insertEvent = useInsertEvent();
+  const processEvent = useProcessEvent();
   const { data } = useGetGameInstance(gameInstanceId);
-
-  const [activeTeam, _setActiveTeam] = React.useState<
-    number | null | undefined
-  >(null);
 
   const gameQuestion = React.useMemo(
     () => data.game.questions.find((q) => q.question.id === questionId),
@@ -42,19 +37,16 @@ function Page() {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-2xl flex justify-center py-2">
-        {gameQuestion?.question.question}
+        {gameQuestion?.question.text}
       </h3>
       <AnswerButtons instanceId={gameInstanceId} questionId={questionId} />
       <Button
         className="w-full"
         onClick={() =>
-          insertEvent.mutate({
+          processEvent.mutate({
             gameInstanceId,
-            event: {
-              team: activeTeam,
-              instanceid: gameInstanceId,
-              eventid: GameActions.Strike,
-            },
+            type: 'Strike',
+            data: {},
           })
         }
       >

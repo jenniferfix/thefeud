@@ -6,6 +6,7 @@ import {
   gameover,
   gameTitle,
   leftScore,
+  questionId,
   questionName,
   rightScore,
   roundScore,
@@ -37,12 +38,29 @@ export const gameboardRequiredState = z.object({
 export const gameboardState = z.object({
   ...gameboardRequiredState.shape,
   gameover: gameover.default(false),
-  questionName: questionName.default(''),
+  questionTitle: questionName.default(''),
   roundScore: roundScore.default(0),
   leftScore: leftScore.default(0),
   rightScore: rightScore.default(0),
   strikes: strikes.default(0),
   confettiMode: confettiModeEnum.default('disabled'),
   answers: gameboardAnswers,
+  currentQuestionId: questionId.nullable().optional(),
 });
 export type GameBoardState = z.infer<typeof gameboardState>;
+
+export const gameboardUpdateState = z.object({
+  leftTeam: teamName.optional(),
+  rightTeam: teamName.optional(),
+  gameTitle: teamName.optional(),
+  gameover: gameover.optional(),
+  questionTitle: questionName.optional(),
+  roundScore: roundScore.optional(),
+  leftScore: leftScore.optional(),
+  rightScore: rightScore.optional(),
+  strikes: strikes.optional(),
+  confettiMode: confettiModeEnum.optional(),
+  answers: gameboardAnswers.optional(),
+  currentQuestionId: questionId.nullable().optional(),
+});
+export type GameboardUpdateType = z.infer<typeof gameboardUpdateState>;

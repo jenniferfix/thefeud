@@ -8,9 +8,13 @@ import {
   getJoinCodeGameRPCSchema,
   type RedisCodeStorageType,
   redisCodeStorageSchema,
+  redisCodeStorageUpdateSchema,
 } from '#/lib/schemas/joincode';
 import { createSupabaseServerClient } from '#/utils/supabase/server';
-import { getGameInstance } from '@/queries/instancequeries';
+import {
+  getGameInstance,
+  getGameInstanceUser,
+} from '@/queries/instancequeries';
 import { getServerAuth } from './auth';
 
 const redis = getRedisClient();
@@ -50,27 +54,30 @@ export const createJoinCode = createServerFn({ method: 'GET' })
           },
         });
         if (!parseSuccess)
-          throw Error('Problem parsing initial redis data', parseError);
+          throw Error(
+            'Problem parsing initial redis data in createJoinCode',
+            parseError,
+          );
         const expireTime = new Date(Date.now() + EXPIRE_SECONDS * 1000);
 
-        await redis.set(
+        const res = await redis.set(
           `${redisPrefix}${code}`,
           JSON.stringify(insertData),
           'EX',
           EXPIRE_SECONDS, // Week
-          (err, _result) => {
-            if (err) {
-              attempt + 1;
-              if (attempt >= MAX_RETRIES) {
-                finished = true;
-                throw Error(`Maximum code insert attempts reached: ${attempt}`);
-              }
-            } else {
-              finished = true;
-              success = true;
-            }
-          },
+          'NX',
         );
+
+        if (res) {
+          finished = true;
+          success = true;
+        } else {
+          attempt += 1;
+          if (attempt >= MAX_RETRIES) {
+            finished = true;
+            throw Error(`Maximum code insert attempts reached: ${attempt}`);
+          }
+        }
 
         if (success) {
           await supabase
@@ -86,6 +93,34 @@ export const createJoinCode = createServerFn({ method: 'GET' })
       }
     },
   );
+
+export const updateJoinCode = createServerFn({ method: 'GET' })
+  .validator(redisCodeStorageUpdateSchema)
+  .handler(async ({ data: { gameInstanceId, code, state } }) => {
+    const [auth, gameUser] = await Promise.all([
+      getServerAuth(),
+      getGameInstanceUser(supabase, gameInstanceId),
+    ]);
+    if (!auth.user) return;
+    if (!gameUser.data) throw notFound();
+    console.log('updateredis', gameInstanceId, code, state);
+    const {
+      data,
+      success: parseSuccess,
+      error: parseError,
+    } = redisCodeStorageUpdateSchema.safeParse({
+      code,
+      gameInstanceId,
+      state,
+    });
+    if (!parseSuccess)
+      throw Error(
+        'Problem parsing initial redis data in updateJoinCode',
+        parseError,
+      );
+
+    await redis.set(`${redisPrefix}${code}`, JSON.stringify(data), 'KEEPTTL');
+  });
 
 export const getJoinCodeGame = createServerFn({ method: 'GET' })
   .validator(getJoinCodeGameRPCSchema)

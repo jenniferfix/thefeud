@@ -27,6 +27,9 @@
     }
   },
   "linter": {
+    "domains": {
+      "react": "recommended"
+    },
     "rules": {
       "correctness": {
         "noChildrenProp": "off"

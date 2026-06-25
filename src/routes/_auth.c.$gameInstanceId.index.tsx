@@ -3,11 +3,10 @@ import React from 'react';
 import { useFeudEventsContext } from '#/components/providers/FeudEvents';
 import { Button } from '#/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useInsertEvent } from '@/hooks/useeventqueries';
+import { useProcessEvent } from '@/hooks/useeventqueries';
 import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
-  useMarkInstanceFinished,
 } from '@/hooks/useinstancequeries';
 import { GameActions } from '@/types';
 import { cn } from '@/utils/utils';
@@ -23,7 +22,6 @@ export const Route = createFileRoute('/_auth/c/$gameInstanceId/')({
 
 const Page = () => {
   const { gameInstanceId } = Route.useParams();
-  const markFinished = useMarkInstanceFinished();
   const {
     data: gameInstance,
     isError,
@@ -33,17 +31,24 @@ const Page = () => {
   const navigate = useNavigate();
   const { remainingQuestions } = useFeudEventsContext();
 
-  const insertEvent = useInsertEvent();
+  const processEvent = useProcessEvent();
 
   const handleQuestionClick = React.useCallback(
-    (questionId: string) => {
+    async (questionId: string) => {
       // setCurrentQuestion(value);
-      insertEvent.mutate({
+      // await insertEvent.mutateAsync({
+      //   gameInstanceId,
+      //   event: {
+      //     eventid: GameActions.StartQuestion,
+      //     instanceid: gameInstanceId,
+      //     questionid: questionId,
+      //   },
+      // });
+      await processEvent.mutateAsync({
         gameInstanceId,
-        event: {
-          eventid: GameActions.StartQuestion,
-          instanceid: gameInstanceId,
-          questionid: questionId,
+        type: 'StartQuestion',
+        data: {
+          questionId,
         },
       });
       navigate({
@@ -51,19 +56,16 @@ const Page = () => {
         params: { gameInstanceId, questionId },
       });
     },
-    [gameInstanceId, insertEvent.mutate, navigate],
+    [gameInstanceId, processEvent.mutateAsync, navigate],
   );
 
   const handleGameOver = React.useCallback(() => {
-    insertEvent.mutate({
+    processEvent.mutate({
       gameInstanceId,
-      event: {
-        eventid: GameActions.GameOver,
-        instanceid: gameInstanceId,
-      },
+      type: 'GameOver',
+      data: {},
     });
-    markFinished.mutate({ gameInstanceId });
-  }, [gameInstanceId, insertEvent.mutate, markFinished.mutate]);
+  }, [gameInstanceId, processEvent.mutate]);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error?.message}</div>;
@@ -110,7 +112,7 @@ const Page = () => {
                       'hover:bg-muted',
                     )}
                   >
-                    {gameQuestion.question.question}
+                    {gameQuestion.question.text}
                   </Button>
                 ))}
             </div>

@@ -212,7 +212,6 @@ p {
   }
   body {
     @apply bg-background text-foreground;
-    overflow: hidden;
   }
   html {
     @apply font-serif;
