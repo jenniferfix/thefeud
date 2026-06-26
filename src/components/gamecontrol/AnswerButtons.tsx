@@ -31,11 +31,7 @@ const AnswerButtons = ({
             processEvent.mutate({
               gameInstanceId: instanceId,
               type: 'CorrectAnswer',
-              data: {
-                answerId: item.id,
-                points: item.score,
-                text: item.answer,
-              },
+              data: { answerId: item.id },
             })
           }
         >
@@ -45,6 +41,7 @@ const AnswerButtons = ({
 
       {data &&
         Array.from({ length: 8 - data?.length }, (_e, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder list
           <Button key={'extrabtn' + i} disabled={true}></Button>
         ))}
     </div>

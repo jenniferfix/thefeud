@@ -115,7 +115,7 @@ export async function getUserInstances(
 ) {
   let query = client
     .from('game_instance')
-    .select('id, created_at, userid, games(id,name)')
+    .select('id, created_at, userid, joinCode:join_code, games(id,name)')
     .eq('userid', userId);
 
   if (finished !== undefined) {

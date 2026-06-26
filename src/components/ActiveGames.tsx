@@ -1,7 +1,7 @@
 import { ClientOnly, Link } from '@tanstack/react-router';
 import { Binoculars, PlayIcon, X } from 'lucide-react';
 import { useAuthenticatedUser } from '#/supabaseauth';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import {
   Tooltip,
@@ -78,29 +78,35 @@ const ActiveGames = () => {
             </ClientOnly>
           </div>
           <ButtonGroup className="self-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" asChild>
+            {d.joinCode && (
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <Link
-                    to={`/g/$gameInstanceId`}
-                    params={{ gameInstanceId: d.id }}
+                    to={`/watch/$inviteCode`}
+                    params={{ inviteCode: d.joinCode }}
+                    className={buttonVariants({
+                      variant: 'ghost',
+                      size: 'icon',
+                    })}
                   >
                     <Binoculars />
                   </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Watch game</TooltipContent>
-            </Tooltip>
+                </TooltipTrigger>
+                <TooltipContent>Watch game</TooltipContent>
+              </Tooltip>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    to={`/c/$gameInstanceId`}
-                    params={{ gameInstanceId: d.id }}
-                  >
-                    <PlayIcon />
-                  </Link>
-                </Button>
+                <Link
+                  to={`/c/$gameInstanceId`}
+                  params={{ gameInstanceId: d.id }}
+                  className={buttonVariants({
+                    variant: 'ghost',
+                    size: 'icon',
+                  })}
+                >
+                  <PlayIcon />
+                </Link>
               </TooltipTrigger>
               <TooltipContent>Host Controller</TooltipContent>
             </Tooltip>

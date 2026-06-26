@@ -1,8 +1,5 @@
-'use client';
-import React from 'react';
-import { AnswerRecord } from '#/lib/schemas/gameboard';
-import { AnswerType } from '#/lib/schemas/questions';
-import { Tables } from '@/types/supabase.types';
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: legacy code */
+import type { AnswerRecord } from '#/lib/schemas/gameboard';
 import AnswerPanel from './AnswerPanel';
 
 const Gameboard = ({
@@ -20,7 +17,7 @@ const Gameboard = ({
     <div className="grid grid-cols-2 grid-rows-4 grid-flow-col h-full">
       {ans.map((i, index) => (
         <AnswerPanel
-          key={'answerpanel' + index}
+          key={`answerpanel + ${index}`}
           answer={i?.text ?? ''}
           flipped={!!i}
           points={i?.score ?? 0}
@@ -28,7 +25,7 @@ const Gameboard = ({
         />
       ))}
       {Array.from({ length: 8 - ans.length }, (_e, i) => (
-        <AnswerPanel key={'ap' + i} answer={''} flipped={false} points={0} />
+        <AnswerPanel key={`ap + ${i}`} answer={''} flipped={false} points={0} />
       ))}
     </div>
   );

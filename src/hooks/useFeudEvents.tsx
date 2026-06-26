@@ -7,7 +7,6 @@ import { useGetGameInstance } from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
 import { getAnswersByQuestionId } from '@/queries/answerqueries';
 import { getQuestionFromId } from '@/queries/questionqueries';
-// import { type TGameQuestions } from '@/queries/gamequeries';
 import { GameActions, type IAnswered, Teams } from '@/types';
 import type { Tables } from '@/types/supabase.types';
 
@@ -260,8 +259,7 @@ export default function useGameEvents(props: Props) {
           strikeCounter++;
           break;
         case GameActions.RoundWin:
-          if (!i.questionid)
-            throw Error('must have questionid attached to a RoundWin');
+          if (!lastQuestion) throw Error('Must have started question first');
           if (i.team === Teams.Left) {
             lastTeam = Teams.Left;
             teamAPoints += roundPoints;
@@ -270,7 +268,7 @@ export default function useGameEvents(props: Props) {
             teamBPoints += roundPoints;
           }
           roundPoints = 0;
-          // finishQuestion(i.questionid);
+          finishQuestion(lastQuestion);
           break;
         case GameActions.GameOver:
           setIsGameOver(true);
@@ -329,6 +327,7 @@ export default function useGameEvents(props: Props) {
     dingSound,
     themeMusic,
     clap,
+    finishQuestion,
   ]);
 
   return {

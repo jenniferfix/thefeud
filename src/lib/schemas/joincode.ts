@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import { gameInstanceId } from './base';
-import {
-  gameboardRequiredState,
-  gameboardState,
-  gameboardUpdateState,
-} from './gameboard';
+import { gameboardState, gameboardUpdateState } from './gameboard';
 
 export const JOIN_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 export const OTP_REGEX = '^[A-HJ-NP-Za-hj-np-z2-9]*$';
@@ -24,7 +20,6 @@ export type RedisCodeStorageType = z.infer<typeof redisCodeStorageSchema>;
 
 export const createJoinCodeRPCSchema = z.object({
   gameInstanceId,
-  ...gameboardRequiredState.shape,
   use: codeUsesEnum.default('watch'),
 });
 export type CreateJoinCodeRPCType = z.infer<typeof createJoinCodeRPCSchema>;

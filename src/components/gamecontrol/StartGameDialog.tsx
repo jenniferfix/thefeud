@@ -4,8 +4,6 @@ import React from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { useCreateGameInstance } from '#/hooks/useinstancequeries';
-import { useCreateJoinCode } from '#/hooks/usejoincodes';
-import { useAuthenticatedUser } from '#/supabaseauth';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,9 +21,7 @@ export type StartGameProps = { gameId: string; name: string };
 export const StartGameDialog = ({ gameId, name }: StartGameProps) => {
   const [open, setOpen] = React.useState(false);
   const createGame = useCreateGameInstance();
-  const createCode = useCreateJoinCode();
   const navigate = useNavigate();
-  const { user } = useAuthenticatedUser();
 
   const form = useAppForm({
     defaultValues: {

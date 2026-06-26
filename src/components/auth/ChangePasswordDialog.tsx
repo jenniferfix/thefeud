@@ -57,7 +57,6 @@ export const ChangePasswordDialog = ({
       value: { currentPassword, newPassword, revokeOtherSessions },
       value,
     }) => {
-      console.log('change password', value);
       setInProgress(true);
       // void authClient.changePassword(
       //   {

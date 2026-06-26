@@ -1,3 +1,4 @@
+import { ClientOnly } from '@tanstack/react-router';
 import { ExpandIcon, ShrinkIcon } from 'lucide-react';
 import React from 'react';
 import Confetti from 'react-confetti';
@@ -33,7 +34,10 @@ const ConfettiDiv = React.memo(({ mode }: { mode: ConfettiMode }) => {
   );
 
   React.useEffect(() => {
-    if (mode !== 'disabled') return;
+    if (mode !== 'disabled') {
+      setAnimate(true);
+      return;
+    }
 
     const timer = setTimeout(() => {
       setAnimate(false);
@@ -45,7 +49,7 @@ const ConfettiDiv = React.memo(({ mode }: { mode: ConfettiMode }) => {
   return (
     <div
       className={cn(
-        'absolute top-0 bottom-0 pointer-events-none transition-opacity duration-200 overflow-hidden',
+        'absolute top-0 bottom-0 pointer-events-none transition-opacity duration-200 overflow-hidden z-10',
         mode === 'disabled' ? 'opacity-0' : 'opacity-100',
         mode === 'full' ? 'left-0 right-0' : '',
         mode === 'left' ? `left-0 right-1/2` : '',
@@ -74,7 +78,6 @@ export const IsolatedGame = ({
     strikes,
     showStrikes,
     questionText,
-    gameTitle,
     leftTeam,
     rightTeam,
     rightScore,
@@ -94,7 +97,9 @@ export const IsolatedGame = ({
 
   return (
     <FullScreen handle={fullscreen}>
-      {/*!**<ConfettiDiv mode={confettiMode} /> **/}
+      <ClientOnly>
+        <ConfettiDiv mode={confettiMode} />
+      </ClientOnly>
       <GameBg
         className="h-screen w-screen object-contain pointer-events-none select-none p-2"
         board={<Gameboard answers={answers} />}

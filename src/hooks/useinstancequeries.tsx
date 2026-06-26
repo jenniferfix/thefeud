@@ -29,14 +29,10 @@ export function useCreateGameInstance() {
       const gameInstance =
         (await createGameInstance(supabase, values)).data ?? null;
       if (!gameInstance) throw Error('Failed to create game instance');
-      console.log('gameinstance', gameInstance);
-      const joinCode = await createJoinCode({
+      await createJoinCode({
         data: {
           use: 'watch',
           gameInstanceId: gameInstance.id,
-          leftTeam: gameInstance.team_left ?? '',
-          rightTeam: gameInstance.team_right ?? '',
-          gameTitle: gameInstance.game.name,
         },
       });
       return gameInstance;

@@ -1,42 +1,5 @@
 import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
-import {
-  createJoinCode,
-  deleteJoinCode,
-  getJoinCodeGame,
-} from '#/server/joincodes';
-import {
-  getGetGameInstanceQueryKey,
-  getUserInstancesQueryKey,
-} from './useinstancequeries';
-
-export const useCreateJoinCode = () => {
-  return useMutation({
-    mutationFn: async ({
-      gameInstanceId,
-    }: {
-      gameInstanceId: string;
-      userId: string;
-    }) => {
-      return await createJoinCode({ data: { gameInstanceId } });
-    },
-    onSettled: async (
-      _data,
-      _error,
-      { gameInstanceId, userId },
-      _result,
-      { client },
-    ) => {
-      await Promise.allSettled([
-        client.invalidateQueries({
-          queryKey: getGetGameInstanceQueryKey(gameInstanceId),
-        }),
-        client.invalidateQueries({
-          queryKey: getUserInstancesQueryKey(userId),
-        }),
-      ]);
-    },
-  });
-};
+import { deleteJoinCode, getJoinCodeGame } from '#/server/joincodes';
 
 export const useDeleteJoinCode = () => {
   return useMutation({
@@ -66,10 +29,14 @@ export const useGetJoinCodeGame = (code: string) => {
 export const useJoinGame = () => {
   return useMutation({
     mutationFn: async ({ code }: { code: string }) => {
-      const joinCodeRes = await getJoinCodeGame({ data: { code } });
-      if (!joinCodeRes?.success) return null;
-      // TODO: return a redirect path based on the use
-      return joinCodeRes.data?.gameInstanceId;
+      try {
+        const joinCodeRes = await getJoinCodeGame({ data: { code } });
+        if (joinCodeRes.state.gameover) return null;
+        return joinCodeRes;
+      } catch (error) {
+        console.error("Couldn't get join code", error);
+        return null;
+      }
     },
   });
 };

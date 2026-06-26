@@ -1,17 +1,13 @@
-'use client';
 import {
   queryOptions,
   useMutation,
   useSuspenseQuery,
 } from '@tanstack/react-query';
-import {
-  BackendEventType,
-  backendEventSchema,
-} from '#/lib/schemas/eventsbackend';
+import type { BackendEventType } from '#/lib/schemas/eventsbackend';
 import { processEvent } from '#/server/events';
 import useSupabase from '@/hooks/useSupabase';
 import { getEventsForGameInstance, insertEvent } from '@/queries/eventqueries';
-import { Database } from '@/types/supabase.types';
+import type { Database } from '@/types/supabase.types';
 import { getSupabaseBrowserClient } from '@/utils/supabase/client';
 
 const supabase = getSupabaseBrowserClient();

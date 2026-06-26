@@ -83,10 +83,10 @@ const TeamScore = ({
 };
 
 const MaybeGameboard = ({
-  instanceId,
+  joinCode: instanceId,
   children,
 }: {
-  instanceId?: string | null;
+  joinCode?: string | null;
   children: React.ReactNode;
 }) => {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
@@ -97,7 +97,7 @@ const MaybeGameboard = ({
       <div>{children}</div>
       <div className="grow relative flex items-center justify-center">
         <div className="h-100 aspect-video border-4 rounded-4xl border-feud-dark-orange overflow-hidden">
-          <GameboardIframe instanceId={instanceId} className="w-full h-full" />
+          <GameboardIframe joinCode={instanceId} className="w-full h-full" />
         </div>
       </div>
     </div>
@@ -147,13 +147,10 @@ function ControlComponent() {
   if (!gameInstance) return <div>Loading...</div>;
 
   return (
-    <MaybeGameboard instanceId={gameInstance.joinCode}>
+    <MaybeGameboard joinCode={gameInstance.joinCode}>
       <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
         <div className="absolute top-2 right-2">
-          <ShowJoinCode
-            gameInstanceId={gameInstanceId}
-            joinCode={gameInstance.joinCode}
-          />
+          <ShowJoinCode joinCode={gameInstance.joinCode} />
         </div>
         <h2 className="flex justify-center text-2xl py-2 border-b">
           {gameInstance?.game?.name}

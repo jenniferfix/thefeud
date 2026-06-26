@@ -3,16 +3,12 @@ import {
   actionsEnum,
   answerId,
   gameInstanceId,
-  gameover,
   leftScore,
   questionId,
-  questionName,
   rightScore,
   roundScore,
-  strikes,
   team,
 } from './base';
-import { answerSchema, gameboardAnswers } from './gameboard';
 
 export const baseData = z.object({
   roundScore,
@@ -27,8 +23,6 @@ export type StartQuestionEvent = z.infer<typeof startQuestionSchema>;
 
 export const correctAnswerSchema = z.object({
   answerId,
-  points: z.int(),
-  text: z.string(),
 });
 export type CorrectAnswerEvent = z.infer<typeof correctAnswerSchema>;
 

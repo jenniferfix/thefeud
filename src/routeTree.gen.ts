@@ -15,7 +15,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as NavbarLayoutRouteImport } from './routes/_navbar-layout'
 import { Route as NavbarLayoutIndexRouteImport } from './routes/_navbar-layout.index'
 import { Route as WatchInviteCodeRouteImport } from './routes/watch.$inviteCode'
-import { Route as GGameInstanceIdRouteImport } from './routes/g.$gameInstanceId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as NavbarLayoutAuthRouteImport } from './routes/_navbar-layout._auth'
 import { Route as NavbarLayoutAuthStartRouteImport } from './routes/_navbar-layout._auth.start'
@@ -51,11 +50,6 @@ const NavbarLayoutIndexRoute = NavbarLayoutIndexRouteImport.update({
 const WatchInviteCodeRoute = WatchInviteCodeRouteImport.update({
   id: '/watch/$inviteCode',
   path: '/watch/$inviteCode',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GGameInstanceIdRoute = GGameInstanceIdRouteImport.update({
-  id: '/g/$gameInstanceId',
-  path: '/g/$gameInstanceId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -118,7 +112,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/about': typeof AboutLazyRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/g/$gameInstanceId': typeof GGameInstanceIdRoute
   '/watch/$inviteCode': typeof WatchInviteCodeRoute
   '/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
   '/games': typeof NavbarLayoutAuthGamesRouteWithChildren
@@ -134,7 +127,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutLazyRoute
   '/': typeof NavbarLayoutIndexRoute
   '/auth/callback': typeof AuthCallbackRoute
-  '/g/$gameInstanceId': typeof GGameInstanceIdRoute
   '/watch/$inviteCode': typeof WatchInviteCodeRoute
   '/questions': typeof NavbarLayoutAuthQuestionsRoute
   '/start': typeof NavbarLayoutAuthStartRoute
@@ -150,7 +142,6 @@ export interface FileRoutesById {
   '/about': typeof AboutLazyRoute
   '/_navbar-layout/_auth': typeof NavbarLayoutAuthRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
-  '/g/$gameInstanceId': typeof GGameInstanceIdRoute
   '/watch/$inviteCode': typeof WatchInviteCodeRoute
   '/_navbar-layout/': typeof NavbarLayoutIndexRoute
   '/_auth/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
@@ -169,7 +160,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/about'
     | '/auth/callback'
-    | '/g/$gameInstanceId'
     | '/watch/$inviteCode'
     | '/c/$gameInstanceId'
     | '/games'
@@ -185,7 +175,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/'
     | '/auth/callback'
-    | '/g/$gameInstanceId'
     | '/watch/$inviteCode'
     | '/questions'
     | '/start'
@@ -200,7 +189,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/_navbar-layout/_auth'
     | '/auth/callback'
-    | '/g/$gameInstanceId'
     | '/watch/$inviteCode'
     | '/_navbar-layout/'
     | '/_auth/c/$gameInstanceId'
@@ -218,7 +206,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   AboutLazyRoute: typeof AboutLazyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
-  GGameInstanceIdRoute: typeof GGameInstanceIdRoute
   WatchInviteCodeRoute: typeof WatchInviteCodeRoute
   AuthCGameInstanceIdRoute: typeof AuthCGameInstanceIdRouteWithChildren
 }
@@ -258,13 +245,6 @@ declare module '@tanstack/react-router' {
       path: '/watch/$inviteCode'
       fullPath: '/watch/$inviteCode'
       preLoaderRoute: typeof WatchInviteCodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/g/$gameInstanceId': {
-      id: '/g/$gameInstanceId'
-      path: '/g/$gameInstanceId'
-      fullPath: '/g/$gameInstanceId'
-      preLoaderRoute: typeof GGameInstanceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/callback': {
@@ -402,7 +382,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   AboutLazyRoute: AboutLazyRoute,
   AuthCallbackRoute: AuthCallbackRoute,
-  GGameInstanceIdRoute: GGameInstanceIdRoute,
   WatchInviteCodeRoute: WatchInviteCodeRoute,
   AuthCGameInstanceIdRoute: AuthCGameInstanceIdRouteWithChildren,
 }

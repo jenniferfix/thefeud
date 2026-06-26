@@ -10,7 +10,13 @@ import {
   strikes,
   team,
 } from './base';
-import { answerSchema, gameboardAnswers } from './gameboard';
+import { answerSchema, gameboardAnswers, gameboardState } from './gameboard';
+
+export const sentEvent = z.object({
+  type: actionsEnum,
+  state: gameboardState,
+});
+export type SentEvent = z.infer<typeof sentEvent>;
 
 export const baseData = z.object({
   roundScore,

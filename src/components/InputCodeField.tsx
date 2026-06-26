@@ -37,15 +37,15 @@ export const InputCodeField = () => {
       onSubmit: joinCodeFormSchema,
     },
     onSubmit: async ({ formApi, value: { code } }) => {
-      const gameInstanceId = await joinGameData.mutateAsync({ code });
-      if (!gameInstanceId) {
+      const gameInstance = await joinGameData.mutateAsync({ code });
+      if (!gameInstance) {
         toast('Invalid code');
         return;
       }
       formApi.reset();
       navigate({
-        to: '/g/$gameInstanceId',
-        params: { gameInstanceId: gameInstanceId },
+        to: '/watch/$inviteCode',
+        params: { inviteCode: gameInstance.code },
       });
     },
   });
@@ -91,6 +91,7 @@ export const InputCodeField = () => {
                     {Array.from({ length: JOIN_CODE_LENGTH }, (_, idx) => (
                       <InputOTPSlot
                         index={idx}
+                        // biome-ignore lint/suspicious/noArrayIndexKey: static placeholder list
                         key={idx}
                         className="border-feud-lightblue dark:bg-feudblue/50"
                       />

@@ -4,16 +4,16 @@ import { cn } from '@/lib/utils';
 const url = import.meta.env.VITE_PUBLIC_URL;
 
 export type GameboardIframeProps = {
-  instanceId: string;
+  joinCode: string;
 } & React.ComponentProps<'iframe'>;
 
 export const GameboardIframe = React.memo(
-  ({ instanceId, className, ...props }: GameboardIframeProps) => {
+  ({ joinCode, className, ...props }: GameboardIframeProps) => {
     return (
       <iframe
         className={cn('', className)}
         title="Game"
-        src={`${url}/watch/${instanceId}?isiframe=true`}
+        src={`${url}/watch/${joinCode}?isiframe=true`}
         {...props}
       />
     );

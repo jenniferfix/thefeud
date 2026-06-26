@@ -1,28 +1,14 @@
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { type ActionType, roundScore } from '#/lib/schemas/base';
-import {
-  createPayload,
-  type EventPayloadSchema,
-  eventPayloadSchema,
-} from '#/lib/schemas/events';
 import { backendEventSchema } from '#/lib/schemas/eventsbackend';
-import type { ConfettiMode } from '#/lib/schemas/game';
-import {
-  AnswerRecord,
-  GameBoardState,
-  type GameboardUpdateType,
-  gameboardAnswers,
-  gameboardUpdateState,
-} from '#/lib/schemas/gameboard';
-import {
-  insertEvent as dbInsertEvent,
-  insertEvent,
-} from '#/queries/eventqueries';
+import type { AnswerRecord, GameBoardState } from '#/lib/schemas/gameboard';
+import { insertEvent } from '#/queries/eventqueries';
 import { getGameInstance, updateGameInstance } from '#/queries/instancequeries';
 import { createSupabaseBackendClient } from '#/utils/supabase/backend';
+import type { SentEvent } from '@/lib/schemas/events';
 import { GameActions, Teams } from '@/types';
 import { getServerAuth } from './auth';
+import { toGameBoardState } from './gameboard-state';
 import { updateJoinCode } from './joincodes';
 
 const supabase = createSupabaseBackendClient();
@@ -39,28 +25,10 @@ export const processEvent = createServerFn({ method: 'GET' })
     } = await getGameInstance(supabase, data.gameInstanceId);
     if (!currentGameInstance.joinCode) throw Error('Must have join code');
     if (!success) throw notFound({ data: { error } });
-    const { joinCode: code } = currentGameInstance;
 
-    const currentState = {
-      confettiMode: currentGameInstance.confettiMode as ConfettiMode,
-      leftScore: currentGameInstance.leftScore,
-      leftTeam:
-        currentGameInstance.leftTeam === null
-          ? ''
-          : currentGameInstance.leftTeam,
-      rightScore: currentGameInstance.rightScore,
-      rightTeam:
-        currentGameInstance.rightTeam === null
-          ? ''
-          : currentGameInstance.rightTeam,
-      roundScore: currentGameInstance.roundScore,
-      strikes: currentGameInstance.strikes,
-      gameTitle: currentGameInstance.game.name,
-      questionTitle: currentGameInstance.questionText,
-      currentQuestionId: currentGameInstance.currentQuestionId,
-      gameover: !!currentGameInstance.finished,
-      answers: gameboardAnswers.parse(currentGameInstance.answers),
-    } satisfies GameboardUpdateType;
+    const currentState = toGameBoardState(currentGameInstance);
+
+    const { joinCode: code } = currentGameInstance;
 
     switch (data.type) {
       case 'StartQuestion': {
@@ -75,31 +43,26 @@ export const processEvent = createServerFn({ method: 'GET' })
         const { question } = questionSearch;
 
         const answers: AnswerRecord = {};
-        question.answers.forEach((a, i) => {
+        question.answers.forEach((_answer, i) => {
           answers[i + 1] = null;
         });
         const newState = {
           ...currentState,
           roundScore: 0,
+          strikes: 0,
           answers,
           questionTitle: question.text,
           currentQuestionId: question.id,
+          confettiMode: 'disabled',
         } as GameBoardState;
 
-        const p = createPayload('StartQuestion', {
-          leftScore: currentState.leftScore,
-          rightScore: currentState.rightScore,
-          questionName: question.text,
-          roundScore: 0,
-          answers,
-        });
-        if (!p.success) throw Error('Error creating payload', p.error);
         await Promise.all([
           //update db
           updateGameInstance(supabase, gameInstanceId, {
             current_question_id: questionId,
             question_text: question.text,
             round_score: 0,
+            strikes: 0,
             answers,
           }),
           //update redis
@@ -117,16 +80,19 @@ export const processEvent = createServerFn({ method: 'GET' })
             instanceid: gameInstanceId,
             questionid: questionId,
           }),
-          //send event
-          supabase.channel(gameInstanceId).httpSend('StartQuestion', p.payload),
         ]);
+        //send event
+        await supabase.channel(gameInstanceId).httpSend('GameAction', {
+          type: data.type,
+          state: newState,
+        } satisfies SentEvent);
         break;
       }
 
       case 'CorrectAnswer': {
         const {
           gameInstanceId,
-          data: { answerId, points },
+          data: { answerId },
         } = data;
         const questionSearch = currentGameInstance.game.questions.find(
           (q) => q.question.id === currentState.currentQuestionId,
@@ -153,27 +119,6 @@ export const processEvent = createServerFn({ method: 'GET' })
           roundScore: currentState.roundScore + answer.score,
           answers: updatedAnswers,
         } as GameBoardState;
-        console.log('answer', answer);
-        console.log('oldanswers', currentState.answers);
-        console.log('newAnswers', updatedAnswers);
-        console.log('mergedstate', newState);
-
-        // setAnswers((last) => ({
-        //   ...last,
-        //   [answer.position]: { text: answer.text, score: answer.score },
-        // }));
-        const p = createPayload('CorrectAnswer', {
-          rightScore: currentState.rightScore,
-          leftScore: currentState.leftScore,
-          roundScore: currentState.roundScore,
-          answer: {
-            id: answer.id,
-            text: answer.text,
-            score: answer.score,
-            position: answerPos,
-          },
-        });
-        if (!p.success) throw Error('Error creating payload', p.error);
         await Promise.all([
           //update db
           updateGameInstance(supabase, gameInstanceId, {
@@ -193,23 +138,20 @@ export const processEvent = createServerFn({ method: 'GET' })
             userid: auth.user.id,
             instanceid: gameInstanceId,
             answerid: answerId,
-            points,
+            points: answer.score,
           }),
-          supabase.channel(gameInstanceId).httpSend('CorrectAnswer', p.payload),
         ]);
+        await supabase.channel(gameInstanceId).httpSend('GameAction', {
+          type: data.type,
+          state: newState,
+        } satisfies SentEvent);
         break;
       }
 
       case 'Strike': {
-        const {
-          gameInstanceId,
-          data: { team },
-        } = data;
+        const { gameInstanceId } = data;
         const strikes = Math.min(currentGameInstance.strikes + 1, 3);
         const newState = { ...currentState, strikes } as GameBoardState;
-        const p = createPayload('Strike', newState);
-        if (!p.success) throw Error('Error creating payload', p.error);
-
         await Promise.all([
           //update db
           updateGameInstance(supabase, gameInstanceId, {
@@ -228,8 +170,11 @@ export const processEvent = createServerFn({ method: 'GET' })
             userid: auth.user.id,
             instanceid: gameInstanceId,
           }),
-          supabase.channel(gameInstanceId).httpSend('Strike', p.payload),
         ]);
+        await supabase.channel(gameInstanceId).httpSend('GameAction', {
+          type: data.type,
+          state: newState,
+        } satisfies SentEvent);
 
         break;
       }
@@ -241,7 +186,6 @@ export const processEvent = createServerFn({ method: 'GET' })
         } = data;
         const newState = {
           ...currentState,
-          roundScore: 0,
           leftScore:
             team === Teams.Left
               ? currentState.leftScore + currentState.roundScore
@@ -250,16 +194,8 @@ export const processEvent = createServerFn({ method: 'GET' })
             team === Teams.Right
               ? currentState.rightScore + currentState.roundScore
               : currentState.rightScore,
+          confettiMode: team === Teams.Left ? 'left' : 'right',
         } as GameBoardState;
-
-        const p = createPayload('RoundWin', {
-          ...newState,
-          rightScore: newState.rightScore,
-          leftScore: newState.leftScore,
-          roundScore: newState.roundScore,
-          team,
-        });
-        if (!p.success) throw Error('Error creating payload', p.error);
         await Promise.all([
           //update db
           updateGameInstance(supabase, gameInstanceId, {
@@ -281,8 +217,11 @@ export const processEvent = createServerFn({ method: 'GET' })
             instanceid: gameInstanceId,
             team,
           }),
-          supabase.channel(gameInstanceId).httpSend('RoundWin', p.payload),
         ]);
+        await supabase.channel(gameInstanceId).httpSend('GameAction', {
+          type: data.type,
+          state: newState,
+        } satisfies SentEvent);
         break;
       }
 
@@ -292,12 +231,6 @@ export const processEvent = createServerFn({ method: 'GET' })
           data: { team },
         } = data;
         const newState = { ...currentState, gameover: true } as GameBoardState;
-        const p = createPayload('GameOver', {
-          ...newState,
-          gameover: newState.gameover,
-        });
-        if (!p.success) throw Error('Error creating payload', p.error);
-
         await Promise.all([
           //update db
           updateGameInstance(supabase, gameInstanceId, {
@@ -318,8 +251,11 @@ export const processEvent = createServerFn({ method: 'GET' })
             instanceid: gameInstanceId,
             team,
           }),
-          supabase.channel(gameInstanceId).httpSend('GameOver', p.payload),
         ]);
+        await supabase.channel(gameInstanceId).httpSend('GameAction', {
+          type: data.type,
+          state: newState,
+        } satisfies SentEvent);
         break;
       }
     }
