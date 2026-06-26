@@ -1,8 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { sentEvent } from '#/lib/schemas/events';
+import { sentEvent, soundEvent } from '#/lib/schemas/events';
 import type { GameBoardState } from '#/lib/schemas/gameboard';
 import type { RedisCodeStorageType } from '#/lib/schemas/joincode';
+import { useGameSounds } from './useGameSounds';
 import { getJoinCodeGameQueryKey, useGetJoinCodeGame } from './usejoincodes';
 import useSupabase from './useSupabase';
 
@@ -10,6 +11,7 @@ export const useIsolatedViewer = (joinCode: string) => {
   const { data } = useGetJoinCodeGame(joinCode);
   const queryClient = useQueryClient();
   const supabase = useSupabase();
+  const { playSound, playActionSound } = useGameSounds({ enabled: true });
 
   const [showStrikes, setShowStrikes] = React.useState(false);
   const strikeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
@@ -76,6 +78,11 @@ export const useIsolatedViewer = (joinCode: string) => {
             break;
         }
         updateQuery(state);
+        playActionSound(type);
+      })
+      .on('broadcast', { event: 'sound' }, (event) => {
+        const result = soundEvent.safeParse(event.payload);
+        if (result.success) playSound(result.data.sound);
       })
       .subscribe();
     return () => void supabase.removeChannel(channel);
@@ -83,6 +90,8 @@ export const useIsolatedViewer = (joinCode: string) => {
     supabase,
     data?.gameInstanceId,
     hideStrikeOverlay,
+    playActionSound,
+    playSound,
     showStrikeOverlay,
     updateQuery,
   ]);

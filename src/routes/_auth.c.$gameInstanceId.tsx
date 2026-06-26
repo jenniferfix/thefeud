@@ -10,6 +10,7 @@ import {
 } from '#/components/providers/FeudEvents';
 import { getEventsForGameInstanceQueryOptions } from '#/hooks/useeventqueries';
 import { useMediaQuery } from '#/hooks/useMediaQuery';
+import type { GameSound } from '#/lib/schemas/events';
 import Strikes from '@/components/gamecontrol/Strikes';
 import { Button } from '@/components/ui/button';
 import {
@@ -110,8 +111,6 @@ function ControlComponent() {
   const supabaseClient = useSupabase();
   //const navigate = useNavigate();
 
-  const thisGameActions = supabaseClient.channel(gameInstanceId);
-
   const { strikes, leftTeamScore, rightTeamScore, roundScore, confettiMode } =
     useFeudEventsContext();
 
@@ -136,13 +135,17 @@ function ControlComponent() {
   //   navigate({ to: `/c/$gameInstanceId`, params: { gameInstanceId } });
   // };
 
-  const handleSendSound = (sound: string) => {
-    thisGameActions.send({
-      type: 'broadcast',
-      event: 'sound',
-      payload: { sound },
-    });
-  };
+  const handleSendSound = React.useCallback(
+    async (sound: GameSound) => {
+      const channel = supabaseClient.channel(gameInstanceId);
+      try {
+        await channel.httpSend('sound', { sound });
+      } finally {
+        await supabaseClient.removeChannel(channel);
+      }
+    },
+    [gameInstanceId, supabaseClient],
+  );
 
   if (!gameInstance) return <div>Loading...</div>;
 

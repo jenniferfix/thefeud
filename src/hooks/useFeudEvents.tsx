@@ -1,8 +1,9 @@
 import React from 'react';
 import timer from 'react-timer-hook';
-import useSound from 'use-sound';
+import { soundEvent } from '#/lib/schemas/events';
 import type { ConfettiMode } from '#/lib/schemas/game';
 import { useGetEventsForGameInstance } from '@/hooks/useeventqueries';
+import { useGameSounds } from '@/hooks/useGameSounds';
 import { useGetGameInstance } from '@/hooks/useinstancequeries';
 import useSupabase from '@/hooks/useSupabase';
 import { getAnswersByQuestionId } from '@/queries/answerqueries';
@@ -33,9 +34,7 @@ export default function useGameEvents(props: Props) {
     props.instanceId,
   );
 
-  const [playSounds, _setPlaySounds] = React.useState<boolean>(
-    props?.sound ?? true,
-  );
+  const { playSound } = useGameSounds({ enabled: props.sound ?? true });
 
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [events, setEvents] = React.useState(initialData);
@@ -89,80 +88,20 @@ export default function useGameEvents(props: Props) {
     }
   }, [isRunning]);
 
-  const [dingSound] = useSound(
-    'https://utfs.io/f/H6iSz68ZupCoYLk2Vwhdq2xsSpPTCoOnh5XK83a70LRkiGEt',
-    { format: 'mp3' },
-  );
-  const [strikeSound] = useSound(
-    'https://utfs.io/f/H6iSz68ZupCoMbf0C2NhZrC7uiAx6FkNYzDa84bnsqyKpdQB',
-    { format: 'mp3' },
-  );
-  const [faceOffMusic] = useSound(
-    'https://utfs.io/f/H6iSz68ZupCo4eKhb35E9ulnKd6JjxQ1WkrV4qp5YX3oHg0w',
-    { format: 'mp3' },
-  );
-  const [faceOffBuzzer] = useSound(
-    'https://utfs.io/f/H6iSz68ZupCoAiLTGxMQAScDCsTuMnEmH91yakxB76plzKiq',
-    { format: 'mp3' },
-  );
-  const [themeMusic] = useSound(
-    'https://utfs.io/f/H6iSz68ZupCoNGkGGFloauFQZAbTpW4OP5hCSDJM6Igcj9r2',
-    { format: 'mp3' },
-  );
-  const [clap] = useSound(
-    'https://utfs.io/f/H6iSz68ZupCoI8HGXcx1w0amDS2udhsfqj97lFyLkcIAQCez',
-    { format: 'mp3' },
-  );
-
   // const broadcastChannel = supabaseClient.channel(props.instanceId);
 
   React.useEffect(() => {
-    const handleSoundPlay = (sound: string) => {
-      switch (sound) {
-        case 'ding':
-          if (playSounds) dingSound();
-          break;
-        case 'strike':
-          if (playSounds) strikeSound();
-          break;
-        case 'faceOffMusic':
-          if (playSounds) faceOffMusic();
-          break;
-        case 'faceOffBuzzer':
-          if (playSounds) faceOffBuzzer();
-          break;
-        case 'themeMusic':
-          if (playSounds) themeMusic();
-          break;
-        case 'clap':
-          if (playSounds) clap();
-          break;
-        default:
-        //
-      }
-    };
-
     const channel = supabaseClient
       .channel(props.instanceId)
       .on('broadcast', { event: 'sound' }, (retData) => {
-        const { payload } = retData;
-        handleSoundPlay(payload.sound);
+        const result = soundEvent.safeParse(retData.payload);
+        if (result.success) playSound(result.data.sound);
       })
       .subscribe();
     return () => {
       supabaseClient.removeChannel(channel);
     };
-  }, [
-    playSounds,
-    supabaseClient,
-    props.instanceId,
-    clap,
-    dingSound,
-    themeMusic,
-    strikeSound,
-    faceOffMusic,
-    faceOffBuzzer,
-  ]);
+  }, [playSound, supabaseClient, props.instanceId]);
 
   React.useEffect(() => {
     if (!currentQuestionId) return;
@@ -291,19 +230,19 @@ export default function useGameEvents(props: Props) {
         case GameActions.StartQuestion: {
           const questionId = events.at(-1)?.questionid ?? null;
           setCurrentQuestionId(questionId);
-          if (playSounds) themeMusic();
+          playSound('themeMusic');
           setConfettiMode('disabled');
           break;
         }
         case GameActions.CorrectAnswer:
-          if (playSounds) dingSound();
+          playSound('ding');
           break;
         case GameActions.Strike:
-          if (playSounds) strikeSound();
+          playSound('strike');
           handleShowStrike();
           break;
         case GameActions.RoundWin:
-          if (playSounds) clap();
+          playSound('clap');
           setConfettiMode(lastTeam === Teams.Left ? 'left' : 'right');
           break;
         case GameActions.GameOver:
@@ -321,12 +260,8 @@ export default function useGameEvents(props: Props) {
     roundScore,
     currentQuestionId,
     strikes,
-    playSounds,
     restart,
-    strikeSound,
-    dingSound,
-    themeMusic,
-    clap,
+    playSound,
     finishQuestion,
   ]);
 
