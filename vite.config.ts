@@ -5,6 +5,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite';
+import svgr from 'vite-plugin-svgr';
 
 const config = defineConfig({
   server: {
@@ -12,6 +13,23 @@ const config = defineConfig({
   },
   resolve: { tsconfigPaths: true },
   plugins: [
+    svgr({
+      svgrOptions: {
+        plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
+        svgoConfig: {
+          plugins: [
+            {
+              name: 'preset-default',
+              params: {
+                overrides: {
+                  cleanupIds: false,
+                },
+              },
+            },
+          ],
+        },
+      },
+    }),
     devtools(),
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),

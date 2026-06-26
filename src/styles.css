@@ -206,6 +206,47 @@ p {
     border-box;
 }
 
+#backlights > use {
+  animation: backlight-twinkle var(--backlight-duration, 12s) ease-in-out
+    var(--backlight-delay, 0s) infinite;
+}
+
+.gameboard-artwork
+  :is(
+    #mainboard,
+    #leftscore,
+    #rightscore,
+    #upperscore,
+    #questionpanel,
+    #leftName,
+    #rightName
+  ) {
+  display: none;
+}
+
+@keyframes backlight-twinkle {
+  0%,
+  20%,
+  100% {
+    opacity: 1;
+  }
+
+  55% {
+    opacity: var(--backlight-low-opacity, 0.65);
+  }
+
+  75% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #backlights > use {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
