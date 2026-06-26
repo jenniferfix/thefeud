@@ -181,7 +181,7 @@ function RouteComponent() {
                 position: newPosition,
               });
               suspend.resume();
-            } catch (e) {
+            } catch {
               suspend.abort();
             }
           }}

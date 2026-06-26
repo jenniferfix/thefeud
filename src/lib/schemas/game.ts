@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import { gameId, gameTitle } from './base';
-import {
-  gameQuestionSchema,
-  questionFormSchema,
-  questionSchema,
-} from './questions';
+import { gameQuestionSchema, questionFormSchema } from './questions';
 
 export const confettiModeArray = ['full', 'left', 'right', 'disabled'] as const;
 export const confettiModeEnum = z.enum(confettiModeArray);

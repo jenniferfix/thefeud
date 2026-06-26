@@ -1,3 +1,4 @@
+import { generateKeyBetween } from 'fractional-indexing';
 import { TrashIcon } from 'lucide-react';
 import React from 'react';
 import { useAddQuestionToGame } from '#/hooks/usegamequeries';
@@ -72,6 +73,7 @@ export const QuestionDialog = ({
           question: value.question,
         });
         const { id: question_id } = newQ;
+        const position = generateKeyBetween(lastQuestionPosition ?? null, null);
         const [_newAnswers] = await Promise.all([
           insertAnswer.mutateAsync(
             value.answers.map(({ answer, score }) => ({
@@ -81,7 +83,11 @@ export const QuestionDialog = ({
             })),
           ),
           gameId
-            ? addToGame.mutateAsync({ gameId, questionId: question_id })
+            ? addToGame.mutateAsync({
+                gameId,
+                questionId: question_id,
+                position,
+              })
             : undefined,
         ]);
 

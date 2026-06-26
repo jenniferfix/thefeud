@@ -1,4 +1,9 @@
-import { AlertTriangle, CircleCheck, CircleX, LucideProps } from 'lucide-react';
+import {
+  AlertTriangle,
+  CircleCheck,
+  CircleX,
+  type LucideProps,
+} from 'lucide-react';
 import { cn } from '#/lib/utils';
 
 export const Warning = ({ className, ...props }: LucideProps) => {

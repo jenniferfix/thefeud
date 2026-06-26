@@ -16,7 +16,6 @@ import { Waiting } from '@/components/ui/waiting';
 import { useAddQuestionToGame } from '@/hooks/usegamequeries';
 import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
 import { cn } from '@/utils/utils';
-import { QuestionDialog } from './QuestionDialog';
 
 export type AddQuestionToGameProps = {
   gameId: string;

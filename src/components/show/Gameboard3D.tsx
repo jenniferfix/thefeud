@@ -1,19 +1,14 @@
 'use client';
-import { animated, config, useSpring } from '@react-spring/three';
+import { animated, useSpring } from '@react-spring/three';
 import type { Vector3 } from '@react-three/fiber';
 import { Canvas } from '@react-three/fiber';
 import React from 'react';
-import * as THREE from 'three';
-import { TextureLoader } from 'three/src/loaders/TextureLoader.js';
+import type * as THREE from 'three';
 import type { IAnswered } from '@/types';
 import type { Tables } from '@/types/supabase.types';
 
 const AnswerPanel = ({
   size,
-  flip,
-  position,
-  answer,
-  points,
 }: {
   flip: boolean;
   size: number[];
@@ -23,7 +18,6 @@ const AnswerPanel = ({
 }) => {
   const mesh = React.useRef<THREE.Mesh>(null!);
   const [rot, setRot] = React.useState(0);
-  const [active, setActive] = React.useState(false);
   const springs = useSpring({
     rotation: [rot, 0, 0],
     config: {
@@ -48,7 +42,6 @@ const AnswerPanel = ({
 
 const Gameboard = ({
   answers,
-  answered,
 }: {
   answers: Tables<'answers'>[];
   answered: IAnswered;

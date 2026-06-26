@@ -1,5 +1,4 @@
 import { animated, useSpring } from '@react-spring/web';
-import { Answer } from '#/lib/schemas/gameboard';
 
 const AnswerPanel = ({
   answer,
