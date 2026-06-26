@@ -1,4 +1,3 @@
-'use client';
 import { animated, useSpring } from '@react-spring/three';
 import type { Vector3 } from '@react-three/fiber';
 import { Canvas } from '@react-three/fiber';
