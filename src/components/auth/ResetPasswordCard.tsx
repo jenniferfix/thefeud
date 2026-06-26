@@ -1,4 +1,3 @@
-import { useNavigate } from '@tanstack/react-router';
 import React from 'react';
 import {
   Card,
@@ -8,12 +7,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useAppForm } from '@/components/ui/tanstack-form';
-import useSupabase from '@/hooks/useSupabase';
-//import { authClient } from "@/lib/auth/client";
 import { passwordField } from '@/types/auth';
 
 export const ResetPasswordCard = React.memo(({ token }: { token?: string }) => {
-  const navigate = useNavigate();
   const form = useAppForm({
     defaultValues: {
       password: '',

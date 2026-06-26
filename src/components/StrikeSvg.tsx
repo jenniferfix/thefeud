@@ -4,6 +4,7 @@ const SvgComponent = ({ className }: { className?: string }) => (
     viewBox="0 0 750 1000"
     className={className}
   >
+    <title>X</title>
     <defs>
       <linearGradient id="a">
         <stop
