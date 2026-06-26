@@ -1,22 +1,19 @@
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { sentEvent, soundEvent } from '#/lib/schemas/events';
 import type { GameBoardState } from '#/lib/schemas/gameboard';
 import type { RedisCodeStorageType } from '#/lib/schemas/joincode';
-import { useGameSounds } from './useGameSounds';
+import { useGameActionSubscription } from './useGameActionSubscription';
 import { getJoinCodeGameQueryKey, useGetJoinCodeGame } from './usejoincodes';
-import useSupabase from './useSupabase';
+import { useStrikeOverlay } from './useStrikeOverlay';
 
 export const useIsolatedViewer = (joinCode: string) => {
   const { data } = useGetJoinCodeGame(joinCode);
   const queryClient = useQueryClient();
-  const supabase = useSupabase();
-  const { playSound, playActionSound } = useGameSounds({ enabled: true });
-
-  const [showStrikes, setShowStrikes] = React.useState(false);
-  const strikeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const {
+    showStrike: showStrikes,
+    showStrikeOverlay,
+    hideStrikeOverlay,
+  } = useStrikeOverlay();
 
   const updateQuery = React.useCallback(
     (next: GameBoardState) => {
@@ -34,67 +31,26 @@ export const useIsolatedViewer = (joinCode: string) => {
     [joinCode, queryClient],
   );
 
-  const hideStrikeOverlay = React.useCallback(() => {
-    if (strikeTimerRef.current) {
-      clearTimeout(strikeTimerRef.current);
-    }
-
-    setShowStrikes(false);
-    strikeTimerRef.current = null;
-  }, []);
-
-  const showStrikeOverlay = React.useCallback(() => {
-    if (strikeTimerRef.current) {
-      clearTimeout(strikeTimerRef.current);
-    }
-
-    setShowStrikes(true);
-    strikeTimerRef.current = setTimeout(() => {
-      setShowStrikes(false);
-      strikeTimerRef.current = null;
-    }, 1500);
-  }, []);
-
-  React.useEffect(() => {
-    return () => {
-      if (strikeTimerRef.current) {
-        clearTimeout(strikeTimerRef.current);
+  const handleAction = React.useCallback(
+    (type: string) => {
+      switch (type) {
+        case 'StartQuestion':
+          hideStrikeOverlay();
+          break;
+        case 'Strike':
+          showStrikeOverlay();
+          break;
       }
-    };
-  }, []);
+    },
+    [hideStrikeOverlay, showStrikeOverlay],
+  );
 
-  React.useEffect(() => {
-    if (!data?.gameInstanceId) return;
-    const channel = supabase
-      .channel(data.gameInstanceId)
-      .on('broadcast', { event: 'GameAction' }, (event) => {
-        const { type, state } = sentEvent.parse(event.payload);
-        switch (type) {
-          case 'StartQuestion':
-            hideStrikeOverlay();
-            break;
-          case 'Strike':
-            showStrikeOverlay();
-            break;
-        }
-        updateQuery(state);
-        playActionSound(type);
-      })
-      .on('broadcast', { event: 'sound' }, (event) => {
-        const result = soundEvent.safeParse(event.payload);
-        if (result.success) playSound(result.data.sound);
-      })
-      .subscribe();
-    return () => void supabase.removeChannel(channel);
-  }, [
-    supabase,
-    data?.gameInstanceId,
-    hideStrikeOverlay,
-    playActionSound,
-    playSound,
-    showStrikeOverlay,
-    updateQuery,
-  ]);
+  useGameActionSubscription({
+    channelId: data?.gameInstanceId,
+    onAction: handleAction,
+    onState: updateQuery,
+    soundsEnabled: true,
+  });
 
   const state = data?.state;
 

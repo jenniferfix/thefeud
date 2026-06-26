@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { useProcessEvent } from '@/hooks/useeventqueries';
 import { Teams } from '@/types';
-import { useFeudEventsContext } from '../providers/FeudEvents';
+import { useGameControlContext } from '../providers/GameControl';
 import { HoldButton } from '../ui/holdbutton';
 
 const SelectWinner = ({
@@ -12,7 +12,7 @@ const SelectWinner = ({
 }) => {
   const processEvent = useProcessEvent();
   const navigate = useNavigate();
-  const { rightName, leftName } = useFeudEventsContext();
+  const { state } = useGameControlContext();
 
   const handleRoundWinner = async (team: Teams) => {
     await Promise.all([
@@ -36,13 +36,13 @@ const SelectWinner = ({
         className="grow"
         onActivate={async () => await handleRoundWinner(Teams.Left)}
       >
-        {leftName}
+        {state.leftTeam}
       </HoldButton>
       <HoldButton
         className="grow"
         onActivate={async () => await handleRoundWinner(Teams.Right)}
       >
-        {rightName}
+        {state.rightTeam}
       </HoldButton>
     </div>
   );

@@ -3,10 +3,7 @@ import React from 'react';
 import AnswerButtons from '@/components/gamecontrol/AnswerButtons';
 import SelectWinner from '@/components/gamecontrol/SelectWinner';
 import { Button } from '@/components/ui/button';
-import {
-  getEventsForGameInstanceQueryOptions,
-  useProcessEvent,
-} from '@/hooks/useeventqueries';
+import { useProcessEvent } from '@/hooks/useeventqueries';
 import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
@@ -14,12 +11,9 @@ import {
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
   loader: async ({ context: { queryClient }, params: { gameInstanceId } }) => {
-    await Promise.allSettled([
-      queryClient.ensureQueryData(getGameInstanceQueryOptions(gameInstanceId)),
-      queryClient.ensureQueryData(
-        getEventsForGameInstanceQueryOptions(gameInstanceId),
-      ),
-    ]);
+    await queryClient.ensureQueryData(
+      getGameInstanceQueryOptions(gameInstanceId),
+    );
   },
   component: Page,
 });

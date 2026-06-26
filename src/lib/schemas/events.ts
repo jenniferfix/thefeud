@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   type ActionType,
   actionsEnum,
+  answerId,
   gameover,
   leftScore,
   questionName,
@@ -31,10 +32,9 @@ export const startQuestionSchema = z.object({
 });
 export type StartQuestionType = z.infer<typeof startQuestionSchema>;
 
-export const eventAnswerSchema = z.object({
-  id: z.string(),
+export const eventAnswerSchema = answerSchema.extend({
+  id: answerId,
   position: z.int(),
-  ...answerSchema.shape,
 });
 export type EventCorrectAnswerType = z.infer<typeof eventAnswerSchema>;
 

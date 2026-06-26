@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import React from 'react';
-import { useFeudEventsContext } from '#/components/providers/FeudEvents';
+import { useGameControlContext } from '#/components/providers/GameControl';
 import { Button } from '#/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useProcessEvent } from '@/hooks/useeventqueries';
@@ -8,7 +8,6 @@ import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
 } from '@/hooks/useinstancequeries';
-import { GameActions } from '@/types';
 import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId/')({
@@ -29,7 +28,7 @@ const Page = () => {
     isLoading,
   } = useGetGameInstance(gameInstanceId);
   const navigate = useNavigate();
-  const { remainingQuestions } = useFeudEventsContext();
+  const { remainingQuestions } = useGameControlContext();
 
   const processEvent = useProcessEvent();
 
@@ -95,8 +94,8 @@ const Page = () => {
               aria-label="Scrollable listbox of games"
               className="flex flex-col gap-2"
             >
-              {remainingQuestions
-                ?.sort((a, b) => {
+              {[...remainingQuestions]
+                .sort((a, b) => {
                   if (a.position < b.position) return -1;
                   if (a.position > b.position) return 1;
                   return 0;

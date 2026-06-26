@@ -11,7 +11,7 @@ export async function getAnswersByQuestionId(
     .eq('question_id', questionid)
     .throwOnError()
     .order('score', { ascending: false })
-    .order('answer', { ascending: false });
+    .order('created_at', { ascending: true });
 }
 
 export async function updateAnswer(

@@ -5,10 +5,9 @@ import { GameboardIframe } from '#/components/GameboardIframe';
 // import React from 'react';
 import { ShowJoinCode } from '#/components/gamecontrol/ShowJoinCode';
 import {
-  FeudEventsProvider,
-  useFeudEventsContext,
-} from '#/components/providers/FeudEvents';
-import { getEventsForGameInstanceQueryOptions } from '#/hooks/useeventqueries';
+  GameControlProvider,
+  useGameControlContext,
+} from '#/components/providers/GameControl';
 import { useMediaQuery } from '#/hooks/useMediaQuery';
 import type { GameSound } from '#/lib/schemas/events';
 import Strikes from '@/components/gamecontrol/Strikes';
@@ -32,12 +31,9 @@ import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
   loader: async ({ context: { queryClient }, params: { gameInstanceId } }) => {
-    await Promise.allSettled([
-      queryClient.ensureQueryData(getGameInstanceQueryOptions(gameInstanceId)),
-      queryClient.ensureQueryData(
-        getEventsForGameInstanceQueryOptions(gameInstanceId),
-      ),
-    ]);
+    await queryClient.ensureQueryData(
+      getGameInstanceQueryOptions(gameInstanceId),
+    );
   },
   component: Component,
 });
@@ -45,9 +41,9 @@ export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
 function Component() {
   const { gameInstanceId } = Route.useParams();
   return (
-    <FeudEventsProvider instanceId={gameInstanceId} sound={false}>
+    <GameControlProvider instanceId={gameInstanceId}>
       <ControlComponent />
-    </FeudEventsProvider>
+    </GameControlProvider>
   );
 }
 
@@ -111,8 +107,7 @@ function ControlComponent() {
   const supabaseClient = useSupabase();
   //const navigate = useNavigate();
 
-  const { strikes, leftTeamScore, rightTeamScore, roundScore, confettiMode } =
-    useFeudEventsContext();
+  const { state } = useGameControlContext();
 
   // if (isLoading && isFeudEventsLoading) return <div>Loading...</div>;
   // if (isError) return <div>{error.message}</div>;
@@ -161,19 +156,19 @@ function ControlComponent() {
         <aside className="flex flex-col gap-2 border-b py-2">
           <div className="flex align-middle">
             <TeamScore
-              confetti={confettiMode === 'left'}
+              confetti={state.confettiMode === 'left'}
               teamName={gameInstance.leftTeam ?? ''}
-              score={leftTeamScore}
+              score={state.leftScore}
               className="grow text-left mx-2"
             />
             <div className="shrink">
-              <Score className="flex justify-center" score={roundScore} />
-              <Strikes className="self-center" strikes={strikes} />
+              <Score className="flex justify-center" score={state.roundScore} />
+              <Strikes className="self-center" strikes={state.strikes} />
             </div>
             <TeamScore
-              confetti={confettiMode === 'right'}
+              confetti={state.confettiMode === 'right'}
               teamName={gameInstance.rightTeam ?? ''}
-              score={rightTeamScore}
+              score={state.rightScore}
               className="grow text-right"
             />
           </div>

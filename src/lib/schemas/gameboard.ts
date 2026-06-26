@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import {
+  answerId,
   answerNumber,
-  gameId,
-  gameInstanceId,
   gameover,
   gameTitle,
   leftScore,
@@ -21,6 +20,7 @@ export const gameboardRouteURLPropsSchema = z.object({
 });
 
 export const answerSchema = z.object({
+  id: answerId.optional(),
   text: questionName,
   score,
 });
@@ -46,6 +46,7 @@ export const gameboardState = z.object({
   confettiMode: confettiModeEnum.default('disabled'),
   answers: gameboardAnswers,
   currentQuestionId: questionId.nullable().optional(),
+  completedQuestionIds: z.array(questionId).default([]),
 });
 export type GameBoardState = z.infer<typeof gameboardState>;
 
@@ -62,5 +63,6 @@ export const gameboardUpdateState = z.object({
   confettiMode: confettiModeEnum.optional(),
   answers: gameboardAnswers.optional(),
   currentQuestionId: questionId.nullable().optional(),
+  completedQuestionIds: z.array(questionId).optional(),
 });
 export type GameboardUpdateType = z.infer<typeof gameboardUpdateState>;

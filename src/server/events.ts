@@ -1,17 +1,37 @@
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
+import {
+  createCorrectAnswerState,
+  createGameOverState,
+  createRoundWinState,
+  createStartQuestionState,
+  createStrikeState,
+  toGameBoardState,
+} from '#/lib/gameboard-state';
+import type { ActionType } from '#/lib/schemas/base';
 import { backendEventSchema } from '#/lib/schemas/eventsbackend';
-import type { AnswerRecord, GameBoardState } from '#/lib/schemas/gameboard';
+import type { GameBoardState } from '#/lib/schemas/gameboard';
 import { insertEvent } from '#/queries/eventqueries';
 import { getGameInstance, updateGameInstance } from '#/queries/instancequeries';
+import type { Database, TablesUpdate } from '#/types/supabase.types';
 import { createSupabaseBackendClient } from '#/utils/supabase/backend';
 import type { SentEvent } from '@/lib/schemas/events';
-import { GameActions, Teams } from '@/types';
+import { GameActions } from '@/types';
 import { getServerAuth } from './auth';
-import { toGameBoardState } from './gameboard-state';
 import { updateJoinCode } from './joincodes';
 
 const supabase = createSupabaseBackendClient();
+
+type GameInstanceUpdate = TablesUpdate<'game_instance'>;
+type GameEventInsert = Database['public']['Tables']['game_events']['Insert'];
+
+type CommitEventArgs = {
+  event: GameEventInsert;
+  gameInstanceId: string;
+  state: GameBoardState;
+  type: ActionType;
+  values: GameInstanceUpdate;
+};
 
 export const processEvent = createServerFn({ method: 'GET' })
   .validator(backendEventSchema)
@@ -23,12 +43,38 @@ export const processEvent = createServerFn({ method: 'GET' })
       success,
       error,
     } = await getGameInstance(supabase, data.gameInstanceId);
+    if (!success || !currentGameInstance) throw notFound({ data: { error } });
     if (!currentGameInstance.joinCode) throw Error('Must have join code');
-    if (!success) throw notFound({ data: { error } });
 
     const currentState = toGameBoardState(currentGameInstance);
 
     const { joinCode: code } = currentGameInstance;
+    const commitEvent = async ({
+      gameInstanceId,
+      type,
+      state,
+      values,
+      event,
+    }: CommitEventArgs) => {
+      await Promise.all([
+        updateGameInstance(supabase, gameInstanceId, values),
+        updateJoinCode({
+          data: {
+            gameInstanceId,
+            code,
+            state,
+          },
+        }),
+        insertEvent(supabase, event),
+      ]);
+
+      await supabase.channel(gameInstanceId).httpSend('GameAction', {
+        type,
+        state,
+      } satisfies SentEvent);
+
+      return { gameInstanceId, type, state };
+    };
 
     switch (data.type) {
       case 'StartQuestion': {
@@ -36,57 +82,31 @@ export const processEvent = createServerFn({ method: 'GET' })
           gameInstanceId,
           data: { questionId },
         } = data;
-        const questionSearch = currentGameInstance.game.questions.find(
-          (q) => q.question.id === questionId,
+        const newState = createStartQuestionState(
+          currentGameInstance,
+          currentState,
+          questionId,
         );
-        if (!questionSearch) throw Error('Question not found');
-        const { question } = questionSearch;
 
-        const answers: AnswerRecord = {};
-        question.answers.forEach((_answer, i) => {
-          answers[i + 1] = null;
-        });
-        const newState = {
-          ...currentState,
-          roundScore: 0,
-          strikes: 0,
-          answers,
-          questionTitle: question.text,
-          currentQuestionId: question.id,
-          confettiMode: 'disabled',
-        } as GameBoardState;
-
-        await Promise.all([
-          //update db
-          updateGameInstance(supabase, gameInstanceId, {
+        return await commitEvent({
+          gameInstanceId,
+          type: data.type,
+          state: newState,
+          values: {
             current_question_id: questionId,
-            question_text: question.text,
+            question_text: newState.questionTitle,
             round_score: 0,
             strikes: 0,
-            answers,
-          }),
-          //update redis
-          updateJoinCode({
-            data: {
-              gameInstanceId,
-              code,
-              state: newState,
-            },
-          }),
-          // add event to db
-          insertEvent(supabase, {
+            answers: newState.answers,
+            confetti_mode: newState.confettiMode,
+          },
+          event: {
             eventid: GameActions.StartQuestion,
             userid: auth.user.id,
             instanceid: gameInstanceId,
             questionid: questionId,
-          }),
-        ]);
-        //send event
-        await supabase.channel(gameInstanceId).httpSend('GameAction', {
-          type: data.type,
-          state: newState,
-        } satisfies SentEvent);
-        break;
+          },
+        });
       }
 
       case 'CorrectAnswer': {
@@ -94,89 +114,55 @@ export const processEvent = createServerFn({ method: 'GET' })
           gameInstanceId,
           data: { answerId },
         } = data;
-        const questionSearch = currentGameInstance.game.questions.find(
-          (q) => q.question.id === currentState.currentQuestionId,
+        const result = createCorrectAnswerState(
+          currentGameInstance,
+          currentState,
+          answerId,
         );
-        if (!questionSearch) throw Error('Question not found');
-        const { question } = questionSearch;
-        let answerPos: number | null = null;
-        const answer = question.answers.find((a, i) => {
-          if (a.id === answerId) {
-            answerPos = i + 1;
-            return true;
-          }
-          return false;
-        });
-        if (!answer || !answerPos) throw Error('Answer not found');
 
-        const updatedAnswers = {
-          ...currentState.answers,
-          [answerPos]: { text: answer.text, score: answer.score },
-        } satisfies AnswerRecord;
+        if (!result.changed) {
+          return {
+            gameInstanceId,
+            type: data.type,
+            state: result.state,
+          };
+        }
 
-        const newState = {
-          ...currentState,
-          roundScore: currentState.roundScore + answer.score,
-          answers: updatedAnswers,
-        } as GameBoardState;
-        await Promise.all([
-          //update db
-          updateGameInstance(supabase, gameInstanceId, {
+        const newState = result.state;
+        return await commitEvent({
+          gameInstanceId,
+          type: data.type,
+          state: newState,
+          values: {
             round_score: newState.roundScore,
-            answers: updatedAnswers,
-          }),
-          //update redis
-          updateJoinCode({
-            data: {
-              gameInstanceId,
-              code,
-              state: newState,
-            },
-          }),
-          insertEvent(supabase, {
+            answers: newState.answers,
+          },
+          event: {
             eventid: GameActions.CorrectAnswer,
             userid: auth.user.id,
             instanceid: gameInstanceId,
             answerid: answerId,
-            points: answer.score,
-          }),
-        ]);
-        await supabase.channel(gameInstanceId).httpSend('GameAction', {
-          type: data.type,
-          state: newState,
-        } satisfies SentEvent);
-        break;
+            points: result.answer.score,
+          },
+        });
       }
 
       case 'Strike': {
         const { gameInstanceId } = data;
-        const strikes = Math.min(currentGameInstance.strikes + 1, 3);
-        const newState = { ...currentState, strikes } as GameBoardState;
-        await Promise.all([
-          //update db
-          updateGameInstance(supabase, gameInstanceId, {
+        const newState = createStrikeState(currentState);
+        return await commitEvent({
+          gameInstanceId,
+          type: data.type,
+          state: newState,
+          values: {
             strikes: newState.strikes,
-          }),
-          //update redis
-          updateJoinCode({
-            data: {
-              gameInstanceId,
-              code,
-              state: newState,
-            },
-          }),
-          insertEvent(supabase, {
+          },
+          event: {
             eventid: GameActions.Strike,
             userid: auth.user.id,
             instanceid: gameInstanceId,
-          }),
-        ]);
-        await supabase.channel(gameInstanceId).httpSend('GameAction', {
-          type: data.type,
-          state: newState,
-        } satisfies SentEvent);
-
-        break;
+          },
+        });
       }
 
       case 'RoundWin': {
@@ -184,79 +170,45 @@ export const processEvent = createServerFn({ method: 'GET' })
           gameInstanceId,
           data: { team },
         } = data;
-        const newState = {
-          ...currentState,
-          leftScore:
-            team === Teams.Left
-              ? currentState.leftScore + currentState.roundScore
-              : currentState.leftScore,
-          rightScore:
-            team === Teams.Right
-              ? currentState.rightScore + currentState.roundScore
-              : currentState.rightScore,
-          confettiMode: team === Teams.Left ? 'left' : 'right',
-        } as GameBoardState;
-        await Promise.all([
-          //update db
-          updateGameInstance(supabase, gameInstanceId, {
+        const newState = createRoundWinState(currentState, team);
+        return await commitEvent({
+          gameInstanceId,
+          type: data.type,
+          state: newState,
+          values: {
             round_score: newState.roundScore,
             left_score: newState.leftScore,
             right_score: newState.rightScore,
-          }),
-          //update redis
-          updateJoinCode({
-            data: {
-              gameInstanceId,
-              code,
-              state: newState,
-            },
-          }),
-          insertEvent(supabase, {
+            completed_question_ids: newState.completedQuestionIds,
+            confetti_mode: newState.confettiMode,
+          },
+          event: {
             eventid: GameActions.RoundWin,
             userid: auth.user.id,
             instanceid: gameInstanceId,
             team,
-          }),
-        ]);
-        await supabase.channel(gameInstanceId).httpSend('GameAction', {
-          type: data.type,
-          state: newState,
-        } satisfies SentEvent);
-        break;
+          },
+        });
       }
 
       case 'GameOver': {
-        const {
+        const { gameInstanceId } = data;
+        const newState = createGameOverState(currentState);
+        return await commitEvent({
           gameInstanceId,
-          data: { team },
-        } = data;
-        const newState = { ...currentState, gameover: true } as GameBoardState;
-        await Promise.all([
-          //update db
-          updateGameInstance(supabase, gameInstanceId, {
+          type: data.type,
+          state: newState,
+          values: {
             finished: new Date().toISOString(),
             round_score: newState.roundScore,
-          }),
-          //update redis
-          updateJoinCode({
-            data: {
-              gameInstanceId,
-              code,
-              state: newState,
-            },
-          }),
-          insertEvent(supabase, {
+            confetti_mode: newState.confettiMode,
+          },
+          event: {
             eventid: GameActions.GameOver,
             userid: auth.user.id,
             instanceid: gameInstanceId,
-            team,
-          }),
-        ]);
-        await supabase.channel(gameInstanceId).httpSend('GameAction', {
-          type: data.type,
-          state: newState,
-        } satisfies SentEvent);
-        break;
+          },
+        });
       }
     }
   });

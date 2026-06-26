@@ -117,6 +117,7 @@ export type Database = {
       game_instance: {
         Row: {
           answers: Json
+          completed_question_ids: string[]
           confetti_mode: string
           created_at: string
           current_question_id: string | null
@@ -136,6 +137,7 @@ export type Database = {
         }
         Insert: {
           answers?: Json
+          completed_question_ids?: string[]
           confetti_mode?: string
           created_at?: string
           current_question_id?: string | null
@@ -155,6 +157,7 @@ export type Database = {
         }
         Update: {
           answers?: Json
+          completed_question_ids?: string[]
           confetti_mode?: string
           created_at?: string
           current_question_id?: string | null

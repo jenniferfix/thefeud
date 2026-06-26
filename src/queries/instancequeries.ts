@@ -1,9 +1,8 @@
 import type { QueryData } from '@supabase/supabase-js';
 import type { CreateGameInstance } from '#/lib/schemas/gameInstance';
-import { Tables, TablesInsert, TablesUpdate } from '#/types/supabase.types';
+import type { TablesUpdate } from '#/types/supabase.types';
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
-type GameInstanceInsert = TablesInsert<'game_instance'>;
 type GameInstanceUpdate = TablesUpdate<'game_instance'>;
 
 export async function createGameInstance(
@@ -75,12 +74,13 @@ export async function getGameInstance(
       `gameInstanceId:id, joinCode:join_code,
           leftTeam:team_left, rightTeam:team_right, 
           leftScore:left_score, rightScore:right_score, roundScore:round_score,
-          strikes, answers, confettiMode:confetti_mode, finished, 
+          strikes, answers, completedQuestionIds:completed_question_ids,
+          confettiMode:confetti_mode, finished, 
           questionText:question_text, currentQuestionId:current_question_id,
           game:games(id, name, 
             questions:game_questions(position, 
               question:questions(id, text:question, 
-                answers(id, text:answer, score)
+                answers(id, text:answer, score, createdAt:created_at)
               )
             )
           )`,

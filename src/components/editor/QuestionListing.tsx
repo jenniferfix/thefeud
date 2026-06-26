@@ -54,7 +54,7 @@ export const QuestionListing = React.memo(
       } else {
         await deleteQuestionCompletely.mutateAsync({ questionId: question.id });
       }
-    }, []);
+    }, [deleteQuestion, deleteQuestionCompletely.mutateAsync, question.id]);
 
     return (
       <Collapsible ref={ref} open={open} onOpenChange={setOpen}>
@@ -118,8 +118,8 @@ export const QuestionListing = React.memo(
           <CollapsibleContent className="">
             <Table className="mt-2 text-sm md:text-base">
               <TableBody>
-                {question.answers.map((a, i) => (
-                  <TableRow key={i}>
+                {question.answers.map((a) => (
+                  <TableRow key={a.answer}>
                     <TableCell>{a.answer}</TableCell>
                     <TableCell align="right">{a.score}</TableCell>
                   </TableRow>

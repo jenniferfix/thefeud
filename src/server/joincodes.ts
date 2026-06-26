@@ -2,6 +2,7 @@ import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { getRedisClient } from '#/integrations/redis';
 import { generateJoinCode, normalizeJoinCode } from '#/lib/api/joincodes';
+import { toGameBoardState } from '#/lib/gameboard-state';
 import {
   createJoinCodeRPCSchema,
   getJoinCodeGameRPCSchema,
@@ -14,7 +15,6 @@ import {
   getGameInstanceUser,
 } from '@/queries/instancequeries';
 import { getServerAuth } from './auth';
-import { toGameBoardState } from './gameboard-state';
 
 const redis = getRedisClient();
 const supabase = createSupabaseServerClient();
