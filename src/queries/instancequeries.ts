@@ -58,9 +58,9 @@ export async function getGameInstanceUser(
 ) {
   return await client
     .from('game_instance')
-    .select('id, userid, join_code')
+    .select('id, userId:userid, joinCode:join_code')
     .eq('id', instanceId)
-    .single()
+    .maybeSingle()
     .throwOnError();
 }
 
@@ -71,7 +71,7 @@ export async function getGameInstance(
   return await client
     .from('game_instance')
     .select(
-      `gameInstanceId:id, joinCode:join_code,
+      `userId: userid, gameInstanceId:id, joinCode:join_code,
           leftTeam:team_left, rightTeam:team_right, 
           leftScore:left_score, rightScore:right_score, roundScore:round_score,
           strikes, answers, completedQuestionIds:completed_question_ids,

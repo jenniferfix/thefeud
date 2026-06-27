@@ -2,7 +2,7 @@ import React from 'react';
 import { toast } from 'sonner';
 import { GoogleGradiantIcon } from '@/components/icons/GoogleGradiantIcon';
 import { Button } from '@/components/ui/button';
-import useSupabase from '@/hooks/useSupabase';
+import { useSupabase } from '@/hooks/useSupabase';
 import { getSafeRedirectPath } from '@/lib/auth';
 import { cn } from '@/utils/utils';
 

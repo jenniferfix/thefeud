@@ -1,12 +1,12 @@
 import type { AuthError, User } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@tanstack/react-router';
 import React from 'react';
-import useSupabase from '@/hooks/useSupabase';
+import { useSupabase } from '@/hooks/useSupabase';
 import type { AuthenticatedUser } from '@/server/auth';
 
 export interface AuthContext {
   isAuthenticated: boolean;
-  isInitialized: boolean;
   user: User | AuthenticatedUser | null;
   login: ({
     email,
@@ -35,28 +35,16 @@ export const SupabaseAuthProvider = ({
   const [user, setUser] = React.useState<User | AuthenticatedUser | null>(
     initialUser,
   );
-  const [isInitialized, setIsInitialized] = React.useState(false);
   const [isLoggingIn, setIsLoggingIn] = React.useState<boolean>(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState<boolean>(false);
   const [error, setError] = React.useState<AuthError | null>(null);
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data?.session?.user ?? null);
-      setIsInitialized(true);
-    };
-    getSession();
-    void supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
-      setIsInitialized(true);
-    });
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      setIsInitialized(true);
     });
 
     return () => subscription.unsubscribe();
@@ -66,19 +54,21 @@ export const SupabaseAuthProvider = ({
     async ({ email, password }: { email: string; password: string }) => {
       setIsLoggingIn(true);
       setError(null);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      try {
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      setIsLoggingIn(false);
-      if (error) {
-        setError(error);
-        throw error;
+        if (authError) {
+          setError(authError);
+          throw authError;
+        }
+
+        await router.invalidate();
+      } finally {
+        setIsLoggingIn(false);
       }
-
-      setUser(data.user);
-      await router.invalidate();
     },
     [router, supabase],
   );
@@ -86,17 +76,20 @@ export const SupabaseAuthProvider = ({
   const logout = React.useCallback(async () => {
     setIsLoggingOut(true);
     setError(null);
-    const { error } = await supabase.auth.signOut();
+    try {
+      const { error: authError } = await supabase.auth.signOut();
 
-    setIsLoggingOut(false);
-    if (error) {
-      setError(error);
-      throw error;
+      if (authError) {
+        setError(authError);
+        throw authError;
+      }
+
+      queryClient.clear();
+      await router.invalidate();
+    } finally {
+      setIsLoggingOut(false);
     }
-
-    setUser(null);
-    await router.invalidate();
-  }, [router, supabase]);
+  }, [queryClient, router, supabase]);
 
   const isAuthenticated = Boolean(user);
 
@@ -104,7 +97,6 @@ export const SupabaseAuthProvider = ({
     <AuthContext.Provider
       value={{
         isAuthenticated,
-        isInitialized,
         user,
         login,
         logout,

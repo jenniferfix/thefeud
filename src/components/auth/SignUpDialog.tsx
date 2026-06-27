@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useAppForm } from '@/components/ui/tanstack-form';
-import useSupabase from '@/hooks/useSupabase';
+import { useSupabase } from '@/hooks/useSupabase';
 import { getSafeRedirectPath } from '@/lib/auth';
 import { signUpFormSchema } from '@/types/auth';
 

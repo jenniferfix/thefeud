@@ -8,8 +8,7 @@ import {
 import type { GameInstance } from '#/queries/instancequeries';
 import { Teams } from '#/types';
 
-type GameInstanceRow = NonNullable<GameInstance>;
-type GameQuestion = GameInstanceRow['game']['questions'][number];
+type GameQuestion = GameInstance['game']['questions'][number];
 type QuestionRow = GameQuestion['question'];
 type GameAnswer = QuestionRow['answers'][number];
 
@@ -45,7 +44,7 @@ export const createBlankAnswerRecord = (
 };
 
 export const toGameBoardState = (
-  gameInstance: GameInstanceRow,
+  gameInstance: GameInstance,
 ): GameBoardState => {
   return gameboardState.parse({
     gameTitle: gameInstance.game.name,
@@ -74,7 +73,7 @@ export const getAnsweredAnswerIds = (state: GameBoardState): Set<string> => {
 };
 
 export const getRemainingQuestions = (
-  gameInstance: GameInstanceRow,
+  gameInstance: GameInstance,
   state: GameBoardState,
 ): GameQuestion[] => {
   const completedQuestionIds = new Set(state.completedQuestionIds);
@@ -84,9 +83,9 @@ export const getRemainingQuestions = (
 };
 
 export const mergeGameBoardStateIntoGameInstance = (
-  gameInstance: GameInstanceRow,
+  gameInstance: GameInstance,
   state: GameBoardState,
-): GameInstanceRow => {
+): GameInstance => {
   return {
     ...gameInstance,
     leftTeam: state.leftTeam,
@@ -111,7 +110,7 @@ export const mergeGameBoardStateIntoGameInstance = (
 };
 
 export const createStartQuestionState = (
-  gameInstance: GameInstanceRow,
+  gameInstance: GameInstance,
   currentState: GameBoardState,
   questionId: string,
 ): GameBoardState => {
@@ -133,7 +132,7 @@ export const createStartQuestionState = (
 };
 
 export const createCorrectAnswerState = (
-  gameInstance: GameInstanceRow,
+  gameInstance: GameInstance,
   currentState: GameBoardState,
   answerId: string,
 ): CorrectAnswerStateResult => {

@@ -1,5 +1,4 @@
 import type { TypedSupabaseClient } from '@/utils/supabase/client';
-// import type { Database } from '@/types/supabase.types';
 
 export async function getQuestion(
   client: TypedSupabaseClient,
@@ -13,14 +12,10 @@ export async function getQuestion(
     .throwOnError();
 }
 
-export async function getUsersQuestions(
-  client: TypedSupabaseClient,
-  userid: string,
-) {
+export async function getAllQuestions(client: TypedSupabaseClient) {
   return await client
     .from('questions')
     .select('id, question, answers(id, answer, score, created_at)')
-    .eq('user_id', userid)
     /** first sort answers by score */
     .order('score', {
       referencedTable: 'answers',

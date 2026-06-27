@@ -14,7 +14,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Waiting } from '@/components/ui/waiting';
 import { useAddQuestionToGame } from '@/hooks/usegamequeries';
-import { useGetUsersQuestions } from '@/hooks/usequestionqueries';
+import { useGetAllQuestions } from '@/hooks/usequestionqueries';
 import { cn } from '@/utils/utils';
 
 export type AddQuestionToGameProps = {
@@ -33,7 +33,7 @@ export const AddQuestionToGameDialog = ({
   const [open, setOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<string | null>(null);
   const addToGame = useAddQuestionToGame();
-  const { data } = useGetUsersQuestions();
+  const { data } = useGetAllQuestions();
 
   const unused = data?.filter((q) => !existingIds?.includes(q.id));
 

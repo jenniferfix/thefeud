@@ -42,10 +42,10 @@ export function GameControlProvider({
     (nextState: GameBoardState) => {
       queryClient.setQueryData<GameInstance | null>(
         getGetGameInstanceQueryKey(instanceId),
-        (current) => {
-          if (!current) return current;
-          return mergeGameBoardStateIntoGameInstance(current, nextState);
-        },
+        (current) =>
+          current
+            ? mergeGameBoardStateIntoGameInstance(current, nextState)
+            : current,
       );
     },
     [instanceId, queryClient],
@@ -57,19 +57,18 @@ export function GameControlProvider({
     soundsEnabled: false,
   });
 
-  const state = React.useMemo(() => {
-    if (!gameInstance) return null;
-    return toGameBoardState(gameInstance);
-  }, [gameInstance]);
+  const state = React.useMemo(
+    () => toGameBoardState(gameInstance),
+    [gameInstance],
+  );
 
   const remainingQuestions = React.useMemo(
-    () =>
-      gameInstance && state ? getRemainingQuestions(gameInstance, state) : [],
+    () => getRemainingQuestions(gameInstance, state),
     [gameInstance, state],
   );
 
   const answeredAnswerIds = React.useMemo(
-    () => (state ? getAnsweredAnswerIds(state) : new Set<string>()),
+    () => getAnsweredAnswerIds(state),
     [state],
   );
 
@@ -78,21 +77,16 @@ export function GameControlProvider({
     [answeredAnswerIds],
   );
 
-  const value = React.useMemo<GameControlContext | null>(() => {
-    if (!gameInstance || !state) return null;
-
-    return {
+  const value = React.useMemo<GameControlContext>(
+    () => ({
       answeredAnswerIds,
       gameInstance,
       isAnswered,
       remainingQuestions,
       state,
-    };
-  }, [answeredAnswerIds, gameInstance, isAnswered, remainingQuestions, state]);
-
-  if (!value) {
-    throw new Error('Game instance not found');
-  }
+    }),
+    [answeredAnswerIds, gameInstance, isAnswered, remainingQuestions, state],
+  );
 
   return (
     <GameControlContext.Provider value={value}>

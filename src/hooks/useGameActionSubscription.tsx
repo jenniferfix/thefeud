@@ -3,7 +3,7 @@ import type { ActionType } from '#/lib/schemas/base';
 import { sentEvent, soundEvent } from '#/lib/schemas/events';
 import type { GameBoardState } from '#/lib/schemas/gameboard';
 import { useGameSounds } from './useGameSounds';
-import useSupabase from './useSupabase';
+import { useSupabase } from './useSupabase';
 
 type UseGameActionSubscriptionProps = {
   channelId?: string | null;

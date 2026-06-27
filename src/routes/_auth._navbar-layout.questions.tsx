@@ -4,15 +4,15 @@ import { QuestionDialog } from '#/components/editor/QuestionDialog';
 import { QuestionListing } from '#/components/editor/QuestionListing';
 import { SortControl } from '#/components/SortControl';
 import {
-  getUserQuestionsQueryOptions,
-  useGetUsersQuestions,
+  getAllQuestionsQueryOptions,
+  useGetAllQuestions,
 } from '#/hooks/usequestionqueries';
 import { Button } from '@/components/ui/button';
 
-export const Route = createFileRoute('/_navbar-layout/_auth/questions')({
-  loader: async ({ context: { queryClient, user } }) => {
-    await Promise.allSettled([
-      queryClient.ensureQueryData(getUserQuestionsQueryOptions(user.id)),
+export const Route = createFileRoute('/_auth/_navbar-layout/questions')({
+  loader: async ({ context: { queryClient, supabase } }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(getAllQuestionsQueryOptions(supabase)),
     ]);
   },
   component: RouteComponent,
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_navbar-layout/_auth/questions')({
 
 function RouteComponent() {
   //const { user } = Route.useRouteContext();
-  const { data } = useGetUsersQuestions();
+  const { data } = useGetAllQuestions();
 
   return (
     <main className="px-2 sm:px-4">
@@ -45,7 +45,7 @@ function RouteComponent() {
                 index={i}
                 showDelete
                 initialOpen
-                key={i}
+                key={q.id}
               />
             ))}
           </div>

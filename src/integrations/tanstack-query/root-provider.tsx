@@ -1,10 +1,10 @@
 import { QueryClient } from '@tanstack/react-query';
+import { getSupabaseClient } from '#/utils/supabase/isomorphic';
 
 export function getContext() {
-  const queryClient = new QueryClient();
-
   return {
-    queryClient,
+    queryClient: new QueryClient(),
+    supabase: getSupabaseClient(),
   };
 }
 export default function TanstackQueryProvider() {}

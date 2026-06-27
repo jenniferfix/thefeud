@@ -9,7 +9,7 @@ import {
   redisCodeStorageSchema,
   redisCodeStorageUpdateSchema,
 } from '#/lib/schemas/joincode';
-import { createSupabaseServerClient } from '#/utils/supabase/server';
+import { createSupabaseBackendClient } from '#/utils/supabase/backend';
 import {
   getGameInstance,
   getGameInstanceUser,
@@ -17,7 +17,7 @@ import {
 import { getServerAuth } from './auth';
 
 const redis = getRedisClient();
-const supabase = createSupabaseServerClient();
+const supabase = createSupabaseBackendClient();
 
 const EXPIRE_SECONDS = 60 * 60 * 24 * 7; // Week
 const MAX_RETRIES = 5;
@@ -29,11 +29,23 @@ const prefixedCode = (code: string) => `${redisPrefix}${code}`;
 export const createJoinCode = createServerFn({ method: 'GET' })
   .validator(createJoinCodeRPCSchema)
   .handler(async ({ data: { gameInstanceId } }) => {
-    const auth = await getServerAuth();
-    if (!auth.user) return;
-    const game = await getGameInstance(supabase, gameInstanceId);
-    if (!game.data) throw notFound();
-    const state = toGameBoardState(game.data);
+    const [auth, gameInstance] = await Promise.all([
+      getServerAuth(),
+      getGameInstance(supabase, gameInstanceId),
+    ]);
+    const {
+      data: currentGameInstance,
+      success: currentGameInstanceSuccess,
+      error,
+    } = gameInstance;
+    if (
+      !auth.user ||
+      !currentGameInstanceSuccess ||
+      !currentGameInstance ||
+      auth.user.id !== currentGameInstance.userId
+    )
+      throw notFound({ data: { error } });
+    const state = toGameBoardState(currentGameInstance);
     let finished = false;
     let success = false;
     let attempt = 0;
@@ -98,9 +110,8 @@ export const updateJoinCode = createServerFn({ method: 'GET' })
       getServerAuth(),
       getGameInstanceUser(supabase, gameInstanceId),
     ]);
-    if (!auth.user) return;
-    if (!gameUser.data) throw notFound();
-
+    if (!auth.user || !gameUser.data || gameUser.data.userId !== auth.user.id)
+      throw notFound();
     const redisKey = prefixedCode(normalizedCode);
     const redisReturn = await redis.get(redisKey);
     if (!redisReturn) throw notFound();

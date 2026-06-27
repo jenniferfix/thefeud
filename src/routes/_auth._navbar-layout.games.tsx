@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/_navbar-layout/_auth/games')({
+export const Route = createFileRoute('/_auth/_navbar-layout/games')({
   component: Outlet,
 });

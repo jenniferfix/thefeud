@@ -4,18 +4,10 @@ import { useGameControlContext } from '#/components/providers/GameControl';
 import { Button } from '#/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useProcessEvent } from '@/hooks/useeventqueries';
-import {
-  getGameInstanceQueryOptions,
-  useGetGameInstance,
-} from '@/hooks/useinstancequeries';
+import { useGetGameInstance } from '@/hooks/useinstancequeries';
 import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId/')({
-  loader: async ({ context: { queryClient }, params }) => {
-    await queryClient.ensureQueryData(
-      getGameInstanceQueryOptions(params.gameInstanceId),
-    );
-  },
   component: () => <Page />,
 });
 
