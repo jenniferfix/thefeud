@@ -17,6 +17,7 @@ type GameInstanceRow = NonNullable<GameInstance>;
 const buildGameInstance = (
   overrides: Partial<GameInstanceRow> = {},
 ): GameInstanceRow => ({
+  userId: 'user-1',
   gameInstanceId: 'instance-1',
   joinCode: 'ABCDE',
   leftTeam: 'Left',

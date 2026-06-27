@@ -6,7 +6,7 @@ import { gameboardRouteURLPropsSchema } from '#/lib/schemas/gameboard';
 export const Route = createFileRoute('/watch/$inviteCode')({
   validateSearch: gameboardRouteURLPropsSchema,
   loader: async ({ context: { queryClient }, params: { inviteCode } }) => {
-    await Promise.allSettled([
+    await Promise.all([
       queryClient.ensureQueryData(getJoinCodeGameQueryOption(inviteCode)),
     ]);
   },

@@ -1,6 +1,7 @@
 import { Link, linkOptions, useLocation } from '@tanstack/react-router';
 import { MenuIcon } from 'lucide-react';
 import React from 'react';
+import { toast } from 'sonner';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Sheet,
@@ -33,19 +34,20 @@ const LoginButton = ({
   mobile = false,
   className = '',
 }: {
-  closeCallback?: Function;
+  closeCallback?: () => void | Promise<void>;
   mobile?: boolean;
   className?: string;
 }) => {
   const auth = useSupabaseAuth();
   const { pathname } = useLocation();
 
-  const handleLogoutClick = () => {
-    auth.logout();
-    // supabase.auth.signOut().then(() => {
-    //   closeCallback();
-    //   navigate({ to: '/' });
-    // });
+  const handleLogoutClick = async () => {
+    try {
+      await auth.logout();
+      await closeCallback?.();
+    } catch {
+      toast.error('Sign out error, please try again.');
+    }
   };
 
   if (auth.isAuthenticated) {
@@ -59,7 +61,7 @@ const LoginButton = ({
         )}
         onClick={() => {
           handleLogoutClick();
-          closeCallback && closeCallback();
+          closeCallback?.();
         }}
       >
         Logout
@@ -74,7 +76,7 @@ const LoginButton = ({
           variant: mobile ? 'link' : 'ghost',
           className: 'text-base justify-start text-left',
         })}
-        onClick={() => closeCallback && closeCallback()}
+        onClick={() => closeCallback?.()}
       >
         Login
       </Link>

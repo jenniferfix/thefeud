@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useAppForm } from '@/components/ui/tanstack-form';
-import useSupabase from '@/hooks/useSupabase';
+import { useSupabase } from '@/hooks/useSupabase';
 import { passwordField } from '@/types/auth';
 
 export const ChangePasswordDialog = ({

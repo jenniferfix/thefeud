@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { Toaster } from '#/components/ui/sonner';
+import type { TypedSupabaseClient } from '#/utils/supabase/client';
 import { getServerAuth, type ServerAuth } from '@/server/auth';
 import PostHogProvider from '../integrations/posthog/provider';
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
@@ -17,6 +18,7 @@ import { SupabaseAuthProvider } from '../supabaseauth';
 
 interface MyRouterContext {
   queryClient: QueryClient;
+  supabase: TypedSupabaseClient;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({

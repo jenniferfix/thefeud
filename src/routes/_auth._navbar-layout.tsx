@@ -1,12 +1,13 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
+
 import { Footer } from '#/components/Footer';
 import Navbar from '@/components/header/Navbar';
 
-export const Route = createFileRoute('/_navbar-layout')({
-  component: NavigationLayout,
+export const Route = createFileRoute('/_auth/_navbar-layout')({
+  component: RouteComponent,
 });
 
-function NavigationLayout() {
+function RouteComponent() {
   return (
     <div className="min-h-full flex flex-col">
       <Navbar />

@@ -6,7 +6,8 @@ import {
 } from '@tanstack/react-query';
 import type { CreateGameInstance } from '#/lib/schemas/gameInstance';
 import { useAuthenticatedUser } from '#/supabaseauth';
-import useSupabase from '@/hooks/useSupabase';
+import type { TypedSupabaseClient } from '#/utils/supabase/client';
+import { useSupabase } from '@/hooks/useSupabase';
 import {
   createGameInstance,
   deleteGameInstance,
@@ -16,9 +17,6 @@ import {
   markFinished,
 } from '@/queries/instancequeries';
 import { createJoinCode } from '@/server/joincodes';
-import { getSupabaseBrowserClient } from '@/utils/supabase/client';
-
-const supabase = getSupabaseBrowserClient();
 
 const getGameInstancesQueryKey = () => ['gameinstances'];
 
@@ -62,7 +60,10 @@ export function useDeleteGameInstance() {
 export const getGetGameInstanceQueryKey = (instanceId: string) =>
   ['gameinstancegame', instanceId] as const;
 
-export const getGameInstanceQueryOptions = (instanceId: string) => {
+export const getGameInstanceQueryOptions = (
+  supabase: TypedSupabaseClient,
+  instanceId: string,
+) => {
   return queryOptions({
     queryKey: getGetGameInstanceQueryKey(instanceId),
     queryFn: async () =>
@@ -71,17 +72,19 @@ export const getGameInstanceQueryOptions = (instanceId: string) => {
 };
 
 export function useGetGameInstance(instanceId: string) {
-  return useSuspenseQuery(getGameInstanceQueryOptions(instanceId));
+  const supabase = useSupabase();
+  return useSuspenseQuery(getGameInstanceQueryOptions(supabase, instanceId));
 }
 
-export const getActiveInstancesQueryOptions = () =>
+export const getActiveInstancesQueryOptions = (supabase: TypedSupabaseClient) =>
   queryOptions({
     queryKey: ['activeinstances'],
     queryFn: async () => (await getActiveInstances(supabase)).data ?? null,
   });
 
 export function useGetActiveInstances() {
-  return useQuery(getActiveInstancesQueryOptions());
+  const supabase = useSupabase();
+  return useQuery(getActiveInstancesQueryOptions(supabase));
 }
 
 export const getUserInstancesQueryKey = (
@@ -90,6 +93,7 @@ export const getUserInstancesQueryKey = (
 ) => ['instances', userId, finished];
 
 export const getUserInstancesQueryOptions = (
+  supabase: TypedSupabaseClient,
   userId: string,
   finished?: boolean,
 ) =>
@@ -101,10 +105,12 @@ export const getUserInstancesQueryOptions = (
   });
 
 export function useGetUserInstances(userId: string, finished?: boolean) {
-  return useQuery(getUserInstancesQueryOptions(userId, finished));
+  const supabase = useSupabase();
+  return useQuery(getUserInstancesQueryOptions(supabase, userId, finished));
 }
 
 export function useMarkInstanceFinished() {
+  const supabase = useSupabase();
   const { user } = useAuthenticatedUser();
   return useMutation({
     mutationFn: async ({ gameInstanceId }: { gameInstanceId: string }) => {

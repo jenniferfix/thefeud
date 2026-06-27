@@ -3,58 +3,61 @@ import {
   useMutation,
   useSuspenseQuery,
 } from '@tanstack/react-query';
-import { useSupabaseAuth } from '#/supabaseauth';
+import type { TypedSupabaseClient } from '#/utils/supabase/client';
 import {
   deleteQuestion,
+  getAllQuestions,
   getQuestion,
-  getUsersQuestions,
   insertQuestion,
   updateQuestion,
 } from '@/queries/questionqueries';
-import { getSupabaseBrowserClient } from '@/utils/supabase/client';
-
-const supabase = getSupabaseBrowserClient();
+import { useSupabase } from './useSupabase';
 
 export const getQuestionQueryKey = (questionId: string) => [
   'question',
   questionId,
 ];
 
-export const getQuestionQueryOptions = (questionId: string) =>
+export const getQuestionQueryOptions = (
+  supabase: TypedSupabaseClient,
+  questionId: string,
+) =>
   queryOptions({
     queryKey: getQuestionQueryKey(questionId),
     queryFn: async () => (await getQuestion(supabase, questionId)).data ?? null,
   });
 
 export const useGetQuestion = (questionId: string) => {
-  return useSuspenseQuery(getQuestionQueryOptions(questionId));
+  const supabase = useSupabase();
+  return useSuspenseQuery(getQuestionQueryOptions(supabase, questionId));
 };
 
-export const getQuestionsQueryKey = () => ['questions'];
+export const getAllQuestionsQueryKey = () => ['questions'];
 
-export const getUserQuestionsQueryOptions = (userId: string) =>
+export const getAllQuestionsQueryOptions = (supabase: TypedSupabaseClient) =>
   queryOptions({
-    queryKey: getQuestionsQueryKey(),
-    queryFn: async () =>
-      (await getUsersQuestions(supabase, userId)).data ?? null,
+    queryKey: getAllQuestionsQueryKey(),
+    queryFn: async () => (await getAllQuestions(supabase)).data ?? null,
   });
 
-export function useGetUsersQuestions() {
-  const auth = useSupabaseAuth();
-  return useSuspenseQuery(getUserQuestionsQueryOptions(auth.user!.id));
+export function useGetAllQuestions() {
+  const supabase = useSupabase();
+  return useSuspenseQuery(getAllQuestionsQueryOptions(supabase));
 }
 
 export function useInsertQuestion() {
+  const supabase = useSupabase();
   return useMutation({
     mutationFn: async ({ question }: { question: string }) =>
       (await insertQuestion(supabase, question)).data ?? null,
     onSettled: async (_data, _error, _variables, _result, { client }) => {
-      await client.invalidateQueries({ queryKey: getQuestionsQueryKey() });
+      await client.invalidateQueries({ queryKey: getAllQuestionsQueryKey() });
     },
   });
 }
 
 export function useUpdateQuestion() {
+  const supabase = useSupabase();
   return useMutation({
     mutationFn: async ({
       questionId,
@@ -64,20 +67,25 @@ export function useUpdateQuestion() {
       question: string;
     }) => {
       return (
-        (await updateQuestion(supabase, { id: questionId, question })).data ??
-        null
+        (
+          await updateQuestion(supabase, {
+            id: questionId,
+            question,
+          })
+        ).data ?? null
       );
     },
     onSettled: async (_data, _error, { questionId }, _result, { client }) => {
       await Promise.allSettled([
         client.invalidateQueries({ queryKey: getQuestionQueryKey(questionId) }),
-        client.invalidateQueries({ queryKey: getQuestionsQueryKey() }),
+        client.invalidateQueries({ queryKey: getAllQuestionsQueryKey() }),
       ]);
     },
   });
 }
 
 export function useDeleteQuestion() {
+  const supabase = useSupabase();
   return useMutation({
     mutationFn: async ({ questionId }: { questionId: string }) =>
       (await deleteQuestion(supabase, questionId)).data ?? null,

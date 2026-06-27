@@ -4,17 +4,9 @@ import AnswerButtons from '@/components/gamecontrol/AnswerButtons';
 import SelectWinner from '@/components/gamecontrol/SelectWinner';
 import { Button } from '@/components/ui/button';
 import { useProcessEvent } from '@/hooks/useeventqueries';
-import {
-  getGameInstanceQueryOptions,
-  useGetGameInstance,
-} from '@/hooks/useinstancequeries';
+import { useGetGameInstance } from '@/hooks/useinstancequeries';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId/$questionId')({
-  loader: async ({ context: { queryClient }, params: { gameInstanceId } }) => {
-    await queryClient.ensureQueryData(
-      getGameInstanceQueryOptions(gameInstanceId),
-    );
-  },
   component: Page,
 });
 

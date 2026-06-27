@@ -18,10 +18,13 @@ import {
 import { cn } from '#/lib/utils';
 import { GameDialog } from '@/components/editor/GameDialog';
 
-export const Route = createFileRoute('/_navbar-layout/_auth/games/$gameId')({
-  loader: async ({ context: { queryClient }, params: { gameId } }) => {
-    await Promise.allSettled([
-      queryClient.ensureQueryData(getGameQueryOptions(gameId)),
+export const Route = createFileRoute('/_auth/_navbar-layout/games/$gameId')({
+  loader: async ({
+    context: { queryClient, supabase },
+    params: { gameId },
+  }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(getGameQueryOptions(supabase, gameId)),
     ]);
   },
   component: RouteComponent,
@@ -33,14 +36,13 @@ const GridItem = ({ className, ...props }: React.ComponentProps<'div'>) => {
 
 function RouteComponent() {
   const { gameId } = Route.useParams();
-  const { data, isLoading } = useGetGame(gameId);
+  const { data: currentGame, isLoading } = useGetGame(gameId);
   const removeQuestion = useRemoveQuestionFromGame();
   const updateGameQuestion = useUpdateQuestionForGame();
   const lastValidOrderRef = React.useRef<string[] | null>(null);
 
-  if (isLoading || !data) return null;
+  if (isLoading || !currentGame) return null;
 
-  const currentGame = data[0];
   const sortedQuestions = [...currentGame.game_questions].sort((a, b) => {
     if (a.position < b.position) return -1;
     if (a.position > b.position) return 1;

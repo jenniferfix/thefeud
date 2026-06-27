@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { getUserInstancesQueryOptions } from '#/hooks/useinstancequeries';
 import { Home } from '@/components/home/Home';
-import { getUserGamesQueryOptions } from '@/hooks/usegamequeries';
+import { getAllGamesQueryOptions } from '@/hooks/usegamequeries';
 
 export const Route = createFileRoute('/_navbar-layout/')({
-  loader: async ({ context: { auth, queryClient } }) => {
+  loader: async ({ context: { auth, queryClient, supabase } }) => {
     if (!auth?.user) return;
     // console.log(auth?.user?.id);
-    await Promise.allSettled([
-      queryClient.ensureQueryData(getUserGamesQueryOptions(auth.user.id)),
+    await Promise.all([
+      queryClient.ensureQueryData(getAllGamesQueryOptions(supabase)),
       queryClient.ensureQueryData(
-        getUserInstancesQueryOptions(auth.user.id, false),
+        getUserInstancesQueryOptions(supabase, auth.user.id, false),
       ),
     ]);
   },

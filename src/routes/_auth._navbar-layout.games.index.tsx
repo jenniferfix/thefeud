@@ -5,22 +5,21 @@ import { GameItem } from '#/components/editor/GameItem';
 // import { SortControl } from '#/components/SortControl';
 import { Button } from '@/components/ui/button';
 import {
-  getUserGamesQueryOptions,
-  useGetUserGames,
+  getAllGamesQueryOptions,
+  useGetAllGames,
 } from '@/hooks/usegamequeries';
 
-export const Route = createFileRoute('/_navbar-layout/_auth/games/')({
-  loader: async ({ context: { queryClient, user } }) => {
-    await Promise.allSettled([
-      queryClient.ensureQueryData(getUserGamesQueryOptions(user.id)),
+export const Route = createFileRoute('/_auth/_navbar-layout/games/')({
+  loader: async ({ context: { queryClient, supabase } }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(getAllGamesQueryOptions(supabase)),
     ]);
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { user } = Route.useRouteContext();
-  const { data } = useGetUserGames(user.id);
+  const { data } = useGetAllGames();
 
   return (
     <div className="px-2 sm:px-4">

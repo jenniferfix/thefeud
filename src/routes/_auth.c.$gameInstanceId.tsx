@@ -3,11 +3,11 @@ import React from 'react';
 import Confetti from 'react-confetti';
 import { GameboardIframe } from '#/components/GameboardIframe';
 // import React from 'react';
-import { ShowJoinCode } from '#/components/gamecontrol/ShowJoinCode';
 import {
   GameControlProvider,
   useGameControlContext,
 } from '#/components/providers/GameControl';
+import { useElementSize } from '#/hooks/useElementSize';
 import { useMediaQuery } from '#/hooks/useMediaQuery';
 import type { GameSound } from '#/lib/schemas/events';
 import Strikes from '@/components/gamecontrol/Strikes';
@@ -26,13 +26,16 @@ import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
 } from '@/hooks/useinstancequeries';
-import useSupabase from '@/hooks/useSupabase';
+import { useSupabase } from '@/hooks/useSupabase';
 import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
-  loader: async ({ context: { queryClient }, params: { gameInstanceId } }) => {
+  loader: async ({
+    context: { queryClient, supabase },
+    params: { gameInstanceId },
+  }) => {
     await queryClient.ensureQueryData(
-      getGameInstanceQueryOptions(gameInstanceId),
+      getGameInstanceQueryOptions(supabase, gameInstanceId),
     );
   },
   component: Component,
@@ -56,21 +59,26 @@ const TeamScore = ({
   score,
   className,
   teamName,
+  ...props
 }: {
   confetti?: boolean;
   score: number;
-  className?: string;
   teamName: string;
-}) => {
-  const ref = React.useRef<HTMLDivElement>(null);
+} & React.ComponentProps<'div'>) => {
+  const { ref, width, height } = useElementSize<HTMLDivElement>();
   // console.log(confetti, score, teamName);
   return (
-    <div className={cn('flex flex-col relative', className)} ref={ref}>
-      {confetti && (
+    <div
+      className={cn('flex flex-col relative overflow-hidden', className)}
+      ref={ref}
+      {...props}
+    >
+      {confetti && width > 0 && height > 0 && (
         <Confetti
-          width={ref.current?.clientWidth}
-          height={ref.current?.clientHeight}
+          width={width}
+          height={height}
           numberOfPieces={30}
+          style={{ width, height }}
         />
       )}
       <div>{teamName}</div>
@@ -147,9 +155,6 @@ function ControlComponent() {
   return (
     <MaybeGameboard joinCode={gameInstance.joinCode}>
       <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
-        <div className="absolute top-2 right-2">
-          <ShowJoinCode joinCode={gameInstance.joinCode} />
-        </div>
         <h2 className="flex justify-center text-2xl py-2 border-b">
           {gameInstance?.game?.name}
         </h2>

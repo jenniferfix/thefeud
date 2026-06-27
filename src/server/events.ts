@@ -36,14 +36,18 @@ type CommitEventArgs = {
 export const processEvent = createServerFn({ method: 'GET' })
   .validator(backendEventSchema)
   .handler(async ({ data }) => {
-    const auth = await getServerAuth();
-    if (!auth.user) return;
-    const {
-      data: currentGameInstance,
-      success,
-      error,
-    } = await getGameInstance(supabase, data.gameInstanceId);
-    if (!success || !currentGameInstance) throw notFound({ data: { error } });
+    const [auth, gameInstance] = await Promise.all([
+      getServerAuth(),
+      getGameInstance(supabase, data.gameInstanceId),
+    ]);
+    const { data: currentGameInstance, success, error } = gameInstance;
+    if (
+      !auth.user ||
+      !success ||
+      !currentGameInstance ||
+      auth.user.id !== currentGameInstance.userId
+    )
+      throw notFound({ data: { error } });
     if (!currentGameInstance.joinCode) throw Error('Must have join code');
 
     const currentState = toGameBoardState(currentGameInstance);

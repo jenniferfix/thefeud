@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start';
-import { createSupabaseServerClient } from '@/utils/supabase/server';
+import { createSupabaseServerClient } from '#/utils/supabase/server';
 
 export type AuthenticatedUser = {
   id: string;
