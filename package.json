@@ -18,6 +18,9 @@
     "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
     "gentypes": "dotenv -e .env.local -- sh -c 'supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" > src/types/supabase.types.ts'"
   },
+  "engines": {
+    "node": "24"
+  },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
     "@dnd-kit/abstract": "^0.5.0",
