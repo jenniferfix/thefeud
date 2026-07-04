@@ -11,7 +11,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as NavbarLayoutRouteImport } from './routes/_navbar-layout'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as NavbarLayoutIndexRouteImport } from './routes/_navbar-layout.index'
 import { Route as WatchInviteCodeRouteImport } from './routes/watch.$inviteCode'
@@ -19,6 +21,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthNavbarLayoutRouteImport } from './routes/_auth._navbar-layout'
 import { Route as AuthCGameInstanceIdRouteImport } from './routes/_auth.c.$gameInstanceId'
 import { Route as AuthNavbarLayoutStartRouteImport } from './routes/_auth._navbar-layout.start'
+import { Route as AuthNavbarLayoutSettingsRouteImport } from './routes/_auth._navbar-layout.settings'
 import { Route as AuthNavbarLayoutQuestionsRouteImport } from './routes/_auth._navbar-layout.questions'
 import { Route as AuthNavbarLayoutGamesRouteImport } from './routes/_auth._navbar-layout.games'
 import { Route as AuthCGameInstanceIdIndexRouteImport } from './routes/_auth.c.$gameInstanceId.index'
@@ -33,9 +36,18 @@ const AboutLazyRoute = AboutLazyRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/about.lazy').then((d) => d.Route))
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NavbarLayoutRoute = NavbarLayoutRouteImport.update({
+  id: '/_navbar-layout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -43,9 +55,9 @@ const AuthRoute = AuthRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const NavbarLayoutIndexRoute = NavbarLayoutIndexRouteImport.update({
-  id: '/_navbar-layout/',
+  id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => NavbarLayoutRoute,
 } as any)
 const WatchInviteCodeRoute = WatchInviteCodeRouteImport.update({
   id: '/watch/$inviteCode',
@@ -71,6 +83,12 @@ const AuthNavbarLayoutStartRoute = AuthNavbarLayoutStartRouteImport.update({
   path: '/start',
   getParentRoute: () => AuthNavbarLayoutRoute,
 } as any)
+const AuthNavbarLayoutSettingsRoute =
+  AuthNavbarLayoutSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthNavbarLayoutRoute,
+  } as any)
 const AuthNavbarLayoutQuestionsRoute =
   AuthNavbarLayoutQuestionsRouteImport.update({
     id: '/questions',
@@ -110,11 +128,13 @@ const AuthNavbarLayoutGamesGameIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof NavbarLayoutIndexRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/about': typeof AboutLazyRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/watch/$inviteCode': typeof WatchInviteCodeRoute
   '/games': typeof AuthNavbarLayoutGamesRouteWithChildren
   '/questions': typeof AuthNavbarLayoutQuestionsRoute
+  '/settings': typeof AuthNavbarLayoutSettingsRoute
   '/start': typeof AuthNavbarLayoutStartRoute
   '/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
   '/games/$gameId': typeof AuthNavbarLayoutGamesGameIdRoute
@@ -125,10 +145,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof NavbarLayoutIndexRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/about': typeof AboutLazyRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/watch/$inviteCode': typeof WatchInviteCodeRoute
   '/questions': typeof AuthNavbarLayoutQuestionsRoute
+  '/settings': typeof AuthNavbarLayoutSettingsRoute
   '/start': typeof AuthNavbarLayoutStartRoute
   '/games/$gameId': typeof AuthNavbarLayoutGamesGameIdRoute
   '/c/$gameInstanceId/$questionId': typeof AuthCGameInstanceIdQuestionIdRoute
@@ -138,7 +160,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
+  '/_navbar-layout': typeof NavbarLayoutRouteWithChildren
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/about': typeof AboutLazyRoute
   '/_auth/_navbar-layout': typeof AuthNavbarLayoutRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
@@ -146,6 +170,7 @@ export interface FileRoutesById {
   '/_navbar-layout/': typeof NavbarLayoutIndexRoute
   '/_auth/_navbar-layout/games': typeof AuthNavbarLayoutGamesRouteWithChildren
   '/_auth/_navbar-layout/questions': typeof AuthNavbarLayoutQuestionsRoute
+  '/_auth/_navbar-layout/settings': typeof AuthNavbarLayoutSettingsRoute
   '/_auth/_navbar-layout/start': typeof AuthNavbarLayoutStartRoute
   '/_auth/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
   '/_auth/_navbar-layout/games/$gameId': typeof AuthNavbarLayoutGamesGameIdRoute
@@ -158,11 +183,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/reset-password'
     | '/about'
     | '/auth/callback'
     | '/watch/$inviteCode'
     | '/games'
     | '/questions'
+    | '/settings'
     | '/start'
     | '/c/$gameInstanceId'
     | '/games/$gameId'
@@ -173,10 +200,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/reset-password'
     | '/about'
     | '/auth/callback'
     | '/watch/$inviteCode'
     | '/questions'
+    | '/settings'
     | '/start'
     | '/games/$gameId'
     | '/c/$gameInstanceId/$questionId'
@@ -185,7 +214,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
+    | '/_navbar-layout'
     | '/login'
+    | '/reset-password'
     | '/about'
     | '/_auth/_navbar-layout'
     | '/auth/callback'
@@ -193,6 +224,7 @@ export interface FileRouteTypes {
     | '/_navbar-layout/'
     | '/_auth/_navbar-layout/games'
     | '/_auth/_navbar-layout/questions'
+    | '/_auth/_navbar-layout/settings'
     | '/_auth/_navbar-layout/start'
     | '/_auth/c/$gameInstanceId'
     | '/_auth/_navbar-layout/games/$gameId'
@@ -203,11 +235,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
+  NavbarLayoutRoute: typeof NavbarLayoutRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   AboutLazyRoute: typeof AboutLazyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   WatchInviteCodeRoute: typeof WatchInviteCodeRoute
-  NavbarLayoutIndexRoute: typeof NavbarLayoutIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -219,11 +252,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_navbar-layout': {
+      id: '/_navbar-layout'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof NavbarLayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
@@ -238,7 +285,7 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof NavbarLayoutIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof NavbarLayoutRoute
     }
     '/watch/$inviteCode': {
       id: '/watch/$inviteCode'
@@ -273,6 +320,13 @@ declare module '@tanstack/react-router' {
       path: '/start'
       fullPath: '/start'
       preLoaderRoute: typeof AuthNavbarLayoutStartRouteImport
+      parentRoute: typeof AuthNavbarLayoutRoute
+    }
+    '/_auth/_navbar-layout/settings': {
+      id: '/_auth/_navbar-layout/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthNavbarLayoutSettingsRouteImport
       parentRoute: typeof AuthNavbarLayoutRoute
     }
     '/_auth/_navbar-layout/questions': {
@@ -338,12 +392,14 @@ const AuthNavbarLayoutGamesRouteWithChildren =
 interface AuthNavbarLayoutRouteChildren {
   AuthNavbarLayoutGamesRoute: typeof AuthNavbarLayoutGamesRouteWithChildren
   AuthNavbarLayoutQuestionsRoute: typeof AuthNavbarLayoutQuestionsRoute
+  AuthNavbarLayoutSettingsRoute: typeof AuthNavbarLayoutSettingsRoute
   AuthNavbarLayoutStartRoute: typeof AuthNavbarLayoutStartRoute
 }
 
 const AuthNavbarLayoutRouteChildren: AuthNavbarLayoutRouteChildren = {
   AuthNavbarLayoutGamesRoute: AuthNavbarLayoutGamesRouteWithChildren,
   AuthNavbarLayoutQuestionsRoute: AuthNavbarLayoutQuestionsRoute,
+  AuthNavbarLayoutSettingsRoute: AuthNavbarLayoutSettingsRoute,
   AuthNavbarLayoutStartRoute: AuthNavbarLayoutStartRoute,
 }
 
@@ -375,13 +431,26 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface NavbarLayoutRouteChildren {
+  NavbarLayoutIndexRoute: typeof NavbarLayoutIndexRoute
+}
+
+const NavbarLayoutRouteChildren: NavbarLayoutRouteChildren = {
+  NavbarLayoutIndexRoute: NavbarLayoutIndexRoute,
+}
+
+const NavbarLayoutRouteWithChildren = NavbarLayoutRoute._addFileChildren(
+  NavbarLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
+  NavbarLayoutRoute: NavbarLayoutRouteWithChildren,
   LoginRoute: LoginRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   AboutLazyRoute: AboutLazyRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   WatchInviteCodeRoute: WatchInviteCodeRoute,
-  NavbarLayoutIndexRoute: NavbarLayoutIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

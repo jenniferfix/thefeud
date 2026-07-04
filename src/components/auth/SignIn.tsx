@@ -14,11 +14,32 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useAppForm } from '@/components/ui/tanstack-form';
-import { getSafeRedirectPath } from '@/lib/auth';
+import { type AuthRouteError, getSafeRedirectPath } from '@/lib/auth';
 import { useSupabaseAuth } from '@/supabaseauth';
+import { signInFormSchema } from '@/types/auth';
+
+const authErrorMessages: Record<
+  AuthRouteError,
+  { title: string; message: string }
+> = {
+  oauth_callback: {
+    title: 'Google sign in error',
+    message: 'Google sign in could not be completed. Please try again.',
+  },
+  email_confirmation: {
+    title: 'Email verification error',
+    message:
+      'The verification link is invalid or expired. Sign up again or resend the verification email.',
+  },
+  password_recovery: {
+    title: 'Password recovery error',
+    message:
+      'The password recovery link is invalid or expired. Request a new link and try again.',
+  },
+};
 
 export const SignIn = React.memo(
-  ({ redirect, error }: { redirect?: string; error?: string }) => {
+  ({ redirect, error }: { redirect?: string; error?: AuthRouteError }) => {
     const navigate = useNavigate();
     const [showSignUpDialog, setShowSignUpDialog] = React.useState(false);
     const [showPasswordReset, setShowPasswordReset] = React.useState(false);
@@ -31,9 +52,10 @@ export const SignIn = React.memo(
     const auth = useSupabaseAuth();
 
     React.useEffect(() => {
-      if (error === 'oauth_callback') {
-        setMessageBoxTitle('Sign in error');
-        setErrorMessage('Google sign in could not be completed.');
+      if (error) {
+        const errorContent = authErrorMessages[error];
+        setMessageBoxTitle(errorContent.title);
+        setErrorMessage(errorContent.message);
         setShowErrorDialog(true);
       }
     }, [error]);
@@ -42,7 +64,9 @@ export const SignIn = React.memo(
       defaultValues: {
         email: '',
         password: '',
-        staySignedIn: false,
+      },
+      validators: {
+        onSubmit: signInFormSchema,
       },
       onSubmit: async ({ value: { email, password } }) => {
         setIsLoading(true);
@@ -104,10 +128,14 @@ export const SignIn = React.memo(
                       <field.Field className="">
                         <field.FieldLabel>Email</field.FieldLabel>
                         <field.Input
+                          type="email"
+                          autoComplete="email"
                           placeholder="you@example.com"
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
                         />
+                        <field.FieldInfo field={field} />
                       </field.Field>
                     )}
                   />
@@ -117,23 +145,12 @@ export const SignIn = React.memo(
                       <field.Field>
                         <field.FieldLabel>Password</field.FieldLabel>
                         <field.FormPassword
+                          autoComplete="current-password"
                           value={field.state.value}
                           onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
                         />
-                      </field.Field>
-                    )}
-                  />
-                  <form.AppField
-                    name="staySignedIn"
-                    children={(field) => (
-                      <field.Field orientation="horizontal">
-                        <field.Checkbox
-                          checked={field.state.value}
-                          onCheckedChange={(value) =>
-                            field.handleChange(!!value)
-                          }
-                        />
-                        <field.FieldLabel>Stay signed in</field.FieldLabel>
+                        <field.FieldInfo field={field} />
                       </field.Field>
                     )}
                   />
@@ -157,8 +174,9 @@ export const SignIn = React.memo(
                   </Button>
                   <Button
                     type="button"
-                    variant="link"
+                    variant="outline"
                     onClick={() => setShowPasswordReset(true)}
+                    className="w-full"
                   >
                     Forgot Password
                   </Button>

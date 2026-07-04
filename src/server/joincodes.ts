@@ -1,6 +1,6 @@
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { getRedisClient } from '#/integrations/redis';
+import { getJoinCodeRedisKey, getRedisClient } from '#/integrations/redis';
 import { generateJoinCode, normalizeJoinCode } from '#/lib/api/joincodes';
 import { toGameBoardState } from '#/lib/gameboard-state';
 import {
@@ -21,10 +21,6 @@ const supabase = createSupabaseBackendClient();
 
 const EXPIRE_SECONDS = 60 * 60 * 24 * 7; // Week
 const MAX_RETRIES = 5;
-const prefix = process.env.REDIS_PREFIX ?? 'feudgame';
-const redisPrefix = `${prefix}:joincode:`;
-
-const prefixedCode = (code: string) => `${redisPrefix}${code}`;
 
 export const createJoinCode = createServerFn({ method: 'GET' })
   .validator(createJoinCodeRPCSchema)
@@ -70,7 +66,7 @@ export const createJoinCode = createServerFn({ method: 'GET' })
       const expireTime = new Date(Date.now() + EXPIRE_SECONDS * 1000);
 
       const res = await redis.set(
-        prefixedCode(code),
+        getJoinCodeRedisKey(code),
         JSON.stringify(insertData),
         'EX',
         EXPIRE_SECONDS, // Week
@@ -112,7 +108,7 @@ export const updateJoinCode = createServerFn({ method: 'GET' })
     ]);
     if (!auth.user || !gameUser.data || gameUser.data.userId !== auth.user.id)
       throw notFound();
-    const redisKey = prefixedCode(normalizedCode);
+    const redisKey = getJoinCodeRedisKey(normalizedCode);
     const redisReturn = await redis.get(redisKey);
     if (!redisReturn) throw notFound();
 
@@ -148,7 +144,7 @@ export const getJoinCodeGame = createServerFn({ method: 'GET' })
   .validator(getJoinCodeGameRPCSchema)
   .handler(async ({ data: { code: inputCode } }) => {
     const code = normalizeJoinCode(inputCode);
-    const redisReturn = await redis.get(`${redisPrefix}${code}`);
+    const redisReturn = await redis.get(getJoinCodeRedisKey(code));
     if (!redisReturn) throw notFound();
     const { data, error, success } = redisCodeStorageSchema.safeParse(
       JSON.parse(redisReturn),
@@ -164,6 +160,6 @@ export const deleteJoinCode = createServerFn({ method: 'POST' })
     const auth = await getServerAuth();
     if (!auth.user) return;
     const code = normalizeJoinCode(data.code);
-    const success = !!(await redis.del([prefixedCode(code)]));
+    const success = !!(await redis.del([getJoinCodeRedisKey(code)]));
     return { success };
   });

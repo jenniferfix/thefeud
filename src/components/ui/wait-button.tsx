@@ -11,14 +11,18 @@ export const WaitButton = ({
   loading = false,
   children,
   className,
+  disabled,
   ...props
 }: LoadingButtonProps) => {
   return (
     <Button
       {...props}
+      aria-busy={loading || undefined}
       className={cn('grid grid-cols-1 grid-rows-1', className)}
+      disabled={disabled || loading}
     >
       <span
+        aria-hidden={!loading}
         className={cn(
           'row-span-full col-span-full flex justify-center',
           loading ? 'opacity-100' : 'opacity-0',
@@ -27,6 +31,7 @@ export const WaitButton = ({
         <Spinner />
       </span>
       <span
+        aria-hidden={loading}
         className={cn(
           'row-span-full col-span-full flex justify-center',
           loading ? 'opacity-0' : 'opacity-100',

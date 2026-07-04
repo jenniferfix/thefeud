@@ -1,6 +1,6 @@
 import React from 'react';
 import { toast } from 'sonner';
-import { ErrorDialog } from '@/components/auth/ErrorDialog';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,8 +10,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useAppForm } from '@/components/ui/tanstack-form';
-//import { authClient } from "@/lib/auth/client";
+import { useSupabase } from '@/hooks/useSupabase';
+import { buildAuthCallbackUrl } from '@/lib/auth';
 import { forgotPasswordFormSchema } from '@/types/auth';
+
+const siteUrl = import.meta.env.VITE_PUBLIC_URL ?? '';
 
 export const ForgotPasswordDialog = ({
   show = false,
@@ -21,97 +24,113 @@ export const ForgotPasswordDialog = ({
   onShowChange?: (show: boolean) => void;
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [messageBoxTitle, setMessageBoxTitle] = React.useState<string | null>(
-    null,
-  );
-  const [showErrorDialog, setShowErrorDialog] = React.useState(false);
+  const [requestAccepted, setRequestAccepted] = React.useState(false);
+  const supabase = useSupabase();
+
   const form = useAppForm({
-    defaultValues: {
-      email: '',
-    },
-    validators: {
-      onSubmit: forgotPasswordFormSchema,
-    },
-    onSubmit: async ({ value }) => {
-      // authClient.requestPasswordReset(
-      // 	{
-      // 		email: value.email,
-      // 		redirectTo: "/reset-password",
-      // 	},
-      // 	{
-      // 		onSuccess: async () => {
-      // 			toast("Check your email");
-      // 			setIsLoading(false);
-      // 			onShowChange?.(false);
-      // 			// navigate({ to: "/reset-password" });
-      // 		},
-      // 		onError: async (ctx) => {
-      // 			setIsLoading(false);
-      // 			const { message, status } = ctx.error;
-      // 			console.log("error", status);
-      // 			setErrorMessage(message);
-      // 			setMessageBoxTitle("Password reset error");
-      // 			setShowErrorDialog(true);
-      // 		},
-      // 		onRequest: async () => {
-      // 			setIsLoading(true);
-      // 		},
-      // 	},
-      // );
+    defaultValues: { email: '' },
+    validators: { onSubmit: forgotPasswordFormSchema },
+    onSubmit: async ({ value: { email } }) => {
+      setIsLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: buildAuthCallbackUrl({
+          origin: siteUrl,
+          flow: 'recovery',
+          next: '/',
+        }),
+      });
+      setIsLoading(false);
+
+      if (error) {
+        toast.error(
+          'Unable to send a password reset email. Please try again later.',
+        );
+        return;
+      }
+
+      setRequestAccepted(true);
     },
   });
 
+  const handleShowChange = React.useCallback(
+    (nextShow: boolean) => {
+      if (!nextShow) {
+        form.reset();
+        setRequestAccepted(false);
+      }
+      onShowChange?.(nextShow);
+    },
+    [form, onShowChange],
+  );
+
   const handleSubmit = React.useCallback(
-    (e: React.SubmitEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (event: React.SubmitEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
       form.handleSubmit();
     },
     [form],
   );
+
   return (
-    <>
-      <ErrorDialog
-        title={messageBoxTitle}
-        message={errorMessage}
-        show={showErrorDialog}
-        setShow={(show) => setShowErrorDialog(show)}
-      />
-      <Dialog open={show} onOpenChange={onShowChange}>
-        <DialogContent>
+    <Dialog open={show} onOpenChange={handleShowChange}>
+      <DialogContent>
+        {requestAccepted ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Check your email</DialogTitle>
+              <DialogDescription>
+                If an account exists for that address, a password reset email
+                has been sent.
+              </DialogDescription>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              Check your spam folder if it does not arrive. The reset link can
+              only be used once.
+            </p>
+            <DialogFooter>
+              <Button type="button" onClick={() => handleShowChange(false)}>
+                Done
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
           <form.AppForm>
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>Reset Password</DialogTitle>
+                <DialogTitle>Reset password</DialogTitle>
                 <DialogDescription>
-                  Enter your email to recieve a link to reset your password
+                  Enter your email to receive a password reset link.
                 </DialogDescription>
               </DialogHeader>
-              <div className="flex flex-col gap-4">
-                <form.AppField
-                  name="email"
-                  children={(field) => (
-                    <field.Field className="">
-                      <field.FieldLabel>Email</field.FieldLabel>
-                      <field.Input
-                        placeholder="you@example.com"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                    </field.Field>
-                  )}
-                />
-              </div>
+              <form.AppField
+                name="email"
+                children={(field) => (
+                  <field.Field>
+                    <field.FieldLabel>Email</field.FieldLabel>
+                    <field.Input
+                      type="email"
+                      autoComplete="email"
+                      placeholder="you@example.com"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      onBlur={field.handleBlur}
+                    />
+                    <field.FieldInfo field={field} />
+                  </field.Field>
+                )}
+              />
               <DialogFooter className="mt-4">
                 <form.WaitButton loading={isLoading} type="submit">
-                  Send Email
+                  Send reset email
                 </form.WaitButton>
               </DialogFooter>
             </form>
           </form.AppForm>
-        </DialogContent>
-      </Dialog>
-    </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };

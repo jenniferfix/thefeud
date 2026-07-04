@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { GoogleGradiantIcon } from '@/components/icons/GoogleGradiantIcon';
 import { Button } from '@/components/ui/button';
 import { useSupabase } from '@/hooks/useSupabase';
-import { getSafeRedirectPath } from '@/lib/auth';
+import { buildAuthCallbackUrl } from '@/lib/auth';
 import { cn } from '@/utils/utils';
 
 export const SignInWithGoogle = ({
@@ -22,13 +22,16 @@ export const SignInWithGoogle = ({
       disabled={props.disabled || isLoading}
       onClick={async () => {
         setIsLoading(true);
-        const callbackUrl = new URL('/auth/callback', window.location.origin);
-        callbackUrl.searchParams.set('next', getSafeRedirectPath(redirect));
+        const callbackUrl = buildAuthCallbackUrl({
+          origin: window.location.origin,
+          flow: 'oauth',
+          next: redirect,
+        });
 
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: callbackUrl.toString(),
+            redirectTo: callbackUrl,
           },
         });
 

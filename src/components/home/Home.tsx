@@ -22,6 +22,7 @@ export function Home() {
         <div className="w-100">
           <img
             src="/images/funnyfeud.svg"
+            alt="Funny Feud"
             width={1416}
             height={816}
             title="Family Feud"

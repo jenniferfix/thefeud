@@ -1,5 +1,3 @@
-import { useStore } from '@tanstack/react-form';
-import { useNavigate, useRouter } from '@tanstack/react-router';
 import React from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -14,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAppForm } from '@/components/ui/tanstack-form';
 import { useSupabase } from '@/hooks/useSupabase';
-import { passwordField } from '@/types/auth';
+import { changePasswordSchema } from '@/types/auth';
 
 export const ChangePasswordDialog = ({
   open,
@@ -23,94 +21,60 @@ export const ChangePasswordDialog = ({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) => {
-  const navigate = useNavigate();
-  const currentPassFieldRef = React.useRef<HTMLInputElement | null>(null);
-  const passFieldRef = React.useRef<HTMLInputElement | null>(null);
+  const currentPasswordRef = React.useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const supabase = useSupabase();
 
-  const [inProgress, setInProgress] = React.useState(false);
   const form = useAppForm({
     defaultValues: {
-      password: '',
-      newPassword: '',
       currentPassword: '',
-      revokeOtherSessions: false,
+      password: '',
+      passwordVerify: '',
     },
-    validators: {
-      onSubmit: ({ value }) => {
-        const { data: password, error: passwordError } =
-          passwordField.safeParse(value.password);
-        const { data: newPassword, error: passwordVerifyError } =
-          passwordField.safeParse(value.newPassword);
-        const { data: currentPassword, error: currentPasswordError } =
-          passwordField.safeParse(value.currentPassword);
+    validators: { onSubmit: changePasswordSchema },
+    onSubmit: async ({ value: { currentPassword, password } }) => {
+      setIsLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        current_password: currentPassword,
+        password,
+      });
 
-        // TODO: Fix this if there are multiple errors
-        if (passwordError) return passwordError?.message;
-        if (passwordVerifyError) return passwordVerifyError?.message;
-        if (currentPasswordError) return currentPasswordError?.message;
+      if (error) {
+        setIsLoading(false);
+        toast.error(
+          error.status === 400
+            ? 'The current password is incorrect.'
+            : 'Your password could not be changed. Please try again.',
+        );
+        window.setTimeout(() => {
+          currentPasswordRef.current?.focus();
+          currentPasswordRef.current?.select();
+        });
+        return;
+      }
 
-        if (password !== newPassword) return 'Passwords must match';
-        return undefined;
-      },
-    },
-    onSubmit: async ({
-      value: { currentPassword, newPassword, revokeOtherSessions },
-      value,
-    }) => {
-      setInProgress(true);
-      // void authClient.changePassword(
-      //   {
-      //     currentPassword,
-      //     newPassword,
-      //     revokeOtherSessions,
-      //   },
-      //   {
-      //     onSuccess: (ctx) => {
-      //       toast("Password changed");
-      //       setInProgress(false);
-      //       onOpenChange?.(false);
-      //     },
-      //     onError: async ({ error }) => {
-      //       setInProgress(false);
-      //       switch (error.code) {
-      //         case "INVALID_PASSWORD":
-      //           toast(error.message);
-      //           currentPassFieldRef.current?.focus();
-      //           currentPassFieldRef.current?.select();
-      //           break;
-      //         case "INVALID_SESSION":
-      //           toast(error.message);
-      //           break;
-      //         case "PASSWORD_TOO_SHORT":
-      //           toast(error.message);
-      //           passFieldRef.current?.focus();
-      //           passFieldRef.current?.select();
-      //           break;
-      //         case "PASSWORD_TOO_LONG":
-      //           toast(error.message);
-      //           passFieldRef.current?.focus();
-      //           passFieldRef.current?.select();
-      //           break;
-      //         case "CREDENTIAL_ACCOUNT_NOT_FOUND":
-      //           toast(error.message);
-      //           break;
-      //         default:
-      //           toast("Unknown error");
-      //           break;
-      //       }
-      //     },
-      //   },
-      // );
+      const { error: signOutError } = await supabase.auth.signOut({
+        scope: 'others',
+      });
+      setIsLoading(false);
+
+      if (signOutError) {
+        toast.warning(
+          'Password changed, but other sessions could not be signed out.',
+        );
+      } else {
+        toast.success('Password changed');
+      }
+
+      form.reset();
+      onOpenChange?.(false);
     },
   });
-  const passField = useStore(form.store, (state) => state.fieldMeta.password);
-  const passFieldValid = passField?.isValid;
-  const passFieldTouched = passField?.isTouched;
 
   const handleSubmit = React.useCallback(
-    (e: React.SubmitEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (event: React.SubmitEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
       form.handleSubmit();
     },
     [form],
@@ -122,99 +86,79 @@ export const ChangePasswordDialog = ({
         <form.AppForm>
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Change Password</DialogTitle>
+              <DialogTitle>Change password</DialogTitle>
               <DialogDescription>
-                Your password must be 8 characters in length
+                Enter your current password and choose a new password between 8
+                and 128 characters.
               </DialogDescription>
             </DialogHeader>
-
-            <form.AppField
-              name="currentPassword"
-              validators={{ onBlur: passwordField }}
-              children={(field) => (
-                <field.Field>
-                  <field.FieldLabel>Current Password</field.FieldLabel>
-                  <field.FormPassword
-                    ref={currentPassFieldRef}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  <field.FieldInfo field={field} />
-                </field.Field>
-              )}
-            />
-
-            <form.AppField
-              name="password"
-              validators={{ onChange: passwordField }}
-              children={(field) => (
-                <field.Field>
-                  <field.FieldLabel>New Password</field.FieldLabel>
-                  <field.FormPassword
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                  />
-                  <field.FieldInfo field={field} />
-                </field.Field>
-              )}
-            />
-
-            <form.AppField
-              name="newPassword"
-              validators={{
-                onChange: ({ value }) =>
-                  value !== form.getFieldValue('password')
-                    ? 'Passwords must match'
-                    : undefined,
-              }}
-              children={(field) => {
-                // const passwordField = form.getFieldMeta("password");
-
-                return (
+            <div className="flex flex-col gap-3">
+              <form.AppField
+                name="currentPassword"
+                children={(field) => (
                   <field.Field>
-                    <field.FieldLabel>Verify Password</field.FieldLabel>
+                    <field.FieldLabel>Current password</field.FieldLabel>
                     <field.FormPassword
-                      disabled={!passFieldValid || !passFieldTouched}
+                      ref={currentPasswordRef}
+                      autoComplete="current-password"
                       value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
                       onBlur={field.handleBlur}
                     />
                     <field.FieldInfo field={field} />
                   </field.Field>
-                );
-              }}
-            />
-            <form.AppField
-              name="revokeOtherSessions"
-              children={(field) => (
-                <field.Field orientation="horizontal">
-                  <field.Checkbox
-                    checked={field.state.value}
-                    onCheckedChange={(checked) => field.handleChange(!!checked)}
-                  />
-                  <field.FieldLabel>Revoke other sessions</field.FieldLabel>
-                </field.Field>
-              )}
-            />
-            <DialogFooter>
-              <form.WaitButton
-                aria-disabled={inProgress}
-                loading={inProgress}
-                type="submit"
-              >
-                Change
-              </form.WaitButton>
+                )}
+              />
+              <form.AppField
+                name="password"
+                children={(field) => (
+                  <field.Field>
+                    <field.FieldLabel>New password</field.FieldLabel>
+                    <field.FormPassword
+                      autoComplete="new-password"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      onBlur={field.handleBlur}
+                    />
+                    <field.FieldInfo field={field} />
+                  </field.Field>
+                )}
+              />
+              <form.AppField
+                name="passwordVerify"
+                children={(field) => (
+                  <field.Field>
+                    <field.FieldLabel>Confirm new password</field.FieldLabel>
+                    <field.FormPassword
+                      autoComplete="new-password"
+                      value={field.state.value}
+                      onChange={(event) =>
+                        field.handleChange(event.target.value)
+                      }
+                      onBlur={field.handleBlur}
+                    />
+                    <field.FieldInfo field={field} />
+                  </field.Field>
+                )}
+              />
+            </div>
+            <DialogFooter className="mt-4">
               <DialogClose asChild>
                 <Button
+                  type="button"
                   variant="outline"
-                  onSubmit={() => {
-                    form.reset();
-                  }}
+                  onClick={() => form.reset()}
                 >
                   Cancel
                 </Button>
               </DialogClose>
+              <form.WaitButton loading={isLoading} type="submit">
+                Change password
+              </form.WaitButton>
             </DialogFooter>
           </form>
         </form.AppForm>

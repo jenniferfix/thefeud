@@ -26,6 +26,16 @@ export const newPasswordSchema = z
     path: ['passwordVerify'],
   });
 
+export const changePasswordSchema = z
+  .object({
+    currentPassword: passwordField,
+    ...verifyPasswordSchema.shape,
+  })
+  .refine((data) => data.password === data.passwordVerify, {
+    message: 'Passwords do not match',
+    path: ['passwordVerify'],
+  });
+
 export const baseSchema = z.object({
   email: emailField,
   password: passwordField,
@@ -33,7 +43,6 @@ export const baseSchema = z.object({
 
 export const signInFormSchema = z.object({
   ...baseSchema.shape,
-  staySignedIn: z.boolean(),
 });
 
 export const signInRouteParams = z.object({
@@ -43,7 +52,7 @@ export const signInRouteParams = z.object({
 export const signUpFormSchema = z
   .object({
     email: emailField,
-    name: z.string(),
+    name: z.string().trim().max(100),
     ...verifyPasswordSchema.shape,
   })
   .refine((data) => data.password === data.passwordVerify, {

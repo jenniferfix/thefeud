@@ -1,6 +1,7 @@
+import { useNavigate, useRouter } from '@tanstack/react-router';
 import React from 'react';
 import { toast } from 'sonner';
-import { ErrorDialog } from '@/components/auth/ErrorDialog';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,8 +12,10 @@ import {
 } from '@/components/ui/dialog';
 import { useAppForm } from '@/components/ui/tanstack-form';
 import { useSupabase } from '@/hooks/useSupabase';
-import { getSafeRedirectPath } from '@/lib/auth';
+import { buildAuthCallbackUrl, getSafeRedirectPath } from '@/lib/auth';
 import { signUpFormSchema } from '@/types/auth';
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export const SignUpDialog = ({
   open = false,
@@ -24,12 +27,32 @@ export const SignUpDialog = ({
   callbackURL?: string;
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [messageBoxTitle, setMessageBoxTitle] = React.useState<string | null>(
-    null,
-  );
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [showErrorDialog, setShowErrorDialog] = React.useState(false);
+  const [isResending, setIsResending] = React.useState(false);
+  const [pendingEmail, setPendingEmail] = React.useState<string | null>(null);
+  const [resendSeconds, setResendSeconds] = React.useState(0);
   const supabase = useSupabase();
+  const router = useRouter();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (resendSeconds <= 0) return;
+
+    const timeout = window.setTimeout(() => {
+      setResendSeconds((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+
+    return () => window.clearTimeout(timeout);
+  }, [resendSeconds]);
+
+  const getEmailRedirectTo = React.useCallback(
+    () =>
+      buildAuthCallbackUrl({
+        origin: window.location.origin,
+        flow: 'signup',
+        next: callbackURL,
+      }),
+    [callbackURL],
+  );
 
   const form = useAppForm({
     defaultValues: {
@@ -43,72 +66,156 @@ export const SignUpDialog = ({
     },
     onSubmit: async ({ value: { email, password, name } }) => {
       setIsLoading(true);
-      const emailRedirectUrl = new URL(
-        '/auth/callback',
-        window.location.origin,
-      );
-      emailRedirectUrl.searchParams.set(
-        'next',
-        getSafeRedirectPath(callbackURL),
-      );
-
-      const { error } = await supabase.auth.signUp({
+      const trimmedName = name.trim();
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { name },
-          emailRedirectTo: emailRedirectUrl.toString(),
+          data: trimmedName ? { name: trimmedName } : {},
+          emailRedirectTo: getEmailRedirectTo(),
         },
       });
-
       setIsLoading(false);
+
       if (error) {
-        setMessageBoxTitle('Sign up error');
-        setErrorMessage(error.message);
-        setShowErrorDialog(true);
+        toast.error('Unable to create the account. Please try again.');
         return;
       }
 
-      toast('Verification email sent');
-      onOpenChange?.(false);
+      if (data.session) {
+        toast.success('Account created');
+        form.reset();
+        onOpenChange?.(false);
+        await router.invalidate();
+        await navigate({ to: getSafeRedirectPath(callbackURL) });
+        return;
+      }
+
+      setPendingEmail(email);
+      setResendSeconds(RESEND_COOLDOWN_SECONDS);
     },
   });
+
+  const handleOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
+        form.reset();
+        setPendingEmail(null);
+        setResendSeconds(0);
+        setIsResending(false);
+      }
+      onOpenChange?.(nextOpen);
+    },
+    [form, onOpenChange],
+  );
+
   const handleSubmit = React.useCallback(
-    (e: React.SubmitEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+    (event: React.SubmitEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
       form.handleSubmit();
     },
     [form],
   );
+
+  const handleResend = React.useCallback(async () => {
+    if (!pendingEmail || resendSeconds > 0) return;
+
+    setIsResending(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: pendingEmail,
+      options: { emailRedirectTo: getEmailRedirectTo() },
+    });
+    setIsResending(false);
+
+    if (error) {
+      toast.error('Unable to resend the verification email. Try again later.');
+      return;
+    }
+
+    setResendSeconds(RESEND_COOLDOWN_SECONDS);
+    toast.success('Verification email resent');
+  }, [getEmailRedirectTo, pendingEmail, resendSeconds, supabase]);
+
   return (
-    <>
-      <ErrorDialog
-        title={messageBoxTitle}
-        message={errorMessage}
-        show={showErrorDialog}
-        setShow={(show) => setShowErrorDialog(show)}
-      />
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent>
+        {pendingEmail ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Check your email</DialogTitle>
+              <DialogDescription>
+                We sent a verification link to {pendingEmail}. Open it to finish
+                creating your account.
+              </DialogDescription>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              If the message does not arrive, check your spam folder or resend
+              it below.
+            </p>
+            <DialogFooter className="flex-col sm:flex-row">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPendingEmail(null)}
+              >
+                Use a different email
+              </Button>
+              <Button
+                type="button"
+                disabled={isResending || resendSeconds > 0}
+                onClick={handleResend}
+              >
+                {isResending
+                  ? 'Sending…'
+                  : resendSeconds > 0
+                    ? `Resend in ${resendSeconds}s`
+                    : 'Resend verification email'}
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
           <form.AppForm>
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>Sign up</DialogTitle>
+                <DialogTitle>Create your account</DialogTitle>
                 <DialogDescription>
                   Sign up using your email address
                 </DialogDescription>
               </DialogHeader>
-              <div>
+              <div className="flex flex-col gap-3">
                 <form.AppField
                   name="email"
                   children={(field) => (
-                    <field.Field className="">
+                    <field.Field>
                       <field.FieldLabel>Email</field.FieldLabel>
                       <field.Input
+                        type="email"
+                        autoComplete="email"
                         placeholder="you@example.com"
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={(event) =>
+                          field.handleChange(event.target.value)
+                        }
+                        onBlur={field.handleBlur}
+                      />
+                      <field.FieldInfo field={field} />
+                    </field.Field>
+                  )}
+                />
+                <form.AppField
+                  name="name"
+                  children={(field) => (
+                    <field.Field>
+                      <field.FieldLabel>Name (optional)</field.FieldLabel>
+                      <field.Input
+                        autoComplete="name"
+                        value={field.state.value}
+                        onChange={(event) =>
+                          field.handleChange(event.target.value)
+                        }
+                        onBlur={field.handleBlur}
                       />
                       <field.FieldInfo field={field} />
                     </field.Field>
@@ -120,36 +227,44 @@ export const SignUpDialog = ({
                     <field.Field>
                       <field.FieldLabel>Password</field.FieldLabel>
                       <field.FormPassword
+                        autoComplete="new-password"
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={(event) =>
+                          field.handleChange(event.target.value)
+                        }
+                        onBlur={field.handleBlur}
                       />
                       <field.FieldInfo field={field} />
                     </field.Field>
                   )}
                 />
                 <form.AppField
-                  name="name"
+                  name="passwordVerify"
                   children={(field) => (
                     <field.Field>
-                      <field.FieldLabel>Name</field.FieldLabel>
-                      <field.Input
+                      <field.FieldLabel>Confirm password</field.FieldLabel>
+                      <field.FormPassword
+                        autoComplete="new-password"
                         value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                        onChange={(event) =>
+                          field.handleChange(event.target.value)
+                        }
+                        onBlur={field.handleBlur}
                       />
                       <field.FieldInfo field={field} />
                     </field.Field>
                   )}
                 />
               </div>
-              <DialogFooter>
+              <DialogFooter className="mt-4">
                 <form.WaitButton loading={isLoading} type="submit">
-                  Sign up
+                  Create account
                 </form.WaitButton>
               </DialogFooter>
             </form>
           </form.AppForm>
-        </DialogContent>
-      </Dialog>
-    </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
