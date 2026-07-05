@@ -18,6 +18,7 @@
     "start": "node --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
     "gentypes": "dotenv -e .env.local -- sh -c 'supabase gen types typescript --db-url \"${DB_STRING}\" > src/types/supabase.types.ts'",
     "db:pull": "dotenv -e .env.local -- sh -c 'supabase db pull --db-url \"${DB_STRING}\"'",
+    "db:push": "dotenv -e .env.local -- sh -c 'supabase db push --db-url \"${DB_STRING}\"'",
     "db:migration:new": "dotenv -e .env.local -- sh -c 'supabase migration new --db-url \"${DB_STRING}\"'",
     "db:migration:fetch": "dotenv -e .env.local -- sh -c 'supabase migration fetch --db-url \"${DB_STRING}\"'",
     "db:migration:repair": "dotenv -e .env.local -- sh -c 'supabase migration repair --db-url \"${DB_STRING}\"'"

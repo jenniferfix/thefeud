@@ -1,5 +1,4 @@
 drop view if exists "public"."active_games";
-
 create or replace view "public"."active_games" as  SELECT game_instance.id,
     game_instance.created_at,
     games.name,
@@ -8,6 +7,3 @@ create or replace view "public"."active_games" as  SELECT game_instance.id,
      JOIN public.games ON ((game_instance.gameid = games.id)))
   WHERE (game_instance.id IN ( SELECT DISTINCT ON (game_events.instanceid) game_events.instanceid
            FROM public.game_events));
-
-
-
