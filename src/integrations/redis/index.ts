@@ -3,9 +3,12 @@ import Valkey, { type RedisOptions } from 'iovalkey';
 let redis: Valkey | undefined;
 let redisSub: Valkey | undefined;
 
+export const getRedisPrefix = (): string => {
+  return process.env.REDIS_PREFIX ?? 'feudgame';
+};
+
 export const getJoinCodeRedisKey = (code: string): string => {
-  const prefix = process.env.REDIS_PREFIX ?? 'feudgame';
-  return `${prefix}:joincode:${code}`;
+  return `${getRedisPrefix()}:joincode:${code}`;
 };
 
 export const createRedisClient = (params?: RedisOptions) => {

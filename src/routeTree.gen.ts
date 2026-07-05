@@ -19,6 +19,7 @@ import { Route as NavbarLayoutIndexRouteImport } from './routes/_navbar-layout.i
 import { Route as WatchInviteCodeRouteImport } from './routes/watch.$inviteCode'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthNavbarLayoutRouteImport } from './routes/_auth._navbar-layout'
+import { Route as ApiGameEventsGameInstanceIdRouteImport } from './routes/api.game-events.$gameInstanceId'
 import { Route as AuthCGameInstanceIdRouteImport } from './routes/_auth.c.$gameInstanceId'
 import { Route as AuthNavbarLayoutStartRouteImport } from './routes/_auth._navbar-layout.start'
 import { Route as AuthNavbarLayoutSettingsRouteImport } from './routes/_auth._navbar-layout.settings'
@@ -73,6 +74,12 @@ const AuthNavbarLayoutRoute = AuthNavbarLayoutRouteImport.update({
   id: '/_navbar-layout',
   getParentRoute: () => AuthRoute,
 } as any)
+const ApiGameEventsGameInstanceIdRoute =
+  ApiGameEventsGameInstanceIdRouteImport.update({
+    id: '/api/game-events/$gameInstanceId',
+    path: '/api/game-events/$gameInstanceId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthCGameInstanceIdRoute = AuthCGameInstanceIdRouteImport.update({
   id: '/c/$gameInstanceId',
   path: '/c/$gameInstanceId',
@@ -137,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthNavbarLayoutSettingsRoute
   '/start': typeof AuthNavbarLayoutStartRoute
   '/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
+  '/api/game-events/$gameInstanceId': typeof ApiGameEventsGameInstanceIdRoute
   '/games/$gameId': typeof AuthNavbarLayoutGamesGameIdRoute
   '/c/$gameInstanceId/$questionId': typeof AuthCGameInstanceIdQuestionIdRoute
   '/games/': typeof AuthNavbarLayoutGamesIndexRoute
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
   '/questions': typeof AuthNavbarLayoutQuestionsRoute
   '/settings': typeof AuthNavbarLayoutSettingsRoute
   '/start': typeof AuthNavbarLayoutStartRoute
+  '/api/game-events/$gameInstanceId': typeof ApiGameEventsGameInstanceIdRoute
   '/games/$gameId': typeof AuthNavbarLayoutGamesGameIdRoute
   '/c/$gameInstanceId/$questionId': typeof AuthCGameInstanceIdQuestionIdRoute
   '/games': typeof AuthNavbarLayoutGamesIndexRoute
@@ -173,6 +182,7 @@ export interface FileRoutesById {
   '/_auth/_navbar-layout/settings': typeof AuthNavbarLayoutSettingsRoute
   '/_auth/_navbar-layout/start': typeof AuthNavbarLayoutStartRoute
   '/_auth/c/$gameInstanceId': typeof AuthCGameInstanceIdRouteWithChildren
+  '/api/game-events/$gameInstanceId': typeof ApiGameEventsGameInstanceIdRoute
   '/_auth/_navbar-layout/games/$gameId': typeof AuthNavbarLayoutGamesGameIdRoute
   '/_auth/c/$gameInstanceId/$questionId': typeof AuthCGameInstanceIdQuestionIdRoute
   '/_auth/_navbar-layout/games/': typeof AuthNavbarLayoutGamesIndexRoute
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/c/$gameInstanceId'
+    | '/api/game-events/$gameInstanceId'
     | '/games/$gameId'
     | '/c/$gameInstanceId/$questionId'
     | '/games/'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/questions'
     | '/settings'
     | '/start'
+    | '/api/game-events/$gameInstanceId'
     | '/games/$gameId'
     | '/c/$gameInstanceId/$questionId'
     | '/games'
@@ -227,6 +239,7 @@ export interface FileRouteTypes {
     | '/_auth/_navbar-layout/settings'
     | '/_auth/_navbar-layout/start'
     | '/_auth/c/$gameInstanceId'
+    | '/api/game-events/$gameInstanceId'
     | '/_auth/_navbar-layout/games/$gameId'
     | '/_auth/c/$gameInstanceId/$questionId'
     | '/_auth/_navbar-layout/games/'
@@ -241,6 +254,7 @@ export interface RootRouteChildren {
   AboutLazyRoute: typeof AboutLazyRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   WatchInviteCodeRoute: typeof WatchInviteCodeRoute
+  ApiGameEventsGameInstanceIdRoute: typeof ApiGameEventsGameInstanceIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -307,6 +321,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthNavbarLayoutRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/api/game-events/$gameInstanceId': {
+      id: '/api/game-events/$gameInstanceId'
+      path: '/api/game-events/$gameInstanceId'
+      fullPath: '/api/game-events/$gameInstanceId'
+      preLoaderRoute: typeof ApiGameEventsGameInstanceIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/c/$gameInstanceId': {
       id: '/_auth/c/$gameInstanceId'
@@ -451,16 +472,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutLazyRoute: AboutLazyRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   WatchInviteCodeRoute: WatchInviteCodeRoute,
+  ApiGameEventsGameInstanceIdRoute: ApiGameEventsGameInstanceIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

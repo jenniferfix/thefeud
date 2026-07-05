@@ -45,9 +45,16 @@ export const useIsolatedViewer = (joinCode: string) => {
     [hideStrikeOverlay, showStrikeOverlay],
   );
 
+  const handleConnect = React.useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: getJoinCodeGameQueryKey(joinCode),
+    });
+  }, [joinCode, queryClient]);
+
   useGameActionSubscription({
-    channelId: data?.gameInstanceId,
+    gameInstanceId: data?.gameInstanceId,
     onAction: handleAction,
+    onConnect: handleConnect,
     onState: updateQuery,
     soundsEnabled: true,
   });

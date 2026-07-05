@@ -1,5 +1,6 @@
 import { notFound } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
+import { publishGameEvent } from '#/integrations/redis/game-events';
 import {
   createCorrectAnswerState,
   createGameOverState,
@@ -9,13 +10,19 @@ import {
   toGameBoardState,
 } from '#/lib/gameboard-state';
 import type { ActionType } from '#/lib/schemas/base';
-import { backendEventSchema } from '#/lib/schemas/eventsbackend';
+import {
+  backendEventSchema,
+  sendGameSoundSchema,
+} from '#/lib/schemas/eventsbackend';
 import type { GameBoardState } from '#/lib/schemas/gameboard';
 import { insertEvent } from '#/queries/eventqueries';
-import { getGameInstance, updateGameInstance } from '#/queries/instancequeries';
+import {
+  getGameInstance,
+  getGameInstanceUser,
+  updateGameInstance,
+} from '#/queries/instancequeries';
 import type { Database, TablesUpdate } from '#/types/supabase.types';
 import { createSupabaseBackendClient } from '#/utils/supabase/backend';
-import type { SentEvent } from '@/lib/schemas/events';
 import { GameActions } from '@/types';
 import { getServerAuth } from './auth';
 import { updateJoinCode } from './joincodes';
@@ -33,7 +40,7 @@ type CommitEventArgs = {
   values: GameInstanceUpdate;
 };
 
-export const processEvent = createServerFn({ method: 'GET' })
+export const processEvent = createServerFn({ method: 'POST' })
   .validator(backendEventSchema)
   .handler(async ({ data }) => {
     const [auth, gameInstance] = await Promise.all([
@@ -72,10 +79,15 @@ export const processEvent = createServerFn({ method: 'GET' })
         insertEvent(supabase, event),
       ]);
 
-      await supabase.channel(gameInstanceId).httpSend('GameAction', {
-        type,
-        state,
-      } satisfies SentEvent);
+      try {
+        await publishGameEvent(gameInstanceId, {
+          kind: 'action',
+          type,
+          state,
+        });
+      } catch (error) {
+        console.error('Failed to publish Redis game action', error);
+      }
 
       return { gameInstanceId, type, state };
     };
@@ -215,4 +227,28 @@ export const processEvent = createServerFn({ method: 'GET' })
         });
       }
     }
+  });
+
+export const sendGameSound = createServerFn({ method: 'POST' })
+  .validator(sendGameSoundSchema)
+  .handler(async ({ data }) => {
+    const [auth, gameUser] = await Promise.all([
+      getServerAuth(),
+      getGameInstanceUser(supabase, data.gameInstanceId),
+    ]);
+
+    if (
+      !auth.user ||
+      !gameUser.data ||
+      gameUser.data.userId !== auth.user.id
+    ) {
+      throw notFound();
+    }
+
+    await publishGameEvent(data.gameInstanceId, {
+      kind: 'sound',
+      sound: data.sound,
+    });
+
+    return { success: true as const };
   });

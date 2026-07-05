@@ -26,7 +26,7 @@ import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
 } from '@/hooks/useinstancequeries';
-import { useSupabase } from '@/hooks/useSupabase';
+import { sendGameSound } from '@/server/events';
 import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
@@ -112,7 +112,6 @@ const MaybeGameboard = ({
 function ControlComponent() {
   const { gameInstanceId } = Route.useParams();
   const { data: gameInstance } = useGetGameInstance(gameInstanceId);
-  const supabaseClient = useSupabase();
   //const navigate = useNavigate();
 
   const { state } = useGameControlContext();
@@ -140,14 +139,9 @@ function ControlComponent() {
 
   const handleSendSound = React.useCallback(
     async (sound: GameSound) => {
-      const channel = supabaseClient.channel(gameInstanceId);
-      try {
-        await channel.httpSend('sound', { sound });
-      } finally {
-        await supabaseClient.removeChannel(channel);
-      }
+      await sendGameSound({ data: { gameInstanceId, sound } });
     },
-    [gameInstanceId, supabaseClient],
+    [gameInstanceId],
   );
 
   if (!gameInstance) return <div>Loading...</div>;

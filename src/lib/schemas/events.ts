@@ -158,3 +158,9 @@ export type GameSound = z.infer<typeof gameSoundEnum>;
 export const soundEvent = z.object({
   sound: gameSoundEnum,
 });
+
+export const gameEventSchema = z.discriminatedUnion('kind', [
+  sentEvent.extend({ kind: z.literal('action') }),
+  soundEvent.extend({ kind: z.literal('sound') }),
+]);
+export type GameEvent = z.infer<typeof gameEventSchema>;

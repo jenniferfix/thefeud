@@ -51,8 +51,15 @@ export function GameControlProvider({
     [instanceId, queryClient],
   );
 
+  const handleConnect = React.useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: getGetGameInstanceQueryKey(instanceId),
+    });
+  }, [instanceId, queryClient]);
+
   useGameActionSubscription({
-    channelId: instanceId,
+    gameInstanceId: instanceId,
+    onConnect: handleConnect,
     onState: updateGameInstanceState,
     soundsEnabled: false,
   });

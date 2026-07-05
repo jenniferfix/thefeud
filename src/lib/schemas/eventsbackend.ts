@@ -9,6 +9,7 @@ import {
   roundScore,
   team,
 } from './base';
+import { gameSoundEnum } from './events';
 
 export const baseData = z.object({
   roundScore,
@@ -65,3 +66,8 @@ export const backendEventSchema = z.discriminatedUnion('type', [
   }),
 ]);
 export type BackendEventType = z.infer<typeof backendEventSchema>;
+
+export const sendGameSoundSchema = z.object({
+  gameInstanceId,
+  sound: gameSoundEnum,
+});
