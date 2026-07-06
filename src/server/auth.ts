@@ -19,7 +19,8 @@ export const getServerAuth = createServerFn({ method: 'GET' }).handler(
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase.auth.getClaims();
 
-    if (error || !data?.claims.sub) {
+    // Anonymous realtime viewers must never appear as signed-in app users.
+    if (error || !data?.claims.sub || data.claims.is_anonymous === true) {
       return { user: null };
     }
 

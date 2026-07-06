@@ -148,7 +148,9 @@ function ControlComponent() {
 
   const handleSendSound = React.useCallback(
     async (sound: GameSound) => {
-      const channel = supabaseClient.channel(gameInstanceId);
+      const channel = supabaseClient.channel(gameInstanceId, {
+        config: { private: true },
+      });
       try {
         await channel.httpSend('sound', { sound });
       } finally {

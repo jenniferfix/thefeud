@@ -11,9 +11,11 @@ export interface AuthContext {
   login: ({
     email,
     password,
+    captchaToken,
   }: {
     email: string;
     password: string;
+    captchaToken?: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
   isLoggingIn: boolean;
@@ -44,20 +46,32 @@ export const SupabaseAuthProvider = ({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      // Anonymous realtime viewers never count as signed-in app users.
+      const nextUser =
+        session?.user && !session.user.is_anonymous ? session.user : null;
+      setUser(nextUser);
     });
 
     return () => subscription.unsubscribe();
   }, [supabase]);
 
   const login = React.useCallback(
-    async ({ email, password }: { email: string; password: string }) => {
+    async ({
+      email,
+      password,
+      captchaToken,
+    }: {
+      email: string;
+      password: string;
+      captchaToken?: string;
+    }) => {
       setIsLoggingIn(true);
       setError(null);
       try {
         const { error: authError } = await supabase.auth.signInWithPassword({
           email,
           password,
+          options: captchaToken ? { captchaToken } : undefined,
         });
 
         if (authError) {
