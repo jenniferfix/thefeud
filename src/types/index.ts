@@ -18,5 +18,11 @@ export enum GameActions {
   StartQuestion = 1, // game id
   CorrectAnswer, // question field, team field
   Strike, // Team
-  TeamWin,
+  RoundWin,
+  GameOver,
+}
+
+export enum Teams {
+  Left = 1,
+  Right,
 }

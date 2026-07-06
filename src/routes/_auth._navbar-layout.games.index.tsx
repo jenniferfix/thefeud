@@ -1,0 +1,52 @@
+import { createFileRoute } from '@tanstack/react-router';
+import { PlusIcon } from 'lucide-react';
+import { GameDialog } from '#/components/editor/GameDialog';
+import { GameItem } from '#/components/editor/GameItem';
+// import { SortControl } from '#/components/SortControl';
+import { Button } from '@/components/ui/button';
+import {
+  getAllGamesQueryOptions,
+  useGetAllGames,
+} from '@/hooks/usegamequeries';
+
+export const Route = createFileRoute('/_auth/_navbar-layout/games/')({
+  loader: async ({ context: { queryClient, supabase } }) => {
+    await Promise.all([
+      queryClient.ensureQueryData(getAllGamesQueryOptions(supabase)),
+    ]);
+  },
+  component: RouteComponent,
+});
+
+function RouteComponent() {
+  const { data } = useGetAllGames();
+
+  return (
+    <div className="px-2 sm:px-4">
+      <section>
+        <h2 className="grow my-4 text-3xl font-bold">Your Games!</h2>
+
+        <div className="pl-2 sm:pl-4">
+          <div className="flex">
+            <GameDialog>
+              <Button variant="outline" className="self-center mr-2">
+                Add <PlusIcon />
+              </Button>
+            </GameDialog>
+          </div>
+
+          <div>
+            {data?.map((g) => (
+              <GameItem
+                key={g.id}
+                id={g.id}
+                name={g.name ?? ''}
+                questions={g.game_questions}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

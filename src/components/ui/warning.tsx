@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,7 +10,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 
 export function WarningDialog({
   children,

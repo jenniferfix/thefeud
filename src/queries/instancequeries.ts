@@ -1,75 +1,130 @@
-import { TypedSupabaseClient } from '@/utils/supabase/client';
-import { QueryData } from '@supabase/supabase-js';
+import type { QueryData } from '@supabase/supabase-js';
+import type { CreateGameInstance } from '#/lib/schemas/gameInstance';
+import type { TablesUpdate } from '#/types/supabase.types';
+import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
-export function createGameInstance(
+type GameInstanceUpdate = TablesUpdate<'game_instance'>;
+
+export async function createGameInstance(
   client: TypedSupabaseClient,
-  gameId: string,
+  { gameId, teamLeft, teamRight }: CreateGameInstance,
 ) {
-  return client
+  return await client
     .from('game_instance')
-    .insert({ game: gameId })
+    .insert({ gameid: gameId, team_left: teamLeft, team_right: teamRight })
     .throwOnError()
-    .select()
+    .select('id, team_left, team_right, game:games(name)')
+    .single()
     .throwOnError();
 }
 
-export function getGameInstance(
+export async function updateGameInstance(
   client: TypedSupabaseClient,
-  instanceId: string,
+  gameInstanceId: string,
+  values: GameInstanceUpdate,
 ) {
-  return client
+  return await client
     .from('game_instance')
-    .select('*')
-    .eq('id', instanceId)
-    .throwOnError()
-    .single();
+    .update(values)
+    .eq('id', gameInstanceId)
+    .throwOnError();
 }
 
-export function deleteGameInstance(
+export async function markFinished(
   client: TypedSupabaseClient,
   instanceId: string,
 ) {
-  return client
+  return await client
+    .from('game_instance')
+    .update({ finished: new Date().toISOString() })
+    .eq('id', instanceId)
+    .throwOnError();
+}
+
+export async function deleteGameInstance(
+  client: TypedSupabaseClient,
+  instanceId: string,
+) {
+  return await client
     .from('game_instance')
     .delete()
     .eq('id', instanceId)
     .throwOnError();
 }
 
-export function getInstanceGame(
+export async function getGameInstanceUser(
   client: TypedSupabaseClient,
   instanceId: string,
 ) {
-  return (
-    client
-      .from('game_instance')
-      // .select('*')
-      .select('id, games(id, name)')
-      .eq('id', instanceId)
-      .throwOnError()
-      .single()
-  );
+  return await client
+    .from('game_instance')
+    .select('id, userId:userid, joinCode:join_code')
+    .eq('id', instanceId)
+    .maybeSingle()
+    .throwOnError();
 }
 
-export function getActiveInstances(client: TypedSupabaseClient) {
+export async function getGameInstance(
+  client: TypedSupabaseClient,
+  instanceId: string,
+) {
+  return await client
+    .from('game_instance')
+    .select(
+      `userId: userid, gameInstanceId:id, joinCode:join_code,
+          leftTeam:team_left, rightTeam:team_right, 
+          leftScore:left_score, rightScore:right_score, roundScore:round_score,
+          strikes, answers, completedQuestionIds:completed_question_ids,
+          confettiMode:confetti_mode, finished, 
+          questionText:question_text, currentQuestionId:current_question_id,
+          game:games(id, name, 
+            questions:game_questions(position, 
+              question:questions(id, text:question, 
+                answers(id, text:answer, score, createdAt:created_at)
+              )
+            )
+          )`,
+    )
+    .eq('id', instanceId)
+    .single()
+    .throwOnError();
+}
+
+export type GameInstance = Awaited<ReturnType<typeof getGameInstance>>['data'];
+
+export type GameQuestion = GameInstance['game']['questions'][number];
+
+export async function getActiveInstances(client: TypedSupabaseClient) {
   // Select events within last 10 min
   // get the instance id's of those
   // dedupe and get the actual instances
   const prevTime = new Date();
   prevTime.setDate(prevTime.getDate() - 2);
-  return client
+  return await client
     .from('game_instance')
     .select('id, created_at, userid, games(id,name)')
     .gt('created_at', prevTime.toISOString())
     .order('created_at', { ascending: false })
     .throwOnError();
 }
-export function getUserInstances(client: TypedSupabaseClient, userId: string) {
-  return client
+
+export async function getUserInstances(
+  client: TypedSupabaseClient,
+  userId: string,
+  finished?: boolean,
+) {
+  let query = client
     .from('game_instance')
-    .select('id, created_at, userid, games(id,name)')
-    .order('created_at', { ascending: false })
-    .throwOnError();
+    .select('id, created_at, userid, joinCode:join_code, games(id,name)')
+    .eq('userid', userId);
+
+  if (finished !== undefined) {
+    query = finished
+      ? query.not('finished', 'eq', null)
+      : query.is('finished', null);
+  }
+
+  return await query.order('created_at', { ascending: false }).throwOnError();
 }
 
-export type TInstance = QueryData<ReturnType<typeof getInstanceGame>>;
+export type TInstance = QueryData<ReturnType<typeof getGameInstance>>;

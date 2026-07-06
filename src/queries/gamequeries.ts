@@ -1,72 +1,115 @@
-import { TypedSupabaseClient } from '@/utils/supabase/client';
-import { QueryData } from '@supabase/supabase-js';
+import type { QueryData } from '@supabase/supabase-js';
+import type { TablesUpdate } from '#/types/supabase.types';
+import type { TypedSupabaseClient } from '@/utils/supabase/client';
 
-export function getGames(client: TypedSupabaseClient) {
-  return client.from('games').select('*').throwOnError();
-}
+type GameQuestionUpdate = TablesUpdate<'game_questions'>;
 
-export function getUserGames(client: TypedSupabaseClient, userId: string) {
-  return client.from('games').select('*').eq('userid', userId).throwOnError();
-}
-
-export function getGameQuestions(client: TypedSupabaseClient, gameId: string) {
-  return client
+export async function getUserGames(client: TypedSupabaseClient) {
+  return await client
     .from('games')
-    .select(`id, questions(id, question)`)
-    .match({ id: gameId })
-    .throwOnError()
-    .single();
+    .select(
+      `id, name, game_questions(position, question:questions(id, question, answers(id, answer, score)))`,
+    )
+    .throwOnError();
 }
-// export type QueryData<T> = T extends PromiseLike<{ data: infer U }> ? Exclude<U, null> : never
+
+export async function getGameQuestions(
+  client: TypedSupabaseClient,
+  gameId: string,
+) {
+  return await client
+    .from('games')
+    .select(`id, game_questions(position, questions(id, question))`)
+    .match({ id: gameId })
+    .single()
+    .throwOnError();
+}
+
 export type TGameQuestions = QueryData<ReturnType<typeof getGameQuestions>>;
 
-export function getGame(client: TypedSupabaseClient, gameid: string) {
-  return client
+export async function getGame(client: TypedSupabaseClient, gameid: string) {
+  return await client
     .from('games')
-    .select('*')
+    .select(
+      `id, name, created_at, game_questions(position, questions(id, question, created_at, answers(id, answer, score)))`,
+    )
     .eq('id', gameid)
     .single()
     .throwOnError();
 }
-export function addQuestionToGame(
+
+export async function addQuestionToGame(
   client: TypedSupabaseClient,
   questionid: string,
   gameid: string,
+  position: string,
 ) {
-  return client
+  return await client
     .from('game_questions')
-    .insert({ gameid, questionid })
+    .insert({ gameid, questionid, position })
+    .select('gameId:gameid, questionId:questionid, userId:userid')
+    .single()
     .throwOnError();
 }
 
-export function removeQuestionFromGame(
+export async function removeQuestionFromGame(
   client: TypedSupabaseClient,
   questionid: string,
   gameid: string,
 ) {
-  return client
+  return await client
     .from('game_questions')
     .delete()
     .match({ gameid, questionid })
+    .select('gameId:gameid, questionId:questionid, userId:userid')
+    .single()
     .throwOnError();
 }
 
-export function insertGame(client: TypedSupabaseClient, name: string) {
-  return client.from('games').insert({ name }).throwOnError();
+export async function updateQuestionForGame(
+  client: TypedSupabaseClient,
+  questionid: string,
+  gameid: string,
+  values: GameQuestionUpdate,
+) {
+  return await client
+    .from('game_questions')
+    .update(values)
+    .match({ gameid, questionid })
+    .select('gameId:gameid, questionId:questionid, userId:userid, position')
+    .single()
+    .throwOnError();
 }
 
-export function updateGame(
+export async function insertGame(client: TypedSupabaseClient, name: string) {
+  return await client
+    .from('games')
+    .insert({ name })
+    .select('id, name')
+    .single()
+    .throwOnError();
+}
+
+export async function updateGame(
   client: TypedSupabaseClient,
   gameId: string,
   gameName: string,
 ) {
-  return client
+  return await client
     .from('games')
     .update({ name: gameName })
     .eq('id', gameId)
+    .select('id, userId:userid, name')
+    .single()
     .throwOnError();
 }
 
-export function deleteGame(client: TypedSupabaseClient, gameId: string) {
-  return client.from('games').delete().eq('id', gameId).throwOnError();
+export async function deleteGame(client: TypedSupabaseClient, gameId: string) {
+  return await client
+    .from('games')
+    .delete()
+    .eq('id', gameId)
+    .select('id, userId:userid')
+    .single()
+    .throwOnError();
 }

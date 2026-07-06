@@ -1,53 +1,50 @@
-import React from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { useInsertEvent } from '@/hooks/useeventqueries';
-import { GameActions } from '@/types';
 import { useNavigate } from '@tanstack/react-router';
+import { useProcessEvent } from '@/hooks/useeventqueries';
+import { Teams } from '@/types';
+import { useGameControlContext } from '../providers/GameControl';
+import { HoldButton } from '../ui/holdbutton';
 
 const SelectWinner = ({
-  instanceId,
-  questionId,
+  instanceId: gameInstanceId,
 }: {
   instanceId: string;
   questionId: string;
 }) => {
-  const insertEvent = useInsertEvent(instanceId);
+  const processEvent = useProcessEvent();
   const navigate = useNavigate();
+  const { state } = useGameControlContext();
 
-  const handleTeamWin = (team: number) => {
-    insertEvent.mutate({
-      eventid: GameActions.TeamWin,
-      instanceid: instanceId,
-      team: team,
+  const handleRoundWinner = async (team: Teams) => {
+    await Promise.all([
+      processEvent.mutateAsync({
+        gameInstanceId,
+        type: 'RoundWin',
+        data: {
+          team: team,
+        },
+      }),
+    ]);
+    navigate({
+      to: `/c/$gameInstanceId`,
+      params: { gameInstanceId },
     });
-    navigate({ to: `/c/${instanceId}` });
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">Select round winner</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="">
-        <DropdownMenuLabel>Select Winner</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => handleTeamWin(1)}>
-          Left Team
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleTeamWin(2)}>
-          Right Team
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex gap-2">
+      <HoldButton
+        className="grow"
+        onActivate={async () => await handleRoundWinner(Teams.Left)}
+      >
+        {state.leftTeam}
+      </HoldButton>
+      <HoldButton
+        className="grow"
+        onActivate={async () => await handleRoundWinner(Teams.Right)}
+      >
+        {state.rightTeam}
+      </HoldButton>
+    </div>
   );
 };
 

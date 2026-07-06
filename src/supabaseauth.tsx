@@ -1,17 +1,13 @@
+import type { AuthError, User } from '@supabase/supabase-js';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
 import React from 'react';
-import type {
-  Session,
-  User,
-  AuthError,
-  AuthResponse,
-} from '@supabase/supabase-js';
-import useSupabase from '@/hooks/useSupabase';
+import { useSupabase } from '@/hooks/useSupabase';
+import type { AuthenticatedUser } from '@/server/auth';
 
 export interface AuthContext {
   isAuthenticated: boolean;
-  checkAuthenticated: () => Promise<boolean>;
-  session: Session | null;
-  user: User | null;
+  user: User | AuthenticatedUser | null;
   login: ({
     email,
     password,
@@ -22,115 +18,90 @@ export interface AuthContext {
   logout: () => Promise<void>;
   isLoggingIn: boolean;
   isLoggingOut: boolean;
-  isLoginError: boolean;
-  isLogoutError: boolean;
-  error: Error | null;
+  error: AuthError | null;
 }
 
 const AuthContext = React.createContext<AuthContext | null>(null);
 
 export const SupabaseAuthProvider = ({
   children,
+  initialUser,
 }: {
   children: React.ReactNode;
+  initialUser: AuthenticatedUser | null;
 }) => {
   const supabase = useSupabase();
-  const [session, setSession] = React.useState<Session | null>(null);
-  const [user, setUser] = React.useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
+  const router = useRouter();
+  const [user, setUser] = React.useState<User | AuthenticatedUser | null>(
+    initialUser,
+  );
   const [isLoggingIn, setIsLoggingIn] = React.useState<boolean>(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState<boolean>(false);
-  const [isLoginError, setIsLoginError] = React.useState<boolean>(false);
-  const [isLogoutError, setIsLogoutError] = React.useState<boolean>(false);
   const [error, setError] = React.useState<AuthError | null>(null);
-
-  const initializeAuth = React.useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      setIsAuthenticated(Boolean(data.session));
-      setSession(data.session);
-      setUser(data.session.user);
-    }
-  }, []);
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    initializeAuth();
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      supabase.auth.getUser().then(({ data }) => {
-        setIsAuthenticated(Boolean(session));
-        setSession(session);
-        setUser(data.user);
-      });
-
-      setSession(session);
+      setUser(session?.user ?? null);
     });
+
     return () => subscription.unsubscribe();
-  }, [initializeAuth]);
+  }, [supabase]);
 
   const login = React.useCallback(
     async ({ email, password }: { email: string; password: string }) => {
       setIsLoggingIn(true);
-      setIsLoginError(false);
       setError(null);
-      supabase.auth
-        .signInWithPassword({ email: email, password: password })
-        .then(({ data, error }) => {
-          if (!error) {
-            setSession(data.session);
-            setUser(data.user);
-            setIsLoggingIn(false);
-          } else {
-            setError(error);
-            setIsLoginError(true);
-            setIsLoggingIn(false);
-          }
+      try {
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
         });
+
+        if (authError) {
+          setError(authError);
+          throw authError;
+        }
+
+        await router.invalidate();
+      } finally {
+        setIsLoggingIn(false);
+      }
     },
-    [],
+    [router, supabase],
   );
 
   const logout = React.useCallback(async () => {
     setIsLoggingOut(true);
-    setIsLogoutError(false);
     setError(null);
-    supabase.auth.signOut().then(({ error }) => {
-      if (!error) {
-        setSession(null);
-        setIsLoggingOut(false);
-      } else {
-        setError(error);
-        setIsLogoutError(true);
-        setIsLoggingOut(false);
-      }
-    });
-  }, []);
+    try {
+      const { error: authError } = await supabase.auth.signOut();
 
-  const checkAuthenticated = React.useCallback(async (): Promise<boolean> => {
-    if (!isAuthenticated) {
-      const { data, error } = await supabase.auth.refreshSession();
-      if (!data.user) return false;
-      setSession(data.session);
-      setUser(data.user);
-      setIsAuthenticated(true);
+      if (authError) {
+        setError(authError);
+        throw authError;
+      }
+
+      queryClient.clear();
+      await router.invalidate();
+    } finally {
+      setIsLoggingOut(false);
     }
-    return true;
-  }, []);
+  }, [queryClient, router, supabase]);
+
+  const isAuthenticated = Boolean(user);
 
   return (
     <AuthContext.Provider
       value={{
-        checkAuthenticated,
         isAuthenticated,
-        session,
         user,
         login,
         logout,
         isLoggingIn,
         isLoggingOut,
-        isLoginError,
-        isLogoutError,
         error,
       }}
     >
@@ -147,4 +118,9 @@ export const useSupabaseAuth = () => {
     );
   }
   return context;
+};
+export const useAuthenticatedUser = () => {
+  const { user, ...other } = useSupabaseAuth();
+  if (!user?.id) throw Error('User must be authenticated');
+  return { user, ...other };
 };

@@ -1,17 +1,17 @@
-import React from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { Outlet } from '@tanstack/react-router';
-import Navbar from '@/components/header/Navbar';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { Navbar } from '#/components/header/Navbar';
 
 export const Route = createFileRoute('/_navbar-layout')({
-  component: NavigationLayout,
+  component: RouteComponent,
 });
 
-function NavigationLayout() {
+function RouteComponent() {
   return (
-    <main className="absolute inset-0 flex flex-col">
+    <div>
       <Navbar />
-      <Outlet />
-    </main>
+      <main>
+        <Outlet />
+      </main>
+    </div>
   );
 }

@@ -1,17 +1,42 @@
-import path from 'path';
+import babel from '@rolldown/plugin-babel';
+import tailwindcss from '@tailwindcss/vite';
+import { devtools } from '@tanstack/devtools-vite';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
+import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import svgr from 'vite-plugin-svgr';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [TanStackRouterVite({}), react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+const config = defineConfig({
+  server: {
+    allowedHosts: ['archwitch.tail2b2c5b.ts.net', 'localhost'],
   },
-  define: {
-    __APP_ENV__: process.env.VITE_VERCEL_ENV,
-  },
+  resolve: { tsconfigPaths: true },
+  plugins: [
+    svgr({
+      svgrOptions: {
+        plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
+        svgoConfig: {
+          plugins: [
+            {
+              name: 'preset-default',
+              params: {
+                overrides: {
+                  cleanupIds: false,
+                },
+              },
+            },
+          ],
+        },
+      },
+    }),
+    devtools(),
+    nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
+    babel({ presets: [reactCompilerPreset()] }),
+  ],
 });
+
+export default config;

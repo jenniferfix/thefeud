@@ -1,10 +1,10 @@
-import * as React from 'react';
 const SvgComponent = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 750 1000"
     className={className}
   >
+    <title>X</title>
     <defs>
       <linearGradient id="a">
         <stop

@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import { getSupabaseBrowserClient } from '@/utils/supabase/client';
+import { useRouteContext } from '@tanstack/react-router';
 
-function useSupabase() {
-  return useMemo(getSupabaseBrowserClient, []);
+export function useSupabase() {
+  return useRouteContext({
+    from: '__root__',
+    select: (context) => context.supabase,
+  });
 }
-
-export default useSupabase;

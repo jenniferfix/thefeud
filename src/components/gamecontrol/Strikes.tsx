@@ -1,4 +1,3 @@
-import React from 'react';
 import StrikeSvg from '@/components/StrikeSvg';
 import { cn } from '@/utils/utils';
 

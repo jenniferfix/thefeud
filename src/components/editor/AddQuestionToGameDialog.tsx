@@ -1,38 +1,47 @@
+import { generateKeyBetween } from 'fractional-indexing';
 import React from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
-  DialogTrigger,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { TrashIcon, PlusIcon, Pencil1Icon } from '@radix-ui/react-icons';
-import { useAddQuestionToGame } from '@/hooks/usegamequeries';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { questionsQueryOptions } from '@/hooks/usequestionqueries';
-import { useSupabaseAuth } from '@/supabaseauth';
-import { cn } from '@/utils/utils';
 import { Waiting } from '@/components/ui/waiting';
+import { useAddQuestionToGame } from '@/hooks/usegamequeries';
+import { useGetAllQuestions } from '@/hooks/usequestionqueries';
+import { cn } from '@/utils/utils';
 
-const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
+export type AddQuestionToGameProps = {
+  gameId: string;
+  children: React.ReactNode;
+  existingIds?: string[];
+  lastPosition?: string | null;
+};
+
+export const AddQuestionToGameDialog = ({
+  gameId,
+  children,
+  existingIds,
+  lastPosition = null,
+}: AddQuestionToGameProps) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<string | null>(null);
-  const auth = useSupabaseAuth();
-  const addToGame = useAddQuestionToGame(gameid);
-  const questionsQuery = useSuspenseQuery(
-    questionsQueryOptions(auth.user?.id!),
-  );
-  const questions = questionsQuery.data;
+  const addToGame = useAddQuestionToGame();
+  const { data } = useGetAllQuestions();
+
+  const unused = data?.filter((q) => !existingIds?.includes(q.id));
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!selected) return;
-    addToGame.mutate({ questionId: selected });
+    const position = generateKeyBetween(lastPosition, null);
+    addToGame.mutate({ gameId, questionId: selected, position });
   };
 
   React.useEffect(() => {
@@ -45,11 +54,7 @@ const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="w-full">
-          Add <PlusIcon />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-5/6">
         <DialogHeader>
           <DialogTitle>Select question:</DialogTitle>
@@ -58,13 +63,13 @@ const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
           </DialogDescription>
         </DialogHeader>
         <div className="">
-          <ScrollArea className="border min-h-0 h-[300px]">
+          <ScrollArea className="border min-h-0 h-75">
             <div
               role="listbox"
               aria-label="scrollable, selectable list of questions"
               className="p-1"
             >
-              {questions?.map((q) => (
+              {unused?.map((q) => (
                 <div
                   key={q.id}
                   role="option"
@@ -97,5 +102,3 @@ const AddQuestionToGameModal = ({ gameid }: { gameid: string }) => {
     </Dialog>
   );
 };
-
-export default AddQuestionToGameModal;
