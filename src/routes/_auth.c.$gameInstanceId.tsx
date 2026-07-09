@@ -11,6 +11,10 @@ import { useElementSize } from '#/hooks/useElementSize';
 import { useMediaQuery } from '#/hooks/useMediaQuery';
 import type { GameSound } from '#/lib/schemas/events';
 import Strikes from '@/components/gamecontrol/Strikes';
+import {
+  useBroadcastRemoteVolumeOnMount,
+  VolumeControls,
+} from '@/components/gamecontrol/VolumeControls';
 import { Button } from '@/components/ui/button';
 import {
   Drawer,
@@ -125,6 +129,10 @@ function ControlComponent() {
 
   const { state } = useGameControlContext();
 
+  // The drawer content only mounts when opened, so send the stored
+  // presentation volume from here on page load.
+  useBroadcastRemoteVolumeOnMount(gameInstanceId);
+
   // if (isLoading && isFeudEventsLoading) return <div>Loading...</div>;
   // if (isError) return <div>{error.message}</div>;
   // if (!data) return <div>no data yet</div>;
@@ -220,6 +228,7 @@ function ControlComponent() {
                 Play sound effects using buttons from here
               </DrawerDescription>
             </DrawerHeader>
+            <VolumeControls gameInstanceId={gameInstanceId} />
             <div className="flex flex-col mx-4 gap-2">
               <Button onClick={() => handleSendSound('ding')}>Ding</Button>
               <Button onClick={() => handleSendSound('strike')}>Strike</Button>

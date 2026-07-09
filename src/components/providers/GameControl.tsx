@@ -7,6 +7,7 @@ import {
   toGameBoardState,
 } from '#/lib/gameboard-state';
 import type { GameBoardState } from '#/lib/schemas/gameboard';
+import { useHostVolume } from '@/components/gamecontrol/VolumeControls';
 import { useGameActionSubscription } from '@/hooks/useGameActionSubscription';
 import {
   getGetGameInstanceQueryKey,
@@ -37,6 +38,7 @@ export function GameControlProvider({
 }: GameControlProviderProps) {
   const queryClient = useQueryClient();
   const { data: gameInstance } = useGetGameInstance(instanceId);
+  const [{ local: localVolume }] = useHostVolume();
 
   const updateGameInstanceState = React.useCallback(
     (nextState: GameBoardState) => {
@@ -54,7 +56,8 @@ export function GameControlProvider({
   useGameActionSubscription({
     channelId: instanceId,
     onState: updateGameInstanceState,
-    soundsEnabled: false,
+    soundsEnabled: true,
+    volume: localVolume.muted ? 0 : localVolume.volume,
   });
 
   const state = React.useMemo(
