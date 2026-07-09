@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import React from 'react';
 import { useGameControlContext } from '#/components/providers/GameControl';
-import { Button } from '#/components/ui/button';
+import { Button, buttonVariants } from '#/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useProcessEvent } from '@/hooks/useeventqueries';
 import { useGetGameInstance } from '@/hooks/useinstancequeries';
@@ -20,7 +20,7 @@ const Page = () => {
     isLoading,
   } = useGetGameInstance(gameInstanceId);
   const navigate = useNavigate();
-  const { remainingQuestions } = useGameControlContext();
+  const { remainingQuestions, state } = useGameControlContext();
 
   const processEvent = useProcessEvent();
 
@@ -61,15 +61,30 @@ const Page = () => {
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error?.message}</div>;
 
+  if (state.gameover) {
+    return (
+      <div className="grow flex flex-col justify-center items-center px-2">
+        <div className="font-semibold text-xl my-8">Game Complete</div>
+        <Link
+          to="/games"
+          className={buttonVariants({
+            variant: 'default',
+            className: 'w-full max-w-sm',
+          })}
+        >
+          Back to games
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="grow flex flex-col px-2">
-      {!remainingQuestions.length && (
-        <div className="my-8 flex justify-center ">
-          <Button className="w-full md:w-md" onClick={handleGameOver}>
-            Show Game Over
-          </Button>
-        </div>
-      )}
+      <div className="my-8 flex justify-center ">
+        <Button className="w-full md:w-md" onClick={handleGameOver}>
+          End Game
+        </Button>
+      </div>
       {!gameInstance.game.questions.length && (
         <div className="flex flex-col justify-center items-center ">
           <div className="font-semibold text-xl my-8">

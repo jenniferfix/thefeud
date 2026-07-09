@@ -221,13 +221,9 @@ export const createRoundWinState = (
 export const createGameOverState = (
   currentState: GameBoardState,
 ): GameBoardState => {
-  let confettiMode: ConfettiMode = 'full';
-  if (currentState.leftScore > currentState.rightScore) confettiMode = 'left';
-  if (currentState.leftScore < currentState.rightScore) confettiMode = 'right';
-
   return gameboardState.parse({
     ...currentState,
     gameover: true,
-    confettiMode,
+    confettiMode: 'full',
   });
 };

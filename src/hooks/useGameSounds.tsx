@@ -17,6 +17,7 @@ const ACTION_SOUNDS: Partial<Record<ActionType, GameSound>> = {
   CorrectAnswer: 'ding',
   Strike: 'strike',
   RoundWin: 'clap',
+  GameOver: 'themeMusic',
 };
 
 export const useGameSounds = ({

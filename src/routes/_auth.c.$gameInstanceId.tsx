@@ -88,7 +88,7 @@ const TeamScore = ({
 };
 
 const MaybeGameboard = ({
-  joinCode: instanceId,
+  joinCode,
   children,
 }: {
   joinCode?: string | null;
@@ -96,13 +96,21 @@ const MaybeGameboard = ({
 }) => {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
-  if (isMobile || !instanceId) return children;
+  // Remember the most recent join code so the iframe stays mounted after game
+  // over clears `join_code` (the already-loaded iframe keeps updating via
+  // realtime). Keeping the code stable lets React reuse the same iframe DOM
+  // node instead of reloading it against the now-deleted Redis key.
+  const lastCodeRef = React.useRef<string | null>(null);
+  if (joinCode) lastCodeRef.current = joinCode;
+  const code = joinCode ?? lastCodeRef.current;
+
+  if (isMobile || !code) return children;
   return (
     <div className="flex grow h-full">
       <div>{children}</div>
       <div className="grow relative flex items-center justify-center">
         <div className="h-100 aspect-video border-4 rounded-4xl border-feud-dark-orange overflow-hidden">
-          <GameboardIframe joinCode={instanceId} className="w-full h-full" />
+          <GameboardIframe joinCode={code} className="w-full h-full" />
         </div>
       </div>
     </div>
@@ -152,6 +160,14 @@ function ControlComponent() {
 
   if (!gameInstance) return <div>Loading...</div>;
 
+  const winner = !state.gameover
+    ? null
+    : state.leftScore > state.rightScore
+      ? 'left'
+      : state.rightScore > state.leftScore
+        ? 'right'
+        : null;
+
   return (
     <MaybeGameboard joinCode={gameInstance.joinCode}>
       <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
@@ -161,20 +177,30 @@ function ControlComponent() {
         <aside className="flex flex-col gap-2 border-b py-2">
           <div className="flex align-middle">
             <TeamScore
-              confetti={state.confettiMode === 'left'}
+              confetti={
+                state.confettiMode === 'left' || state.confettiMode === 'full'
+              }
               teamName={gameInstance.leftTeam ?? ''}
               score={state.leftScore}
-              className="grow text-left mx-2"
+              className={cn(
+                'grow text-left mx-2 rounded-md',
+                winner === 'left' && 'bg-muted',
+              )}
             />
             <div className="shrink">
               <Score className="flex justify-center" score={state.roundScore} />
               <Strikes className="self-center" strikes={state.strikes} />
             </div>
             <TeamScore
-              confetti={state.confettiMode === 'right'}
+              confetti={
+                state.confettiMode === 'right' || state.confettiMode === 'full'
+              }
               teamName={gameInstance.rightTeam ?? ''}
               score={state.rightScore}
-              className="grow text-right"
+              className={cn(
+                'grow text-right rounded-md',
+                winner === 'right' && 'bg-muted',
+              )}
             />
           </div>
         </aside>

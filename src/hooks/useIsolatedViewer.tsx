@@ -63,6 +63,7 @@ export const useIsolatedViewer = (joinCode: string) => {
     questionText: state?.questionTitle ?? '',
     roundScore: state?.roundScore ?? 0,
     confettiMode: state?.confettiMode ?? 'disabled',
+    gameover: state?.gameover ?? false,
     strikes: state?.strikes ?? 0,
     showStrikes,
     answers: state?.answers ?? {},

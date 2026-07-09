@@ -1,4 +1,4 @@
-import { ClientOnly } from '@tanstack/react-router';
+import { ClientOnly, useNavigate } from '@tanstack/react-router';
 import { ExpandIcon, ShrinkIcon } from 'lucide-react';
 import React from 'react';
 import Confetti from 'react-confetti';
@@ -9,6 +9,7 @@ import type { ConfettiMode } from '#/lib/schemas/game';
 import GameBg from '@/components/show/GameBg';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/utils';
+import { Winner } from '../Winner';
 import Gameboard from './Gameboard';
 import Strike from './Strike';
 
@@ -74,6 +75,7 @@ export const IsolatedGame = ({
   isIframe?: boolean;
 }) => {
   const fullscreen = useFullScreenHandle();
+  const navigate = useNavigate();
   const {
     strikes,
     showStrikes,
@@ -85,6 +87,7 @@ export const IsolatedGame = ({
     answers,
     leftScore,
     confettiMode,
+    gameover,
   } = useIsolatedViewer(gameCode);
 
   const handleFullscreenClick = () => {
@@ -94,6 +97,9 @@ export const IsolatedGame = ({
       fullscreen.enter();
     }
   };
+
+  const winnerName =
+    leftScore > rightScore ? leftTeam : rightScore > leftScore ? rightTeam : '';
 
   return (
     <FullScreen handle={fullscreen}>
@@ -111,6 +117,29 @@ export const IsolatedGame = ({
         rightName={<TeamName value={rightTeam?.toUpperCase() ?? ''} />}
       />
       {showStrikes && <Strike count={strikes} />}
+      {gameover &&
+        (isIframe ? (
+          <div className="absolute inset-0 z-20">
+            <Winner
+              className="h-screen w-screen object-contain pointer-events-none select-none"
+              teamName={winnerName.toUpperCase()}
+              aria-hidden="true"
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => navigate({ to: '/' })}
+            aria-label="Return to home"
+            className="absolute inset-0 z-20 cursor-pointer"
+          >
+            <Winner
+              className="h-screen w-screen object-contain pointer-events-none select-none"
+              teamName={winnerName.toUpperCase()}
+              aria-hidden="true"
+            />
+          </button>
+        ))}
       <div
         className={cn(
           'absolute top-2 right-2',

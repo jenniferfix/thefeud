@@ -170,21 +170,13 @@ describe('gameboard state helpers', () => {
     expect(repeated.completedQuestionIds).toEqual(['question-1']);
   });
 
-  it('sets final confetti mode on game over', () => {
-    const leftWinner = createGameOverState(
+  it('sets full confetti mode on game over', () => {
+    const gameOver = createGameOverState(
       toGameBoardState(buildGameInstance({ leftScore: 100, rightScore: 50 })),
     );
-    const rightWinner = createGameOverState(
-      toGameBoardState(buildGameInstance({ leftScore: 25, rightScore: 50 })),
-    );
-    const tie = createGameOverState(
-      toGameBoardState(buildGameInstance({ leftScore: 50, rightScore: 50 })),
-    );
 
-    expect(leftWinner.gameover).toBe(true);
-    expect(leftWinner.confettiMode).toBe('left');
-    expect(rightWinner.confettiMode).toBe('right');
-    expect(tie.confettiMode).toBe('full');
+    expect(gameOver.gameover).toBe(true);
+    expect(gameOver.confettiMode).toBe('full');
   });
 
   it('derives remaining questions and answered ids from canonical state', () => {

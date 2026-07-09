@@ -18,7 +18,7 @@ import { createSupabaseBackendClient } from '#/utils/supabase/backend';
 import type { SentEvent } from '@/lib/schemas/events';
 import { GameActions } from '@/types';
 import { getServerAuth } from './auth';
-import { updateJoinCode } from './joincodes';
+import { deleteJoinCode, updateJoinCode } from './joincodes';
 
 const supabase = createSupabaseBackendClient();
 
@@ -198,7 +198,7 @@ export const processEvent = createServerFn({ method: 'GET' })
       case 'GameOver': {
         const { gameInstanceId } = data;
         const newState = createGameOverState(currentState);
-        return await commitEvent({
+        const result = await commitEvent({
           gameInstanceId,
           type: data.type,
           state: newState,
@@ -206,6 +206,8 @@ export const processEvent = createServerFn({ method: 'GET' })
             finished: new Date().toISOString(),
             round_score: newState.roundScore,
             confetti_mode: newState.confettiMode,
+            join_code: null,
+            join_code_expires: null,
           },
           event: {
             eventid: GameActions.GameOver,
@@ -213,6 +215,9 @@ export const processEvent = createServerFn({ method: 'GET' })
             instanceid: gameInstanceId,
           },
         });
+        await deleteJoinCode({ data: { code } });
+
+        return result;
       }
     }
   });
