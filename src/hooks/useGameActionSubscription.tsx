@@ -38,7 +38,9 @@ export const useGameActionSubscription = ({
     if (!channelId) return;
 
     const channel = supabase
-      .channel(channelId)
+      .channel(channelId, {
+        config: { private: true },
+      })
       .on('broadcast', { event: 'GameAction' }, (event) => {
         const { type, state } = sentEvent.parse(event.payload);
         onStateRef.current?.(state);

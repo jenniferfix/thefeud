@@ -14,7 +14,11 @@ export const getSafeRedirectPath = (
   redirect: string | null | undefined,
   fallback = '/',
 ) => {
-  if (!redirect?.startsWith('/') || redirect.startsWith('//')) {
+  if (
+    !redirect?.startsWith('/') ||
+    redirect.startsWith('//') ||
+    redirect.includes('\\')
+  ) {
     return fallback;
   }
 

@@ -244,6 +244,42 @@ export type Database = {
           },
         ]
       }
+      game_realtime_viewers: {
+        Row: {
+          created_at: string
+          expires_at: string
+          game_instance_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          game_instance_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          game_instance_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_realtime_viewers_game_instance_id_fkey"
+            columns: ["game_instance_id"]
+            isOneToOne: false
+            referencedRelation: "active_games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_realtime_viewers_game_instance_id_fkey"
+            columns: ["game_instance_id"]
+            isOneToOne: false
+            referencedRelation: "game_instance"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       games: {
         Row: {
           created_at: string

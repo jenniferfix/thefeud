@@ -72,10 +72,18 @@ export const processEvent = createServerFn({ method: 'GET' })
         insertEvent(supabase, event),
       ]);
 
-      await supabase.channel(gameInstanceId).httpSend('GameAction', {
-        type,
-        state,
-      } satisfies SentEvent);
+      const channel = supabase.channel(gameInstanceId, {
+        config: { private: true },
+      });
+      try {
+        const result = await channel.httpSend('GameAction', {
+          type,
+          state,
+        } satisfies SentEvent);
+        if (!result.success) throw new Error(result.error);
+      } finally {
+        await supabase.removeChannel(channel);
+      }
 
       return { gameInstanceId, type, state };
     };

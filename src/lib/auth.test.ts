@@ -16,6 +16,9 @@ describe('auth helpers', () => {
     );
     expect(getSafeRedirectPath('https://attacker.example')).toBe('/');
     expect(getSafeRedirectPath('//attacker.example')).toBe('/');
+    expect(getSafeRedirectPath('/\\attacker.example')).toBe('/');
+    expect(getSafeRedirectPath('/\\/attacker.example')).toBe('/');
+    expect(getSafeRedirectPath('/\\@attacker.example')).toBe('/');
     expect(getSafeRedirectPath(undefined, '/login')).toBe('/login');
   });
 
