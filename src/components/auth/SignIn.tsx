@@ -1,5 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
 import React from 'react';
+import {
+  AuthCaptcha,
+  type AuthCaptchaHandle,
+} from '@/components/auth/AuthCaptcha';
 import { ErrorDialog } from '@/components/auth/ErrorDialog';
 import { ForgotPasswordDialog } from '@/components/auth/ForgotPasswordDialog';
 import { SignInWithGoogle } from '@/components/auth/SignInWithGoogle';
@@ -49,6 +53,10 @@ export const SignIn = React.memo(
       null,
     );
     const [showErrorDialog, setShowErrorDialog] = React.useState(false);
+    const [captchaToken, setCaptchaToken] = React.useState<string | null>(
+      null,
+    );
+    const captchaRef = React.useRef<AuthCaptchaHandle | null>(null);
     const auth = useSupabaseAuth();
 
     React.useEffect(() => {
@@ -71,7 +79,11 @@ export const SignIn = React.memo(
       onSubmit: async ({ value: { email, password } }) => {
         setIsLoading(true);
         try {
-          await auth.login({ email, password });
+          await auth.login({
+            email,
+            password,
+            captchaToken: captchaToken ?? undefined,
+          });
           await navigate({ to: getSafeRedirectPath(redirect) });
         } catch (loginError) {
           setMessageBoxTitle('Sign in error');
@@ -82,6 +94,7 @@ export const SignIn = React.memo(
           );
           setShowErrorDialog(true);
         } finally {
+          captchaRef.current?.reset();
           setIsLoading(false);
         }
       },
@@ -154,6 +167,7 @@ export const SignIn = React.memo(
                       </field.Field>
                     )}
                   />
+                  <AuthCaptcha ref={captchaRef} onToken={setCaptchaToken} />
                 </CardContent>
                 <CardFooter className="flex-col gap-4">
                   <form.WaitButton loading={isLoading} className="w-full">

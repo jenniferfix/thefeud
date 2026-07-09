@@ -1,5 +1,9 @@
 import React from 'react';
 import { toast } from 'sonner';
+import {
+  AuthCaptcha,
+  type AuthCaptchaHandle,
+} from '@/components/auth/AuthCaptcha';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,6 +29,8 @@ export const ForgotPasswordDialog = ({
 }) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [requestAccepted, setRequestAccepted] = React.useState(false);
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  const captchaRef = React.useRef<AuthCaptchaHandle | null>(null);
   const supabase = useSupabase();
 
   const form = useAppForm({
@@ -38,7 +44,9 @@ export const ForgotPasswordDialog = ({
           flow: 'recovery',
           next: '/',
         }),
+        captchaToken: captchaToken ?? undefined,
       });
+      captchaRef.current?.reset();
       setIsLoading(false);
 
       if (error) {
@@ -121,6 +129,11 @@ export const ForgotPasswordDialog = ({
                     <field.FieldInfo field={field} />
                   </field.Field>
                 )}
+              />
+              <AuthCaptcha
+                ref={captchaRef}
+                onToken={setCaptchaToken}
+                className="mt-3"
               />
               <DialogFooter className="mt-4">
                 <form.WaitButton loading={isLoading} type="submit">

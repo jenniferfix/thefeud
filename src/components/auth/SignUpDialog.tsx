@@ -1,6 +1,11 @@
 import { useNavigate, useRouter } from '@tanstack/react-router';
 import React from 'react';
 import { toast } from 'sonner';
+import {
+  AuthCaptcha,
+  type AuthCaptchaHandle,
+  isCaptchaEnabled,
+} from '@/components/auth/AuthCaptcha';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -30,6 +35,8 @@ export const SignUpDialog = ({
   const [isResending, setIsResending] = React.useState(false);
   const [pendingEmail, setPendingEmail] = React.useState<string | null>(null);
   const [resendSeconds, setResendSeconds] = React.useState(0);
+  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  const captchaRef = React.useRef<AuthCaptchaHandle | null>(null);
   const supabase = useSupabase();
   const router = useRouter();
   const navigate = useNavigate();
@@ -73,8 +80,10 @@ export const SignUpDialog = ({
         options: {
           data: trimmedName ? { name: trimmedName } : {},
           emailRedirectTo: getEmailRedirectTo(),
+          captchaToken: captchaToken ?? undefined,
         },
       });
+      captchaRef.current?.reset();
       setIsLoading(false);
 
       if (error) {
@@ -125,8 +134,12 @@ export const SignUpDialog = ({
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email: pendingEmail,
-      options: { emailRedirectTo: getEmailRedirectTo() },
+      options: {
+        emailRedirectTo: getEmailRedirectTo(),
+        captchaToken: captchaToken ?? undefined,
+      },
     });
+    captchaRef.current?.reset();
     setIsResending(false);
 
     if (error) {
@@ -136,7 +149,7 @@ export const SignUpDialog = ({
 
     setResendSeconds(RESEND_COOLDOWN_SECONDS);
     toast.success('Verification email resent');
-  }, [getEmailRedirectTo, pendingEmail, resendSeconds, supabase]);
+  }, [captchaToken, getEmailRedirectTo, pendingEmail, resendSeconds, supabase]);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -154,6 +167,7 @@ export const SignUpDialog = ({
               If the message does not arrive, check your spam folder or resend
               it below.
             </p>
+            <AuthCaptcha ref={captchaRef} onToken={setCaptchaToken} />
             <DialogFooter className="flex-col sm:flex-row">
               <Button
                 type="button"
@@ -164,7 +178,11 @@ export const SignUpDialog = ({
               </Button>
               <Button
                 type="button"
-                disabled={isResending || resendSeconds > 0}
+                disabled={
+                  isResending ||
+                  resendSeconds > 0 ||
+                  (isCaptchaEnabled() && !captchaToken)
+                }
                 onClick={handleResend}
               >
                 {isResending
@@ -255,6 +273,7 @@ export const SignUpDialog = ({
                     </field.Field>
                   )}
                 />
+                <AuthCaptcha ref={captchaRef} onToken={setCaptchaToken} />
               </div>
               <DialogFooter className="mt-4">
                 <form.WaitButton loading={isLoading} type="submit">
