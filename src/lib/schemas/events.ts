@@ -158,3 +158,9 @@ export type GameSound = z.infer<typeof gameSoundEnum>;
 export const soundEvent = z.object({
   sound: gameSoundEnum,
 });
+
+export const volumeEvent = z.object({
+  volume: z.number().min(0).max(1),
+  muted: z.boolean(),
+});
+export type VolumeEvent = z.infer<typeof volumeEvent>;

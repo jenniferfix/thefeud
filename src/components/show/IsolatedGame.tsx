@@ -5,6 +5,7 @@ import Confetti from 'react-confetti';
 import { FullScreen, useFullScreenHandle } from 'react-full-screen';
 import { useIsolatedViewer } from '#/hooks/useIsolatedViewer';
 import { useWindowSize } from '#/hooks/useWindowSize';
+import type { VolumeEvent } from '#/lib/schemas/events';
 import type { ConfettiMode } from '#/lib/schemas/game';
 import GameBg from '@/components/show/GameBg';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { cn } from '@/utils/utils';
 import { Winner } from '../Winner';
 import Gameboard from './Gameboard';
 import Strike from './Strike';
+import { useViewerVolumePrefs, VolumeControl } from './VolumeControl';
 
 const TeamName = ({ value }: { value: string }) => {
   const long = value.length >= 11;
@@ -76,6 +78,12 @@ export const IsolatedGame = ({
 }) => {
   const fullscreen = useFullScreenHandle();
   const navigate = useNavigate();
+  const [hostVolume, setHostVolume] = React.useState<VolumeEvent>({
+    volume: 1,
+    muted: false,
+  });
+  const [viewerPrefs, setViewerPrefs] = useViewerVolumePrefs();
+  const activeVolume = viewerPrefs.override ? viewerPrefs : hostVolume;
   const {
     strikes,
     showStrikes,
@@ -88,7 +96,13 @@ export const IsolatedGame = ({
     leftScore,
     confettiMode,
     gameover,
-  } = useIsolatedViewer(gameCode);
+  } = useIsolatedViewer(gameCode, {
+    // The embedded iframe on the host page stays silent; the host page
+    // itself plays sounds so audio works even when the iframe is hidden.
+    soundsEnabled: !isIframe,
+    volume: activeVolume.muted ? 0 : activeVolume.volume,
+    onVolume: setHostVolume,
+  });
 
   const handleFullscreenClick = () => {
     if (fullscreen.active) {
@@ -142,10 +156,20 @@ export const IsolatedGame = ({
         ))}
       <div
         className={cn(
-          'absolute top-2 right-2',
+          'absolute top-2 right-2 flex',
           fullscreen.active ? 'text-muted' : '',
         )}
       >
+        <VolumeControl
+          hostSetting={hostVolume}
+          prefs={viewerPrefs}
+          onPrefsChange={setViewerPrefs}
+          className={cn(
+            isIframe
+              ? 'opacity-0 pointer-events-none'
+              : 'opacity-100 pointer-events-auto',
+          )}
+        />
         <Button
           variant="ghost"
           size="icon"
