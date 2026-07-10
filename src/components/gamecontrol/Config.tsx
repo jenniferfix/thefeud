@@ -1,12 +1,9 @@
 import { Settings } from 'lucide-react';
-import React from 'react';
 import { Button } from '../ui/button';
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,

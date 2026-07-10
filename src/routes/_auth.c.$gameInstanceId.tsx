@@ -2,31 +2,19 @@ import { createFileRoute, Outlet } from '@tanstack/react-router';
 import React from 'react';
 import Confetti from 'react-confetti';
 import { GameboardIframe } from '#/components/GameboardIframe';
-// import React from 'react';
+import { SoundEffects } from '#/components/gamecontrol/SoundEffects';
 import {
   GameControlProvider,
   useGameControlContext,
 } from '#/components/providers/GameControl';
 import { useElementSize } from '#/hooks/useElementSize';
 import { useMediaQuery } from '#/hooks/useMediaQuery';
-import type { GameSound } from '#/lib/schemas/events';
 import Strikes from '@/components/gamecontrol/Strikes';
-import { Button } from '@/components/ui/button';
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
+import { useBroadcastRemoteVolumeOnMount } from '@/components/gamecontrol/VolumeControls';
 import {
   getGameInstanceQueryOptions,
   useGetGameInstance,
 } from '@/hooks/useinstancequeries';
-import { useSupabase } from '@/hooks/useSupabase';
 import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId')({
@@ -107,7 +95,7 @@ const MaybeGameboard = ({
   if (isMobile || !code) return children;
   return (
     <div className="flex grow h-full">
-      <div>{children}</div>
+      {children}
       <div className="grow relative flex items-center justify-center">
         <div className="h-100 aspect-video border-4 rounded-4xl border-feud-dark-orange overflow-hidden">
           <GameboardIframe joinCode={code} className="w-full h-full" />
@@ -120,10 +108,11 @@ const MaybeGameboard = ({
 function ControlComponent() {
   const { gameInstanceId } = Route.useParams();
   const { data: gameInstance } = useGetGameInstance(gameInstanceId);
-  const supabaseClient = useSupabase();
-  //const navigate = useNavigate();
-
   const { state } = useGameControlContext();
+
+  // The drawer content only mounts when opened, so send the stored
+  // presentation volume from here on page load.
+  useBroadcastRemoteVolumeOnMount(gameInstanceId);
 
   // if (isLoading && isFeudEventsLoading) return <div>Loading...</div>;
   // if (isError) return <div>{error.message}</div>;
@@ -146,20 +135,6 @@ function ControlComponent() {
   //   navigate({ to: `/c/$gameInstanceId`, params: { gameInstanceId } });
   // };
 
-  const handleSendSound = React.useCallback(
-    async (sound: GameSound) => {
-      const channel = supabaseClient.channel(gameInstanceId, {
-        config: { private: true },
-      });
-      try {
-        await channel.httpSend('sound', { sound });
-      } finally {
-        await supabaseClient.removeChannel(channel);
-      }
-    },
-    [gameInstanceId, supabaseClient],
-  );
-
   if (!gameInstance) return <div>Loading...</div>;
 
   const winner = !state.gameover
@@ -172,7 +147,7 @@ function ControlComponent() {
 
   return (
     <MaybeGameboard joinCode={gameInstance.joinCode}>
-      <div className="mx-auto relative flex flex-col h-full max-w-lg pb-2 px-2">
+      <div className="mx-auto relative flex flex-col h-full w-full max-w-md pb-2 px-2">
         <h2 className="flex justify-center text-2xl py-2 border-b">
           {gameInstance?.game?.name}
         </h2>
@@ -209,38 +184,7 @@ function ControlComponent() {
         <div className="grow flex flex-col">
           <Outlet />
         </div>
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button className="w-full">Sound Effects</Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Play Sound Effects</DrawerTitle>
-              <DrawerDescription hidden>
-                Play sound effects using buttons from here
-              </DrawerDescription>
-            </DrawerHeader>
-            <div className="flex flex-col mx-4 gap-2">
-              <Button onClick={() => handleSendSound('ding')}>Ding</Button>
-              <Button onClick={() => handleSendSound('strike')}>Strike</Button>
-              <Button onClick={() => handleSendSound('faceOffMusic')}>
-                Face-off Music
-              </Button>
-              <Button onClick={() => handleSendSound('faceOffBuzzer')}>
-                Face-off Buzzer
-              </Button>
-              <Button onClick={() => handleSendSound('themeMusic')}>
-                Theme Music
-              </Button>
-              <Button onClick={() => handleSendSound('clap')}>Clap</Button>
-            </div>
-            <DrawerFooter>
-              <DrawerClose asChild>
-                <Button>Close</Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
+        <SoundEffects gameInstanceId={gameInstanceId} />
       </div>
     </MaybeGameboard>
   );

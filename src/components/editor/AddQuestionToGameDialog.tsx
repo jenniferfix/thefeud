@@ -15,7 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Waiting } from '@/components/ui/waiting';
 import { useAddQuestionToGame } from '@/hooks/usegamequeries';
 import { useGetAllQuestions } from '@/hooks/usequestionqueries';
-import { cn } from '@/utils/utils';
+import { cn } from '@/lib/utils';
 
 export type AddQuestionToGameProps = {
   gameId: string;

@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '#/lib/utils';
 
@@ -219,7 +219,7 @@ const WinnerComponent = ({ teamName, className, ...props }: WinnerProps) => (
       }}
     />
     <foreignObject x="450" y="550" width="1020" height="310">
-      <div className="h-full flex items-center justify-center text-yellow-lt text-8xl text-center text-9xl">
+      <div className="h-full flex items-center justify-center text-yellow-lt text-center text-9xl">
         {teamName}
       </div>
     </foreignObject>
@@ -227,7 +227,7 @@ const WinnerComponent = ({ teamName, className, ...props }: WinnerProps) => (
 );
 
 const WinnerBackdrop = () => {
-  return <div className="absolute inset-0 bg-black/20 z-0" />;
+  return <div className="absolute inset-0 bg-black/80 z-0" />;
 };
 
 export const Winner = (props: WinnerProps) => {

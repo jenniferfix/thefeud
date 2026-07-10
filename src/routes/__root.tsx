@@ -1,17 +1,17 @@
 import { TooltipProvider } from '@radix-ui/react-tooltip';
-import { TanStackDevtools } from '@tanstack/react-devtools';
+// import { TanStackDevtools } from '@tanstack/react-devtools';
 import type { QueryClient } from '@tanstack/react-query';
 import {
   createRootRouteWithContext,
   HeadContent,
   Scripts,
 } from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+// import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { Toaster } from '#/components/ui/sonner';
 import type { TypedSupabaseClient } from '#/utils/supabase/client';
 import { getServerAuth, type ServerAuth } from '@/server/auth';
 import PostHogProvider from '../integrations/posthog/provider';
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
+// import TanStackQueryDevtools from '../integrations/tanstack-query/devtools';
 
 import appCss from '../styles.css?url';
 import { SupabaseAuthProvider } from '../supabaseauth';
@@ -68,18 +68,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <PostHogProvider>
           <SupabaseAuthProvider initialUser={auth.user}>
             <TooltipProvider>{children}</TooltipProvider>
-            <TanStackDevtools
-              config={{
-                position: 'bottom-right',
-              }}
-              plugins={[
-                {
-                  name: 'Tanstack Router',
-                  render: <TanStackRouterDevtoolsPanel />,
-                },
-                TanStackQueryDevtools,
-              ]}
-            />
+            {/* <TanStackDevtools */}
+            {/*   config={{ */}
+            {/*     position: 'bottom-right', */}
+            {/*   }} */}
+            {/*   plugins={[ */}
+            {/*     { */}
+            {/*       name: 'Tanstack Router', */}
+            {/*       render: <TanStackRouterDevtoolsPanel />, */}
+            {/*     }, */}
+            {/*     TanStackQueryDevtools, */}
+            {/*   ]} */}
+            {/* /> */}
           </SupabaseAuthProvider>
           <Toaster />
         </PostHogProvider>

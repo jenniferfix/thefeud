@@ -20,12 +20,12 @@ const authCallbackSchema = z.object({
 });
 
 export const Route = createFileRoute('/auth/callback')({
-  loader: async ({ deps }) => {},
+  loader: async () => {},
   server: {
     handlers: {
       GET: async ({ request }) => {
         const url = new URL(request.url);
-        const { data, success, error } = authCallbackSchema.safeParse(
+        const { data, success } = authCallbackSchema.safeParse(
           Object.fromEntries(url.searchParams),
         );
         if (!success) throw Error('Invalid params');

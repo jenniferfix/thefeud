@@ -10,9 +10,10 @@ export const getJoinCodeRedisKey = (code: string): string => {
 
 export const createRedisClient = (params?: RedisOptions) => {
   redis = new Valkey({
+    host: process.env.REDIS_DOMAIN,
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
-    host: process.env.REDIS_DOMAIN,
+    tls: {},
     enableOfflineQueue: true,
     retryStrategy: (times) => {
       return Math.min(times * 50, 30000); // Retry up to 30 seconds
@@ -40,6 +41,7 @@ export const createRedisSubClient = (params?: RedisOptions) => {
     host: process.env.REDIS_DOMAIN,
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
+    tls: {},
     lazyConnect: true,
     enableOfflineQueue: true,
     retryStrategy: (times) => {

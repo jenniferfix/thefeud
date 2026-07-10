@@ -144,17 +144,3 @@ export const parsePayload = (raw: string): ParsePayloadResult => {
 
   return { success: true, payload: result.data };
 };
-
-export const gameSoundEnum = z.enum([
-  'ding',
-  'strike',
-  'faceOffMusic',
-  'faceOffBuzzer',
-  'themeMusic',
-  'clap',
-]);
-export type GameSound = z.infer<typeof gameSoundEnum>;
-
-export const soundEvent = z.object({
-  sound: gameSoundEnum,
-});

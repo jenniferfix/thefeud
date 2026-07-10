@@ -13,22 +13,26 @@ export function useLocalStorage<T>(
   initialValue: T | (() => T),
   options: UseLocalStorageOptions<T> = {},
 ): [T, React.Dispatch<React.SetStateAction<T>>, () => void] {
-  const { initializeWithValue = true } = options;
+  const {
+    initializeWithValue = true,
+    serializer: customSerializer,
+    deserializer: customDeserializer,
+  } = options;
 
   const serializer = React.useCallback(
     (value: T): string => {
-      if (options.serializer) {
-        return options.serializer(value);
+      if (customSerializer) {
+        return customSerializer(value);
       }
       return JSON.stringify(value);
     },
-    [options],
+    [customSerializer],
   );
 
   const deserializer = React.useCallback(
     (value: string): T => {
-      if (options.deserializer) {
-        return options.deserializer(value);
+      if (customDeserializer) {
+        return customDeserializer(value);
       }
       if (value === 'undefined') {
         return undefined as unknown as T;
@@ -41,7 +45,7 @@ export function useLocalStorage<T>(
         return defaultValue;
       }
     },
-    [options, initialValue],
+    [customDeserializer, initialValue],
   );
 
   const readValue = React.useCallback((): T => {

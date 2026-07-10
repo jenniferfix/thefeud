@@ -1,10 +1,11 @@
 import React from 'react';
 import useSound from 'use-sound';
 import type { ActionType } from '#/lib/schemas/base';
-import type { GameSound } from '#/lib/schemas/events';
+import type { GameSound } from '#/lib/schemas/sounds';
 
 type UseGameSoundsProps = {
   enabled?: boolean;
+  volume?: number;
 };
 
 type UseGameSoundsResult = {
@@ -22,30 +23,31 @@ const ACTION_SOUNDS: Partial<Record<ActionType, GameSound>> = {
 
 export const useGameSounds = ({
   enabled = true,
+  volume = 1,
 }: UseGameSoundsProps = {}): UseGameSoundsResult => {
   const [ding] = useSound(
     'https://utfs.io/f/H6iSz68ZupCoYLk2Vwhdq2xsSpPTCoOnh5XK83a70LRkiGEt',
-    { format: ['mp3'], soundEnabled: enabled },
+    { format: ['mp3'], soundEnabled: enabled, volume },
   );
   const [strike] = useSound(
     'https://utfs.io/f/H6iSz68ZupCoMbf0C2NhZrC7uiAx6FkNYzDa84bnsqyKpdQB',
-    { format: ['mp3'], soundEnabled: enabled },
+    { format: ['mp3'], soundEnabled: enabled, volume },
   );
   const [faceOffMusic] = useSound(
     'https://utfs.io/f/H6iSz68ZupCo4eKhb35E9ulnKd6JjxQ1WkrV4qp5YX3oHg0w',
-    { format: ['mp3'], soundEnabled: enabled },
+    { format: ['mp3'], soundEnabled: enabled, volume },
   );
   const [faceOffBuzzer] = useSound(
     'https://utfs.io/f/H6iSz68ZupCoAiLTGxMQAScDCsTuMnEmH91yakxB76plzKiq',
-    { format: ['mp3'], soundEnabled: enabled },
+    { format: ['mp3'], soundEnabled: enabled, volume },
   );
   const [themeMusic] = useSound(
     'https://utfs.io/f/H6iSz68ZupCoNGkGGFloauFQZAbTpW4OP5hCSDJM6Igcj9r2',
-    { format: ['mp3'], soundEnabled: enabled },
+    { format: ['mp3'], soundEnabled: enabled, volume },
   );
   const [clap] = useSound(
     'https://utfs.io/f/H6iSz68ZupCoI8HGXcx1w0amDS2udhsfqj97lFyLkcIAQCez',
-    { format: ['mp3'], soundEnabled: enabled },
+    { format: ['mp3'], soundEnabled: enabled, volume },
   );
 
   const enabledRef = React.useRef(enabled);

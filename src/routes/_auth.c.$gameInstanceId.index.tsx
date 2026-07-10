@@ -5,7 +5,6 @@ import { Button, buttonVariants } from '#/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useProcessEvent } from '@/hooks/useeventqueries';
 import { useGetGameInstance } from '@/hooks/useinstancequeries';
-import { cn } from '@/utils/utils';
 
 export const Route = createFileRoute('/_auth/c/$gameInstanceId/')({
   component: () => <Page />,
@@ -80,8 +79,8 @@ const Page = () => {
 
   return (
     <div className="grow flex flex-col px-2">
-      <div className="my-8 flex justify-center ">
-        <Button className="w-full md:w-md" onClick={handleGameOver}>
+      <div className="my-4 flex justify-center ">
+        <Button className="w-full" onClick={handleGameOver}>
           End Game
         </Button>
       </div>
@@ -113,10 +112,7 @@ const Page = () => {
                     onClick={() =>
                       handleQuestionClick(gameQuestion.question.id)
                     }
-                    className={cn(
-                      'cursor-pointer px-2 py-2  rounded-sm',
-                      'hover:bg-muted',
-                    )}
+                    size="long"
                   >
                     {gameQuestion.question.text}
                   </Button>

@@ -6,12 +6,14 @@ import { FullScreen, useFullScreenHandle } from 'react-full-screen';
 import { useIsolatedViewer } from '#/hooks/useIsolatedViewer';
 import { useWindowSize } from '#/hooks/useWindowSize';
 import type { ConfettiMode } from '#/lib/schemas/game';
+import type { VolumeEvent } from '#/lib/schemas/sounds';
 import GameBg from '@/components/show/GameBg';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/utils';
 import { Winner } from '../Winner';
 import Gameboard from './Gameboard';
 import Strike from './Strike';
+import { useViewerVolumePrefs, VolumeControl } from './VolumeControl';
 
 const TeamName = ({ value }: { value: string }) => {
   const long = value.length >= 11;
@@ -50,7 +52,7 @@ const ConfettiDiv = React.memo(({ mode }: { mode: ConfettiMode }) => {
   return (
     <div
       className={cn(
-        'absolute top-0 bottom-0 pointer-events-none transition-opacity duration-200 overflow-hidden z-10',
+        'absolute top-0 bottom-0 pointer-events-none transition-opacity duration-200 overflow-hidden z-30',
         mode === 'disabled' ? 'opacity-0' : 'opacity-100',
         mode === 'full' ? 'left-0 right-0' : '',
         mode === 'left' ? `left-0 right-1/2` : '',
@@ -76,6 +78,12 @@ export const IsolatedGame = ({
 }) => {
   const fullscreen = useFullScreenHandle();
   const navigate = useNavigate();
+  const [hostVolume, setHostVolume] = React.useState<VolumeEvent>({
+    volume: 1,
+    muted: false,
+  });
+  const [viewerPrefs, setViewerPrefs] = useViewerVolumePrefs();
+  const activeVolume = viewerPrefs.override ? viewerPrefs : hostVolume;
   const {
     strikes,
     showStrikes,
@@ -88,7 +96,13 @@ export const IsolatedGame = ({
     leftScore,
     confettiMode,
     gameover,
-  } = useIsolatedViewer(gameCode);
+  } = useIsolatedViewer(gameCode, {
+    // The embedded iframe on the host page stays silent; the host page
+    // itself plays sounds so audio works even when the iframe is hidden.
+    soundsEnabled: !isIframe,
+    volume: activeVolume.muted ? 0 : activeVolume.volume,
+    onVolume: setHostVolume,
+  });
 
   const handleFullscreenClick = () => {
     if (fullscreen.active) {
@@ -142,10 +156,20 @@ export const IsolatedGame = ({
         ))}
       <div
         className={cn(
-          'absolute top-2 right-2',
+          'absolute top-2 right-2 flex',
           fullscreen.active ? 'text-muted' : '',
         )}
       >
+        <VolumeControl
+          hostSetting={hostVolume}
+          prefs={viewerPrefs}
+          onPrefsChange={setViewerPrefs}
+          className={cn(
+            isIframe
+              ? 'opacity-0 pointer-events-none'
+              : 'opacity-100 pointer-events-auto',
+          )}
+        />
         <Button
           variant="ghost"
           size="icon"
