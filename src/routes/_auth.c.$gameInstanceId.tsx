@@ -2,6 +2,7 @@ import { createFileRoute, Outlet } from '@tanstack/react-router';
 import React from 'react';
 import Confetti from 'react-confetti';
 import { GameboardIframe } from '#/components/GameboardIframe';
+import { Config } from '#/components/gamecontrol/Config';
 import { SoundEffects } from '#/components/gamecontrol/SoundEffects';
 import {
   GameControlProvider,
@@ -148,9 +149,13 @@ function ControlComponent() {
   return (
     <MaybeGameboard joinCode={gameInstance.joinCode}>
       <div className="mx-auto relative flex flex-col h-full w-full max-w-md pb-2 px-2">
-        <h2 className="flex justify-center text-2xl py-2 border-b">
-          {gameInstance?.game?.name}
-        </h2>
+        <header className="flex items-center py-2 border-b">
+          <Config joinCode={gameInstance.joinCode} />
+          <h2 className="grow text-center text-2xl">
+            {gameInstance?.game?.name}
+          </h2>
+          <div className="size-8" aria-hidden />
+        </header>
         <aside className="flex flex-col gap-2 border-b py-2">
           <div className="flex align-middle">
             <TeamScore

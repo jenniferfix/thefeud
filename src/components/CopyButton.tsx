@@ -1,43 +1,57 @@
 import { CircleCheck, Copy } from 'lucide-react';
-import React from 'react';
 import { useCopyToClipboard } from '#/hooks/useCopyToClipboard';
 import { Button } from '@/components/ui/button';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+export type CopyOption = {
+  label: string;
+  // A function defers building the value (e.g. from window.location) until
+  // the user picks the option, keeping render SSR-safe.
+  value: string | (() => string);
+};
 
 export const CopyButton = ({
-  copyValue,
-  tooltip = 'Click to copy content',
-  ...props
-}: { copyValue?: string | null; tooltip?: string } & React.ComponentProps<
-  typeof Button
->) => {
+  options,
+  label = 'Copy game information',
+}: {
+  options: CopyOption[];
+  label?: string;
+}) => {
   const { copy, isCopied } = useCopyToClipboard();
 
-  const handleClick = React.useCallback(() => {
-    if (!copyValue) return;
-    copy(copyValue);
-  }, [copyValue, copy]);
-
   return (
-    <Tooltip>
-      <TooltipContent>{tooltip}</TooltipContent>
-      <TooltipTrigger asChild>
-        <span>
-          <Button
-            size="icon"
-            variant="ghost"
-            disabled={!copyValue}
-            onClick={handleClick}
-            {...props}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild disabled={options.length === 0}>
+        <Button
+          size="icon"
+          variant="ghost"
+          aria-label={label}
+          className="self-center"
+        >
+          {isCopied ? <CircleCheck /> : <Copy />}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-max">
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={option.label}
+            onSelect={() => {
+              copy(
+                typeof option.value === 'function'
+                  ? option.value()
+                  : option.value,
+              );
+            }}
           >
-            {isCopied ? <CircleCheck /> : <Copy />}
-          </Button>
-        </span>
-      </TooltipTrigger>
-    </Tooltip>
+            {option.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

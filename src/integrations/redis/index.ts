@@ -13,7 +13,6 @@ export const createRedisClient = (params?: RedisOptions) => {
     host: process.env.REDIS_DOMAIN,
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
-    tls: {},
     enableOfflineQueue: true,
     retryStrategy: (times) => {
       return Math.min(times * 50, 30000); // Retry up to 30 seconds
@@ -41,7 +40,6 @@ export const createRedisSubClient = (params?: RedisOptions) => {
     host: process.env.REDIS_DOMAIN,
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
-    tls: {},
     lazyConnect: true,
     enableOfflineQueue: true,
     retryStrategy: (times) => {

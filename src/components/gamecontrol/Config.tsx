@@ -1,5 +1,6 @@
-import { Settings } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Link } from '@tanstack/react-router';
+import { ArrowLeft, Menu } from 'lucide-react';
+import { Button, buttonVariants } from '../ui/button';
 import {
   Sheet,
   SheetContent,
@@ -8,43 +9,33 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '../ui/sheet';
-import { useAppForm } from '../ui/tanstack-form';
 import { ShowJoinCode } from './ShowJoinCode';
 
-export const Config = ({ gameInstanceId }: { gameInstanceId: string }) => {
-  const form = useAppForm({
-    defaultValues: {
-      localSound: false,
-      remoteSound: true,
-    },
-  });
+export const Config = ({ joinCode }: { joinCode?: string | null }) => {
   return (
     <Sheet>
-      <SheetTrigger>
-        <Button size="icon" variant="ghost">
-          <Settings />
+      <SheetTrigger asChild>
+        <Button size="icon" variant="ghost" aria-label="Open game menu">
+          <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent side="left">
         <SheetHeader>
-          <SheetTitle>Settings</SheetTitle>
-          <SheetDescription>
-            Update your preferred configuration
-          </SheetDescription>
+          <SheetTitle>Game menu</SheetTitle>
+          <SheetDescription>Navigation and sharing controls</SheetDescription>
         </SheetHeader>
-        <div>
-          <ShowJoinCode />
+        <div className="flex flex-col gap-6 px-4">
+          <Link
+            to="/games"
+            className={buttonVariants({
+              variant: 'outline',
+              className: 'w-full',
+            })}
+          >
+            <ArrowLeft /> Back to games
+          </Link>
+          <ShowJoinCode joinCode={joinCode} />
         </div>
-        <form.AppForm>
-          <form.AppField
-            name="localSound"
-            children={(field) => (
-              <field.Field>
-                <field.FieldLabel>Local Sound</field.FieldLabel>
-              </field.Field>
-            )}
-          />
-        </form.AppForm>
       </SheetContent>
     </Sheet>
   );
